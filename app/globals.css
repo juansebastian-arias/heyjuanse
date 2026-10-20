@@ -9,7 +9,7 @@
   --card: #fbfbf9;
   --ink: #15181c;
   --muted: #585e66;
-  --faint: #7a8089;
+  --faint: #61676f;
   --rule: #cdd1ca;
   --rule-strong: #aeb3ab;
   --operable: #2f3fb0;
@@ -47,13 +47,13 @@
     --card: #16191c;
     --ink: #e6e8e3;
     --muted: #9ba1a9;
-    --faint: #7d838c;
+    --faint: #868c95;
     --rule: #2d3137;
     --rule-strong: #454b53;
     --operable: #9aa6ff;
     --operable-hover: #b9c1ff;
     --operable-soft: #232842;
-    --mark: #8c7a1e;
+    --mark: #736414;
     --mark-ink: #fff6c8;
     --good: #5fb088;
     --bad: #e07a6a;

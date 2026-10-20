@@ -190,7 +190,7 @@ export function CaseFile({
 }: CaseFileProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const bodyRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLElement>(null);
   const lead = leadId ? data.leadById.get(leadId) : undefined;
   const decision = useMemo(() => decisions.find((d) => d.leadId === leadId), [decisions, leadId]);
 
@@ -307,7 +307,13 @@ export function CaseFile({
           </div>
         </header>
 
-        <div className={styles.body} ref={bodyRef}>
+        <section
+          className={styles.body}
+          ref={bodyRef}
+          // biome-ignore lint/a11y/noNoninteractiveTabindex: the case file scrolls, so it needs a tab stop
+          tabIndex={0}
+          aria-label="Case details"
+        >
           <Section title="How the rules decided">
             <ol className={styles.trace}>
               {steps.map((step) => (
@@ -511,7 +517,7 @@ export function CaseFile({
                 : ""}
             </p>
           </Section>
-        </div>
+        </section>
       </div>
     </dialog>
   );

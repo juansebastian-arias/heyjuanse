@@ -155,7 +155,7 @@ function MetricCard({
         : "bad";
 
   return (
-    <div className={styles.card} data-size={size}>
+    <div className={styles.card} data-size={size} data-metric={spec.id}>
       <p className={styles.label}>{spec.label}</p>
       <p className={styles.value}>
         <span className="num">{format(value)}</span>

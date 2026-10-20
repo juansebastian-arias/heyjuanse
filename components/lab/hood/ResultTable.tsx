@@ -21,7 +21,13 @@ function show(value: Cell): string {
 
 export function ResultTable({ columns, rows, caption, renderCell, maxHeight }: ResultTableProps) {
   return (
-    <div className={styles.resultScroll} style={maxHeight ? { maxHeight } : undefined}>
+    <section
+      className={styles.resultScroll}
+      style={maxHeight ? { maxHeight } : undefined}
+      // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region needs a tab stop so its overflow can be scrolled by keyboard
+      tabIndex={0}
+      aria-label={caption}
+    >
       <table className={styles.result}>
         <caption className="visually-hidden">{caption}</caption>
         <thead>
@@ -58,7 +64,7 @@ export function ResultTable({ columns, rows, caption, renderCell, maxHeight }: R
           )}
         </tbody>
       </table>
-    </div>
+    </section>
   );
 }
 
