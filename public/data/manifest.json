@@ -1,0 +1,53 @@
+{
+  "generatorVersion": 1,
+  "weeks": [
+    {
+      "id": "2026-w39",
+      "label": "Week 39",
+      "weekStart": "2026-09-21",
+      "weekEnd": "2026-09-27",
+      "rawLeadCount": 400,
+      "files": {
+        "leads": "2026-w39/leads.json",
+        "labels": "2026-w39/labels.json",
+        "ai": null
+      },
+      "sha256": {
+        "leads": "10832e5a047cc3f8614d55927c79e7f8990a36fbe75c6db999ac520bcd5b776a",
+        "labels": "024424b60dd4f217dafd71097df3cea91cf202dd73d6cdeb57fa6f00847fee14"
+      }
+    },
+    {
+      "id": "2026-w40",
+      "label": "Week 40",
+      "weekStart": "2026-09-28",
+      "weekEnd": "2026-10-04",
+      "rawLeadCount": 400,
+      "files": {
+        "leads": "2026-w40/leads.json",
+        "labels": "2026-w40/labels.json",
+        "ai": null
+      },
+      "sha256": {
+        "leads": "dec87030bdd2761d17a74a354c952daabe8c15cd3c66b534169469690e34e5b0",
+        "labels": "62459bb1f7e19ea80431fca4d36dac8ee9234be7b1d3edf84d3379d275ee4c03"
+      }
+    },
+    {
+      "id": "2026-w41",
+      "label": "Week 41",
+      "weekStart": "2026-10-05",
+      "weekEnd": "2026-10-11",
+      "rawLeadCount": 400,
+      "files": {
+        "leads": "2026-w41/leads.json",
+        "labels": "2026-w41/labels.json",
+        "ai": null
+      },
+      "sha256": {
+        "leads": "35fc511c852696389c550ed26dc64f043da63693e439b48626b375732d0b36b6",
+        "labels": "1d34d7d4390f4270439a0fa0b44bc004173fe921abe96f5b9aeb6e9a132d7d8d"
+      }
+    }
+  ]
+}
