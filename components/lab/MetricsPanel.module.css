@@ -1,0 +1,151 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-size: 1.125rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.status {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.status[data-status="error"] {
+  color: var(--bad);
+}
+
+.primary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.secondary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.card {
+  background: var(--card);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.card[data-size="small"] {
+  background: transparent;
+  padding: 0;
+}
+
+.label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.value {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 2rem;
+  line-height: 1.1;
+  font-weight: 500;
+}
+
+.card[data-size="small"] .value {
+  font-size: 1.25rem;
+}
+
+.delta {
+  font-family: var(--f-mono);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--panel);
+  color: var(--muted);
+}
+
+.delta[data-tone="good"] {
+  color: var(--good);
+}
+
+.delta[data-tone="bad"] {
+  color: var(--bad);
+}
+
+.context {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.toggle {
+  align-self: flex-start;
+  margin-top: 6px;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: var(--operable);
+  font-family: var(--f-mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sql {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sqlDescription {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.code {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 0.75rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.sqlResult {
+  font-size: 0.8125rem;
+}
+
+.mismatch {
+  font-size: 0.8125rem;
+  color: var(--bad);
+}
+
+@media (max-width: 900px) {
+  .primary,
+  .secondary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

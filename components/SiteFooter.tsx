@@ -7,8 +7,8 @@ export function SiteFooter() {
     <footer className={styles.footer}>
       <div className={`page ${styles.inner}`}>
         <p className={styles.note}>
-          The lab uses synthetic data only. Larkspur is a fictional company, and every person, company and
-          message in it was generated.
+          The lab uses synthetic data only. Larkspur is a fictional company, and every person,
+          company and message in it was generated.
         </p>
         <ul className={styles.links}>
           <li>

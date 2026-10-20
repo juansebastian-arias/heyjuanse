@@ -1,0 +1,205 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  position: relative;
+  width: 100%;
+  transition: height var(--move) var(--ease);
+}
+
+.laneHeader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 14px;
+  row-gap: 0;
+  transition: transform var(--move) var(--ease);
+}
+
+.laneHeader[data-lane="sales"] {
+  --c: var(--lane-sales);
+}
+.laneHeader[data-lane="review"] {
+  --c: var(--lane-review);
+}
+.laneHeader[data-lane="nurture"] {
+  --c: var(--lane-nurture);
+}
+.laneHeader[data-lane="fix_data"] {
+  --c: var(--lane-fix);
+}
+.laneHeader[data-lane="not_for_sales"] {
+  --c: var(--lane-out);
+}
+
+.laneName {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--c);
+}
+
+.laneCount {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.laneDescription {
+  flex-basis: 100%;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  font-family: var(--f-body);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.divider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  transition: transform var(--move) var(--ease);
+}
+
+.divider::after {
+  content: "";
+  flex: 1;
+  border-top: 1px dashed var(--rule-strong);
+}
+
+.mark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--size);
+  height: var(--size);
+  padding: 0;
+  border-radius: 2px;
+  border: 1.5px solid var(--c);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    transform var(--move) var(--ease),
+    background-color var(--move) var(--ease),
+    border-color var(--move) var(--ease),
+    opacity var(--move) var(--ease);
+}
+
+.mark[data-need="true"] {
+  background: var(--c);
+}
+
+.mark[data-waiting="true"] {
+  opacity: 0.42;
+}
+
+.mark[data-highlight] {
+  box-shadow:
+    0 0 0 2px var(--paper),
+    0 0 0 4px var(--mark);
+}
+
+.mark[data-selected] {
+  box-shadow:
+    0 0 0 2px var(--paper),
+    0 0 0 4px var(--ink);
+}
+
+.mark:hover {
+  box-shadow:
+    0 0 0 2px var(--paper),
+    0 0 0 4px var(--operable);
+  z-index: 1;
+}
+
+.mark:focus-visible {
+  outline: 2px solid var(--operable);
+  outline-offset: 2px;
+  z-index: 2;
+}
+
+.mark[data-lane="sales"],
+.legendMark {
+  --c: var(--lane-sales);
+}
+.mark[data-lane="review"] {
+  --c: var(--lane-review);
+}
+.mark[data-lane="nurture"] {
+  --c: var(--lane-nurture);
+}
+.mark[data-lane="fix_data"] {
+  --c: var(--lane-fix);
+}
+.mark[data-lane="not_for_sales"] {
+  --c: var(--lane-out);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendMark {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  border: 1.5px solid var(--c);
+}
+
+.legendMark[data-need="true"] {
+  background: var(--c);
+}
+
+.legendMark[data-waiting="true"] {
+  opacity: 0.42;
+}
+
+.legendMark[data-highlight="true"] {
+  box-shadow:
+    0 0 0 2px var(--paper),
+    0 0 0 4px var(--mark);
+  margin-inline: 3px;
+}
+
+@media (max-width: 560px) {
+  .laneCount {
+    flex-basis: 100%;
+  }
+}

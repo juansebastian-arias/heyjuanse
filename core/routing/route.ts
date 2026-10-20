@@ -6,6 +6,7 @@
  */
 import { type AiPolicy, isTrusted, type LeadAiSignals } from "../ai/signals";
 import type { Lead } from "../cleaning/pipeline";
+import type { Intent } from "../model";
 import { DEFAULT_WEIGHTS, type GroupWeights, type ScoreResult, scoreLead } from "../scoring/score";
 
 export const LANES = ["sales", "review", "nurture", "fix_data", "not_for_sales"] as const;
@@ -84,14 +85,61 @@ interface Classification {
   score: ScoreResult;
 }
 
-/** Rules that need only the cleaned data. Returns null when the lead passes all of them. */
+export interface DataRule {
+  code: ReasonCode;
+  lane: Lane;
+  /** What passing the rule means, for the case file. */
+  check: string;
+  fails: (lead: Lead) => boolean;
+}
+
+/** Eligibility rules that need only the cleaned data, in the order they run. */
+export const DATA_RULES: DataRule[] = [
+  {
+    code: "INVALID_CONTACT",
+    lane: "fix_data",
+    check: "Has a valid email",
+    fails: (lead) => lead.emailStatus !== "valid",
+  },
+  {
+    code: "SUPPRESSED",
+    lane: "not_for_sales",
+    check: "Not on the opt-out list",
+    fails: (lead) => lead.suppressed,
+  },
+  {
+    code: "COMPETITOR",
+    lane: "not_for_sales",
+    check: "Not a competitor",
+    fails: (lead) => Boolean(lead.match?.company.isCompetitor),
+  },
+  {
+    code: "EXISTING_CUSTOMER",
+    lane: "not_for_sales",
+    check: "Not an existing customer",
+    fails: (lead) => Boolean(lead.match?.company.isCustomer),
+  },
+  {
+    code: "UNIDENTIFIED_COMPANY",
+    lane: "fix_data",
+    check: "Company identified",
+    fails: (lead) => !lead.match && lead.isFreemail && !lead.companyName,
+  },
+];
+
+/** Intents that take a lead out of the sales funnel when the AI signal is trusted. */
+export const AI_INTENT_RULES: Partial<Record<Intent, { lane: Lane; code: ReasonCode }>> = {
+  existing_customer_support: { lane: "not_for_sales", code: "AI_SUPPORT" },
+  vendor_or_partner_pitch: { lane: "not_for_sales", code: "AI_VENDOR" },
+  spam: { lane: "not_for_sales", code: "AI_SPAM" },
+  job_inquiry: { lane: "not_for_sales", code: "AI_JOB" },
+  student_or_research: { lane: "nurture", code: "AI_STUDENT" },
+};
+
+/** The first data rule the lead fails, or null when it passes all of them. */
 export function dataRule(lead: Lead): { lane: Lane; reason: ReasonCode } | null {
-  if (lead.emailStatus !== "valid") return { lane: "fix_data", reason: "INVALID_CONTACT" };
-  if (lead.suppressed) return { lane: "not_for_sales", reason: "SUPPRESSED" };
-  if (lead.match?.company.isCompetitor) return { lane: "not_for_sales", reason: "COMPETITOR" };
-  if (lead.match?.company.isCustomer) return { lane: "not_for_sales", reason: "EXISTING_CUSTOMER" };
-  if (!lead.match && lead.isFreemail && !lead.companyName) {
-    return { lane: "fix_data", reason: "UNIDENTIFIED_COMPANY" };
+  for (const rule of DATA_RULES) {
+    if (rule.fails(lead)) return { lane: rule.lane, reason: rule.code };
   }
   return null;
 }
@@ -100,22 +148,8 @@ function classify(lead: Lead, ai: LeadAiSignals | null, settings: RoutingSetting
   const score = scoreLead(lead, ai, settings.weights);
   const data = dataRule(lead);
   if (data) return { ...data, score };
-  if (ai) {
-    switch (ai.intent) {
-      case "existing_customer_support":
-        return { lane: "not_for_sales", reason: "AI_SUPPORT", score };
-      case "vendor_or_partner_pitch":
-        return { lane: "not_for_sales", reason: "AI_VENDOR", score };
-      case "spam":
-        return { lane: "not_for_sales", reason: "AI_SPAM", score };
-      case "job_inquiry":
-        return { lane: "not_for_sales", reason: "AI_JOB", score };
-      case "student_or_research":
-        return { lane: "nurture", reason: "AI_STUDENT", score };
-      default:
-        break;
-    }
-  }
+  const intentRule = ai ? AI_INTENT_RULES[ai.intent] : undefined;
+  if (intentRule) return { lane: intentRule.lane, reason: intentRule.code, score };
   return score.total >= settings.threshold
     ? { lane: "sales", reason: "SCORE_ABOVE_THRESHOLD", score }
     : { lane: "nurture", reason: "SCORE_BELOW_THRESHOLD", score };
