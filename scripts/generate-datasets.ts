@@ -46,6 +46,12 @@ export function sha256(text: string): string {
   return createHash("sha256").update(text).digest("hex");
 }
 
+/** Rewrite only the manifest, for example after a new AI run was added. */
+export function writeManifest(): void {
+  const manifest = buildDataFiles().get("manifest.json");
+  if (manifest) writeFileSync(join(DATA_DIR, "manifest.json"), manifest);
+}
+
 function main(): void {
   for (const [path, text] of buildDataFiles()) {
     const target = join(DATA_DIR, path);

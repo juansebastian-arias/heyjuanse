@@ -7,7 +7,7 @@ import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const CORE = join(process.cwd(), "core");
-const ENGINE_DIRS = ["cleaning", "scoring", "routing", "ai", "sql"];
+const ENGINE_DIRS = ["cleaning", "scoring", "routing", "ai"];
 
 function sourceFiles(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {

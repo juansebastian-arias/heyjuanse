@@ -1,0 +1,28 @@
+.footer {
+  border-top: 1px solid var(--rule);
+  margin-top: 96px;
+  padding: 28px 0 40px;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px 40px;
+  flex-wrap: wrap;
+}
+
+.note {
+  max-width: 56ch;
+}
+
+.links {
+  display: flex;
+  gap: 8px 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}

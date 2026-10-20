@@ -19,7 +19,10 @@
     "ai:extract": "tsx scripts/extract-dataset.ts",
     "ai:eval": "tsx scripts/run-evals.ts",
     "check": "pnpm typecheck && pnpm lint && pnpm test",
-    "format": "biome format --write ."
+    "format": "biome format --write .",
+    "predev": "node scripts/copy-wasm.mjs",
+    "prebuild": "node scripts/copy-wasm.mjs",
+    "pretest:e2e": "node scripts/copy-wasm.mjs"
   },
   "packageManager": "pnpm@10.28.0",
   "pnpm": {
