@@ -21,7 +21,7 @@ import {
 import { DATA_RULES, type Decision, LANE_LABELS, REASONS } from "@/core/routing/route";
 import { type TraceStep, traceDecision } from "@/core/routing/trace";
 import type { LabSettings } from "@/core/settings";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { formatDate, formatDateTime, signed } from "@/lib/format";
 import type { WeekData } from "@/lib/lab/data";
 import styles from "./CaseFile.module.css";
 
@@ -552,7 +552,7 @@ function ScoreGroupRows({
         lines.map((line) => (
           <tr key={line.label}>
             <td>{line.label}</td>
-            <td className="num">{line.points > 0 ? `+${line.points}` : line.points}</td>
+            <td className="num">{line.points === 0 ? "0" : signed(line.points)}</td>
           </tr>
         ))
       )}
