@@ -9,11 +9,12 @@ import { describe, expect, it } from "vitest";
 const CORE = join(process.cwd(), "core");
 const ENGINE_DIRS = ["cleaning", "scoring", "routing", "ai"];
 
-function sourceFiles(dir: string): string[] {
+function sourceFiles(dir: string, extensions = [".ts"]): string[] {
   return readdirSync(dir).flatMap((name) => {
     const path = join(dir, name);
-    if (statSync(path).isDirectory()) return sourceFiles(path);
-    return name.endsWith(".ts") && !name.endsWith(".test.ts") ? [path] : [];
+    if (statSync(path).isDirectory()) return sourceFiles(path, extensions);
+    const isTest = /\.test\.tsx?$/.test(name);
+    return extensions.some((extension) => name.endsWith(extension)) && !isTest ? [path] : [];
   });
 }
 
@@ -40,6 +41,24 @@ describe("engine boundaries", () => {
       }
     },
   );
+
+  it("the site never imports the API client", () => {
+    const siteFiles = ["app", "components", "lib"].flatMap((dir) => {
+      try {
+        return sourceFiles(join(process.cwd(), dir), [".ts", ".tsx"]);
+      } catch {
+        return [];
+      }
+    });
+    expect(siteFiles.length).toBeGreaterThan(10);
+    for (const file of siteFiles) {
+      for (const source of imports(file)) {
+        expect(source, relative(process.cwd(), file)).not.toMatch(
+          /@anthropic-ai|^(@\/|(\.\.\/)+)server\//,
+        );
+      }
+    }
+  });
 
   it("routing does not take labels as input", () => {
     const text = readFileSync(join(CORE, "routing", "route.ts"), "utf8");
