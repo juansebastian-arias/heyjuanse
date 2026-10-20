@@ -21,6 +21,17 @@ export interface SurvivorshipNote {
   rule: string;
 }
 
+/** How a merged lead picks each field from its submissions. Published on the site as written. */
+export const SURVIVORSHIP_RULES: Record<SurvivorshipNote["field"], string> = {
+  name: "Most recent submission with a full name",
+  email: "Earliest valid company email, else earliest valid email",
+  company: "Most recent non-empty value",
+  website: "Most recent non-empty value",
+  jobTitle: "Most recent non-empty value",
+  country: "Most recent non-empty value",
+  activity: "Highest count across submissions; most recent activity date",
+};
+
 export interface Lead {
   leadId: string;
   /** In arrival order. */
@@ -112,7 +123,7 @@ function buildLead(
     survivorship.push({
       field: "name",
       rawId: nameSource?.rawId ?? null,
-      rule: "Most recent submission with a full name",
+      rule: SURVIVORSHIP_RULES.name,
     });
   }
 
@@ -124,7 +135,7 @@ function buildLead(
     survivorship.push({
       field: "email",
       rawId: emailRecord?.rawId ?? null,
-      rule: "Earliest valid company email, else earliest valid email",
+      rule: SURVIVORSHIP_RULES.email,
     });
   }
 
@@ -134,15 +145,11 @@ function buildLead(
   const typedCountry = latest(records, (r) => r.country);
   if (multi) {
     survivorship.push(
-      { field: "company", rawId: company.rawId, rule: "Most recent non-empty value" },
-      { field: "website", rawId: website.rawId, rule: "Most recent non-empty value" },
-      { field: "jobTitle", rawId: title.rawId, rule: "Most recent non-empty value" },
-      { field: "country", rawId: typedCountry.rawId, rule: "Most recent non-empty value" },
-      {
-        field: "activity",
-        rawId: null,
-        rule: "Highest count across submissions; most recent activity date",
-      },
+      { field: "company", rawId: company.rawId, rule: SURVIVORSHIP_RULES.company },
+      { field: "website", rawId: website.rawId, rule: SURVIVORSHIP_RULES.website },
+      { field: "jobTitle", rawId: title.rawId, rule: SURVIVORSHIP_RULES.jobTitle },
+      { field: "country", rawId: typedCountry.rawId, rule: SURVIVORSHIP_RULES.country },
+      { field: "activity", rawId: null, rule: SURVIVORSHIP_RULES.activity },
     );
   }
 

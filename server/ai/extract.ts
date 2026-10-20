@@ -4,25 +4,13 @@
  */
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
+import { DEFAULT_EFFORT, DEFAULT_MODEL, type Effort, estimateCost } from "../../core/ai/config";
 import { buildUserMessage, SYSTEM_PROMPT } from "../../core/ai/prompt";
 import { ExtractionSchema, type StoredExtraction } from "../../core/ai/schema";
 import type { LeadSource } from "../../core/model";
 
-export const DEFAULT_MODEL = "claude-haiku-5-5";
-export const DEFAULT_EFFORT = "low" as const;
-export type Effort = "low" | "medium" | "high";
-
-/** US dollars per million tokens, for prompts of 100K tokens or fewer. */
-export const PRICING: Record<string, { input: number; output: number }> = {
-  "claude-haiku-5-5": { input: 0.1, output: 0.5 },
-  "claude-sonnet-5-5": { input: 3, output: 15 },
-};
-
-export function estimateCost(model: string, inputTokens: number, outputTokens: number): number {
-  const price = PRICING[model];
-  if (!price) return Number.NaN;
-  return (inputTokens * price.input + outputTokens * price.output) / 1_000_000;
-}
+export { PRICING } from "../../core/ai/config";
+export { DEFAULT_EFFORT, DEFAULT_MODEL, type Effort, estimateCost };
 
 export interface ExtractInput {
   rawId: string;

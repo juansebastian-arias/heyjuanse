@@ -14,3 +14,6 @@ next-env.d.ts
 
 # Copied from node_modules at build time
 public/vendor
+
+# Test report written before each build and read by the Under the hood page
+.reports/

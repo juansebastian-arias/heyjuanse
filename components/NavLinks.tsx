@@ -31,9 +31,6 @@ export function NavLinks() {
           );
         })}
       </ul>
-      <Link href="/about#contact" className={styles.contact}>
-        Get in touch
-      </Link>
     </nav>
   );
 }

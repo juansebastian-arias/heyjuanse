@@ -1,0 +1,90 @@
+.figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 18px 20px;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+}
+
+.lane {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lane[data-lane="sales"] {
+  --c: var(--lane-sales);
+}
+.lane[data-lane="review"] {
+  --c: var(--lane-review);
+}
+.lane[data-lane="nurture"] {
+  --c: var(--lane-nurture);
+}
+.lane[data-lane="fix_data"] {
+  --c: var(--lane-fix);
+}
+.lane[data-lane="not_for_sales"] {
+  --c: var(--lane-out);
+}
+
+.label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.name::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--c);
+}
+
+.marks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 9px);
+  gap: 3px;
+}
+
+.mark {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  border: 1.5px solid var(--c);
+}
+
+.mark[data-need] {
+  background: var(--c);
+}
+
+.mark[data-waiting] {
+  opacity: 0.42;
+}
+
+.caption {
+  font-family: var(--f-body);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--muted);
+}

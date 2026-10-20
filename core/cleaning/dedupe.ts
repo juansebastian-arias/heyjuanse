@@ -40,6 +40,26 @@ export interface DedupeResult {
 
 export const SIMILAR_NAME_THRESHOLD = 0.9;
 
+/** The duplicate rules in plain language, for the site. The code below implements them. */
+export const DUPLICATE_RULES = [
+  {
+    code: "M1",
+    when: "Same email address, ignoring capital letters and “+tags”.",
+    action: "Merge.",
+  },
+  {
+    code: "M2",
+    when: "Same company domain, same first name (nicknames resolved, so Bill matches William) and same last name.",
+    action:
+      "Merge, unless both records have job titles and the titles differ. Then flag for a person.",
+  },
+  {
+    code: "M3",
+    when: `Same company domain and last name, with first names that look alike (Jaro-Winkler similarity of ${SIMILAR_NAME_THRESHOLD} or more) but are not the same name.`,
+    action: "Flag for a person. Never merge.",
+  },
+] as const;
+
 /** The company domain a record can be matched on: a corporate email domain, else the website. */
 export function matchDomain(record: CleanRecord): string | null {
   if (record.emailStatus === "valid" && !record.isFreemail && record.emailDomain) {

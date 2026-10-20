@@ -13,6 +13,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
+import { DEFAULT_MAX_COST_USD } from "../core/ai/config";
 import { PROMPT_VERSION } from "../core/ai/prompt";
 import type { AiRunFile, StoredExtraction } from "../core/ai/schema";
 import { formatDataFile, type LeadsFile, type Manifest } from "../core/data/files";
@@ -64,7 +65,7 @@ async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   const model = process.env.AI_MODEL ?? DEFAULT_MODEL;
   const effort = (process.env.AI_EFFORT ?? DEFAULT_EFFORT) as Effort;
-  const maxCost = Number(process.env.AI_MAX_COST_USD ?? 3);
+  const maxCost = Number(process.env.AI_MAX_COST_USD ?? DEFAULT_MAX_COST_USD);
   const concurrency = Number(process.env.AI_CONCURRENCY ?? 4);
   const manifest = JSON.parse(readFileSync(join(DATA_DIR, "manifest.json"), "utf8")) as Manifest;
   const weeks = manifest.weeks.filter((week) => !args.weeks || args.weeks.includes(week.id));

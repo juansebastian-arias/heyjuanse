@@ -21,8 +21,9 @@
     "check": "pnpm typecheck && pnpm lint && pnpm test",
     "format": "biome format --write .",
     "predev": "node scripts/copy-wasm.mjs",
-    "prebuild": "node scripts/copy-wasm.mjs",
-    "pretest:e2e": "node scripts/copy-wasm.mjs"
+    "prebuild": "node scripts/copy-wasm.mjs && pnpm test:report",
+    "pretest:e2e": "node scripts/copy-wasm.mjs",
+    "test:report": "vitest run --reporter=dot --reporter=json --outputFile.json=.reports/vitest.json"
   },
   "packageManager": "pnpm@10.28.0",
   "pnpm": {

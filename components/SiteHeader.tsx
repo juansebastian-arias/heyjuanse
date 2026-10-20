@@ -11,6 +11,9 @@ export function SiteHeader() {
           {SITE.name}
         </Link>
         <NavLinks />
+        <Link href="/about#contact" className={styles.contact}>
+          Get in touch
+        </Link>
       </div>
     </header>
   );
