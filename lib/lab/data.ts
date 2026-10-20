@@ -89,9 +89,11 @@ async function loadWeek(week: ManifestWeek): Promise<WeekData> {
   };
 }
 
-export function useLabData(weekId: string): LabDataState {
+/** Loads a week. Pass null to wait, for example until the page has read its address. */
+export function useLabData(weekId: string | null): LabDataState {
   const [state, setState] = useState<LabDataState>({ status: "loading" });
   useEffect(() => {
+    if (weekId === null) return;
     let cancelled = false;
     setState((current) =>
       current.status === "ready" && current.data.week.id === weekId

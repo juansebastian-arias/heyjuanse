@@ -1,0 +1,128 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 18px 18px;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--mark);
+  border-radius: var(--radius);
+  min-height: 168px;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.title {
+  font-family: var(--f-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.undo {
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--operable);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.change {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.movement,
+.effect {
+  font-family: var(--f-body);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.movement {
+  color: var(--muted);
+}
+
+.insight {
+  margin-top: 4px;
+  font-family: var(--f-body);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.insightLabel {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--mark);
+  color: var(--mark-ink);
+  font-family: var(--f-mono);
+  font-size: 0.6875rem;
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  vertical-align: 2px;
+}
+
+.prompt {
+  font-family: var(--f-body);
+  color: var(--muted);
+  max-width: 60ch;
+}
+
+.experiments {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 8px;
+}
+
+.experiment {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: var(--paper);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 150ms var(--ease),
+    background-color 150ms var(--ease);
+}
+
+.experiment:hover {
+  border-color: var(--operable);
+  background: var(--operable-soft);
+}
+
+.experimentLabel {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--operable);
+}
+
+.experimentQuestion {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  line-height: 1.4;
+}

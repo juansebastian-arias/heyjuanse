@@ -141,8 +141,7 @@
   z-index: 2;
 }
 
-.mark[data-lane="sales"],
-.legendMark {
+.mark[data-lane="sales"] {
   --c: var(--lane-sales);
 }
 .mark[data-lane="review"] {
@@ -176,6 +175,7 @@
 }
 
 .legendMark {
+  --c: var(--muted);
   display: inline-block;
   width: 11px;
   height: 11px;
@@ -202,4 +202,16 @@
   .laneCount {
     flex-basis: 100%;
   }
+}
+
+.empty {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--faint);
+  line-height: 14px;
+  transition: transform var(--move) var(--ease);
 }

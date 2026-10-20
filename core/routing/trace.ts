@@ -135,4 +135,3 @@ export function finalLane(steps: TraceStep[]): Lane | null {
   }
   return null;
 }
-

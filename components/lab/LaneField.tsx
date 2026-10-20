@@ -55,7 +55,15 @@ interface LaneFieldProps {
   highlighted: ReadonlySet<string>;
   selectedId: string | null;
   showDescriptions: boolean;
+  /** What to say in a lane with no leads. */
+  emptyText: (lane: Lane) => string;
   onOpen: (leadId: string) => void;
+}
+
+interface Note {
+  key: string;
+  y: number;
+  text: string;
 }
 
 const HEADER_HEIGHT = 30;
@@ -98,6 +106,7 @@ export function LaneField({
   highlighted,
   selectedId,
   showDescriptions,
+  emptyText,
   onOpen,
 }: LaneFieldProps) {
   const [containerRef, width] = useWidth<HTMLDivElement>();
@@ -115,12 +124,14 @@ export function LaneField({
     }
     const placed: Placed[] = [];
     const headers: Header[] = [];
+    const notes: Note[] = [];
     const narrow = width < 560;
     const headerHeight = narrow ? HEADER_HEIGHT_NARROW : HEADER_HEIGHT;
     const descriptionHeight = showDescriptions && !narrow ? 20 : 0;
     let y = 0;
     let order = 0;
     const placeSection = (lane: Lane, section: string, list: Decision[]) => {
+      if (list.length === 0) notes.push({ key: section, y, text: emptyText(lane) });
       list.forEach((decision, index) => {
         const column = index % columns;
         const row = Math.floor(index / columns);
@@ -137,7 +148,7 @@ export function LaneField({
           row,
         });
       });
-      y += Math.max(1, Math.ceil(list.length / columns)) * pitch;
+      y += list.length === 0 ? (narrow ? 48 : 20) : Math.ceil(list.length / columns) * pitch;
     };
     for (const lane of LANES) {
       const list = byLane.get(lane) ?? [];
@@ -165,8 +176,8 @@ export function LaneField({
       }
       y += LANE_GAP;
     }
-    return { placed, headers, height: y };
-  }, [decisions, columns, pitch, showDescriptions, data.labelIndex, width]);
+    return { placed, headers, notes, height: y };
+  }, [decisions, columns, pitch, showDescriptions, data.labelIndex, width, emptyText]);
 
   // Roving tab index: one tab stop for the whole field, arrows move between marks.
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -256,6 +267,7 @@ export function LaneField({
 
   return (
     <div className={styles.wrap}>
+      {/* biome-ignore lint/a11y/useSemanticElements: a fieldset would announce a form; this is a group of buttons laid out as a picture */}
       <div
         ref={containerRef}
         className={styles.field}
@@ -304,6 +316,15 @@ export function LaneField({
             </div>
           ),
         )}
+        {layout.notes.map((note) => (
+          <p
+            key={note.key}
+            className={styles.empty}
+            style={{ transform: `translateY(${note.y}px)` }}
+          >
+            {note.text}
+          </p>
+        ))}
         {layout.placed.map((p) => (
           <button
             key={p.leadId}

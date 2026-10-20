@@ -18,8 +18,8 @@ import {
   SOURCE_LABELS,
   TIMELINE_LABELS,
 } from "@/core/model";
-import { type Decision, LANE_LABELS, REASONS } from "@/core/routing/route";
-import { traceDecision } from "@/core/routing/trace";
+import { DATA_RULES, type Decision, LANE_LABELS, REASONS } from "@/core/routing/route";
+import { type TraceStep, traceDecision } from "@/core/routing/trace";
 import type { LabSettings } from "@/core/settings";
 import { formatDate, formatDateTime } from "@/lib/format";
 import type { WeekData } from "@/lib/lab/data";
@@ -35,7 +35,15 @@ interface CaseFileProps {
   onNavigate: (leadId: string) => void;
 }
 
-function Section({ title, children, aside }: { title: string; children: ReactNode; aside?: ReactNode }) {
+function Section({
+  title,
+  children,
+  aside,
+}: {
+  title: string;
+  children: ReactNode;
+  aside?: ReactNode;
+}) {
   return (
     <section className={styles.section}>
       <div className={styles.sectionHead}>
@@ -70,7 +78,15 @@ function HighlightedMessage({ text, quotes }: { text: string; quotes: string[] }
   return <p className={styles.message}>{parts}</p>;
 }
 
-function AiOutput({ messageAi, model, generatedAt }: { messageAi: MessageAi | undefined; model: string; generatedAt: string }) {
+function AiOutput({
+  messageAi,
+  model,
+  generatedAt,
+}: {
+  messageAi: MessageAi | undefined;
+  model: string;
+  generatedAt: string;
+}) {
   if (!messageAi) {
     return <p className={styles.muted}>No stored AI output for this message.</p>;
   }
@@ -86,7 +102,8 @@ function AiOutput({ messageAi, model, generatedAt }: { messageAi: MessageAi | un
             : "The API call failed.";
     return (
       <p className={styles.muted}>
-        {reason} The rules treat this lead as if it had no message. ({stored.error ?? stored.status})
+        {reason} The rules treat this lead as if it had no message. ({stored.error ?? stored.status}
+        )
       </p>
     );
   }
@@ -143,17 +160,54 @@ function AiOutput({ messageAi, model, generatedAt }: { messageAi: MessageAi | un
   );
 }
 
-export function CaseFile({ leadId, data, decisions, settings, aiByLead, onClose, onNavigate }: CaseFileProps) {
+const CHECK_TITLES = new Set(DATA_RULES.map((rule) => rule.check));
+
+/** When every eligibility check passed, one line says so instead of five. */
+function compactTrace(steps: TraceStep[]): TraceStep[] {
+  const checks = steps.filter((step) => CHECK_TITLES.has(step.title));
+  if (checks.length !== DATA_RULES.length || checks.some((step) => step.outcome !== "pass")) {
+    return steps;
+  }
+  const names = DATA_RULES.map((rule) => rule.check.toLowerCase());
+  return [
+    {
+      title: "Eligibility checks",
+      detail: `Passed all ${names.length}: ${names.slice(0, -1).join(", ")} and ${names.at(-1)}.`,
+      outcome: "pass",
+    },
+    ...steps.filter((step) => !CHECK_TITLES.has(step.title)),
+  ];
+}
+
+export function CaseFile({
+  leadId,
+  data,
+  decisions,
+  settings,
+  aiByLead,
+  onClose,
+  onNavigate,
+}: CaseFileProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   const lead = leadId ? data.leadById.get(leadId) : undefined;
   const decision = useMemo(() => decisions.find((d) => d.leadId === leadId), [decisions, leadId]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-    if (lead && !dialog.open) dialog.showModal();
+    if (lead && !dialog.open) {
+      dialog.showModal();
+      closeRef.current?.focus();
+    }
     if (!lead && dialog.open) dialog.close();
   }, [lead]);
+
+  // Moving to another lead starts at the top of its file.
+  useEffect(() => {
+    if (leadId) bodyRef.current?.scrollTo({ top: 0 });
+  }, [leadId]);
 
   const sameLane = useMemo(() => {
     if (!decision) return [];
@@ -167,28 +221,37 @@ export function CaseFile({ leadId, data, decisions, settings, aiByLead, onClose,
   }, [decisions, decision]);
 
   if (!lead || !decision) {
-    return <dialog ref={dialogRef} className={styles.dialog} onClose={onClose} aria-label="Case file" />;
+    return (
+      <dialog ref={dialogRef} className={styles.dialog} onClose={onClose} aria-label="Case file" />
+    );
   }
 
   const ai = aiByLead.get(lead.leadId) ?? null;
   const queueLength = decisions.filter((d) => d.lane === "sales").length;
-  const steps = traceDecision(lead, ai, settings, decision, queueLength);
+  const steps = compactTrace(traceDecision(lead, ai, settings, decision, queueLength));
   const need = leadHasNeed(lead.leadId, data.labelIndex);
   const people = data.labelIndex.peopleByLead.get(lead.leadId) ?? [];
-  const truth = people.map((id) => data.labels.people.find((p) => p.personId === id)).filter(Boolean);
+  const truth = people
+    .map((id) => data.labels.people.find((p) => p.personId === id))
+    .filter(Boolean);
   const position = sameLane.findIndex((d) => d.leadId === lead.leadId);
   const previous = sameLane[position - 1];
   const next = sameLane[position + 1];
   const name = [lead.firstName, lead.lastName].filter(Boolean).join(" ") || "Name missing";
   const company = lead.match?.company.name ?? lead.companyName ?? "Company unknown";
   const laneLabel =
-    decision.lane === "sales" ? (decision.called ? "Sales now · called" : "Sales now · over capacity") : LANE_LABELS[decision.lane];
+    decision.lane === "sales"
+      ? decision.called
+        ? "Sales now · called"
+        : "Sales now · over capacity"
+      : LANE_LABELS[decision.lane];
   const fitLines = decision.score.lines.filter((line) => line.group === "fit");
   const intentLines = decision.score.lines.filter((line) => line.group === "intent");
   const aiLines = decision.score.lines.filter((line) => line.group === "ai");
   const usesAnswerKey = settings.extraction === "answer_key";
 
   return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: a click on the backdrop is a pointer shortcut; Escape closes the dialog from the keyboard
     <dialog
       ref={dialogRef}
       className={styles.dialog}
@@ -233,13 +296,18 @@ export function CaseFile({ leadId, data, decisions, settings, aiByLead, onClose,
             >
               →
             </button>
-            <button type="button" className="button" onClick={() => dialogRef.current?.close()} autoFocus>
+            <button
+              type="button"
+              className="button"
+              onClick={() => dialogRef.current?.close()}
+              ref={closeRef}
+            >
               Close
             </button>
           </div>
         </header>
 
-        <div className={styles.body}>
+        <div className={styles.body} ref={bodyRef}>
           <Section title="How the rules decided">
             <ol className={styles.trace}>
               {steps.map((step) => (
@@ -265,20 +333,39 @@ export function CaseFile({ leadId, data, decisions, settings, aiByLead, onClose,
             <table className={styles.scoreTable}>
               <tbody>
                 {[
-                  { name: "Fit", lines: fitLines, total: decision.score.groups.fit, weight: settings.weights.fit },
-                  { name: "Intent", lines: intentLines, total: decision.score.groups.intent, weight: settings.weights.intent },
-                  { name: "AI", lines: aiLines, total: decision.score.groups.ai, weight: settings.weights.ai },
+                  {
+                    name: "Fit",
+                    lines: fitLines,
+                    total: decision.score.groups.fit,
+                    weight: settings.weights.fit,
+                  },
+                  {
+                    name: "Intent",
+                    lines: intentLines,
+                    total: decision.score.groups.intent,
+                    weight: settings.weights.intent,
+                  },
+                  {
+                    name: "AI",
+                    lines: aiLines,
+                    total: decision.score.groups.ai,
+                    weight: settings.weights.ai,
+                  },
                 ].map((group) => (
                   <ScoreGroupRows key={group.name} {...group} />
                 ))}
               </tbody>
             </table>
             {aiLines.length === 0 && settings.aiPolicy !== "off" && ai ? (
-              <p className={styles.muted}>No AI points: the signal was not trusted under the current policy.</p>
+              <p className={styles.muted}>
+                No AI points: the signal was not trusted under the current policy.
+              </p>
             ) : null}
           </Section>
 
-          <Section title={lead.messages.length === 1 ? "Message" : `Messages (${lead.messages.length})`}>
+          <Section
+            title={lead.messages.length === 1 ? "Message" : `Messages (${lead.messages.length})`}
+          >
             {lead.messages.length === 0 ? (
               <p className={styles.muted}>This lead left no message, so AI has nothing to read.</p>
             ) : (
@@ -292,7 +379,8 @@ export function CaseFile({ leadId, data, decisions, settings, aiByLead, onClose,
                 return (
                   <div key={message.rawId} className={styles.messageBlock}>
                     <p className={styles.meta}>
-                      {message.rawId} · {raw ? SOURCE_LABELS[raw.source] : ""} · {formatDateTime(message.receivedAt)}
+                      {message.rawId} · {raw ? SOURCE_LABELS[raw.source] : ""} ·{" "}
+                      {formatDateTime(message.receivedAt)}
                     </p>
                     <HighlightedMessage text={message.text} quotes={quotes} />
                     {usesAnswerKey ? (
@@ -303,11 +391,15 @@ export function CaseFile({ leadId, data, decisions, settings, aiByLead, onClose,
                         The lab is using the answer key instead of AI output, as an upper bound.
                       </p>
                     ) : data.aiRun ? (
-                      <AiOutput messageAi={messageAi} model={data.aiRun.model} generatedAt={data.aiRun.generatedAt} />
+                      <AiOutput
+                        messageAi={messageAi}
+                        model={data.aiRun.model}
+                        generatedAt={data.aiRun.generatedAt}
+                      />
                     ) : (
                       <p className={styles.muted}>
-                        AI outputs for this week have not been generated yet. When they are, they are stored with
-                        the model name and date and shown here.
+                        AI outputs for this week have not been generated yet. When they are, they
+                        are stored with the model name and date and shown here.
                       </p>
                     )}
                   </div>
@@ -366,7 +458,9 @@ export function CaseFile({ leadId, data, decisions, settings, aiByLead, onClose,
               </div>
               <div>
                 <dt>Company size</dt>
-                <dd>{lead.match ? `${SIZE_LABELS[lead.match.company.sizeBand]} employees` : "Unknown"}</dd>
+                <dd>
+                  {lead.match ? `${SIZE_LABELS[lead.match.company.sizeBand]} employees` : "Unknown"}
+                </dd>
               </div>
               <div>
                 <dt>Country</dt>
@@ -382,8 +476,9 @@ export function CaseFile({ leadId, data, decisions, settings, aiByLead, onClose,
               <div>
                 <dt>Web activity, last 30 days</dt>
                 <dd>
-                  {lead.activity.pricingPageViews} pricing views, {lead.activity.docsVisits} docs visits,{" "}
-                  {lead.activity.emailClicks} email clicks{lead.activity.webinarAttended ? ", attended a webinar" : ""}
+                  {lead.activity.pricingPageViews} pricing views, {lead.activity.docsVisits} docs
+                  visits, {lead.activity.emailClicks} email clicks
+                  {lead.activity.webinarAttended ? ", attended a webinar" : ""}
                   {lead.activity.lastActivityDaysAgo !== null
                     ? `; last active ${lead.activity.lastActivityDaysAgo} days before submitting`
                     : "; no recorded activity"}
@@ -401,14 +496,16 @@ export function CaseFile({ leadId, data, decisions, settings, aiByLead, onClose,
             }
           >
             <p className={styles.answer}>
-              {need ? "This lead had a real need this week." : "This lead had no real need this week."}{" "}
+              {need
+                ? "This lead had a real need this week."
+                : "This lead had no real need this week."}{" "}
               {truth.length > 1
                 ? `It merges ${truth.length} different people, which is a false merge.`
                 : ""}
             </p>
             <p className={styles.muted}>
-              The generator decided this before it wrote the messy records. The rules never read it; the lab uses it
-              only to score the outcome.
+              The generator decided this before it wrote the messy records. The rules never read it;
+              the lab uses it only to score the outcome.
               {truth[0]
                 ? ` Persona: ${truth[0].persona.replace(/_/g, " ")}${truth[0].stage ? `, stage: ${truth[0].stage.replace(/_/g, " ")}` : ""}.`
                 : ""}
@@ -460,7 +557,10 @@ function ScoreGroupRows({
 function RecordsTable({ leadId, data }: { leadId: string; data: WeekData }) {
   const lead = data.leadById.get(leadId);
   if (!lead) return null;
-  const fields: Array<{ key: "firstName" | "lastName" | "email" | "companyName" | "website" | "country" | "jobTitle"; label: string }> = [
+  const fields: Array<{
+    key: "firstName" | "lastName" | "email" | "companyName" | "website" | "country" | "jobTitle";
+    label: string;
+  }> = [
     { key: "firstName", label: "First name" },
     { key: "lastName", label: "Last name" },
     { key: "email", label: "Email" },

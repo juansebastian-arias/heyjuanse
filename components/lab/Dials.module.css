@@ -107,6 +107,13 @@
   border-left: 0;
 }
 
+.segment[data-disabled] span {
+  color: var(--faint);
+  cursor: not-allowed;
+  text-decoration: line-through;
+  text-decoration-color: var(--rule-strong);
+}
+
 .segment input:checked + span {
   background: var(--operable);
   color: var(--card);
@@ -120,13 +127,6 @@
 
 .segment input:not(:checked):not(:disabled) + span:hover {
   background: var(--operable-soft);
-}
-
-.segment[data-disabled] span {
-  color: var(--faint);
-  cursor: not-allowed;
-  text-decoration: line-through;
-  text-decoration-color: var(--rule-strong);
 }
 
 .advanced {

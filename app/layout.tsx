@@ -6,7 +6,11 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SITE } from "@/site.config";
 import "./globals.css";
 
-const display = Schibsted_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "swap" });
+const display = Schibsted_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+});
 const body = Source_Serif_4({
   subsets: ["latin"],
   variable: "--font-body",

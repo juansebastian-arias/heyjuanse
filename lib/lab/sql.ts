@@ -98,3 +98,63 @@ export function useSqlMetrics(data: WeekData | null, decisions: Decision[] | nul
 
   return state;
 }
+
+export interface ConsoleResult {
+  columns: string[];
+  rows: Array<Array<string | number | null>>;
+  /** More rows existed than were read. */
+  truncated: boolean;
+  ms: number;
+}
+
+const COMMENTS_AND_SPACE = /^(?:\s|;|--[^\n]*(?:\n|$)|\/\*[\s\S]*?\*\/)*/;
+
+/**
+ * Runs one read-only statement typed by a visitor, against the lab's own database. Three
+ * guards: only SELECT, WITH or EXPLAIN may start it, only one statement may run, and SQLite's
+ * query_only switch refuses any write that gets past the first two.
+ */
+export function runReadOnly(db: SqlDatabase, sql: string, maxRows = 200): ConsoleResult {
+  const source = sql.replace(COMMENTS_AND_SPACE, "");
+  if (source === "") throw new Error("Type a query to run.");
+  if (!/^(select|with|explain)\b/i.test(source)) {
+    throw new Error("Only SELECT queries can run here. The lab's tables are read-only.");
+  }
+  const database = db as unknown as Database;
+  const started = performance.now();
+  database.run("PRAGMA query_only = 1");
+  let statement: ReturnType<Database["prepare"]> | null = null;
+  try {
+    statement = database.prepare(source);
+    const compiled = statement.getSQL();
+    const at = source.indexOf(compiled);
+    const rest = at >= 0 ? source.slice(at + compiled.length).replace(COMMENTS_AND_SPACE, "") : "";
+    if (rest !== "") throw new Error("Run one statement at a time.");
+    const rows: ConsoleResult["rows"] = [];
+    let truncated = false;
+    while (statement.step()) {
+      if (rows.length >= maxRows) {
+        truncated = true;
+        break;
+      }
+      rows.push(
+        statement
+          .get()
+          .map((value) =>
+            value instanceof Uint8Array
+              ? `<${value.length} bytes>`
+              : (value as string | number | null),
+          ),
+      );
+    }
+    return {
+      columns: statement.getColumnNames(),
+      rows,
+      truncated,
+      ms: performance.now() - started,
+    };
+  } finally {
+    statement?.free();
+    database.run("PRAGMA query_only = 0");
+  }
+}

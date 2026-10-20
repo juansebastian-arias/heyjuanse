@@ -1,0 +1,128 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.control select {
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: var(--card);
+  font-weight: 400;
+  font-size: 0.875rem;
+}
+
+.scroll {
+  max-height: 640px;
+  overflow: auto;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+
+.table {
+  font-size: 0.875rem;
+  min-width: 760px;
+}
+
+.table th,
+.table td {
+  padding: 7px 10px;
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--card);
+  box-shadow: inset 0 -1px 0 var(--rule-strong);
+}
+
+.table tbody th {
+  font-weight: 400;
+}
+
+.table tr[data-highlight] td,
+.table tr[data-highlight] th {
+  background: color-mix(in srgb, var(--mark) 22%, transparent);
+}
+
+.open {
+  white-space: nowrap;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: var(--operable);
+  font-family: var(--f-mono);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.name {
+  display: block;
+  font-weight: 600;
+}
+
+.company {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.lane {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--c);
+  flex-shrink: 0;
+}
+
+.table tr[data-lane="sales"] {
+  --c: var(--lane-sales);
+}
+.table tr[data-lane="review"] {
+  --c: var(--lane-review);
+}
+.table tr[data-lane="nurture"] {
+  --c: var(--lane-nurture);
+}
+.table tr[data-lane="fix_data"] {
+  --c: var(--lane-fix);
+}
+.table tr[data-lane="not_for_sales"] {
+  --c: var(--lane-out);
+}
+
+.reason {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.numeric {
+  text-align: right;
+}
