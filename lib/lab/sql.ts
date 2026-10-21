@@ -3,7 +3,7 @@
 /**
  * SQLite in the browser (sql.js). Loaded only on the lab page, after the first render.
  */
-import { useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 import type { Database, SqlJsStatic } from "sql.js";
 import type { Decision } from "@/core/routing/route";
 import {
@@ -17,9 +17,26 @@ import type { WeekData } from "./data";
 
 let enginePromise: Promise<SqlJsStatic> | null = null;
 
+const WASM_URL = "/vendor/sql-wasm-browser.wasm";
+
+/**
+ * Downloads the engine here rather than inside sql.js, so a failed download becomes a short,
+ * readable error instead of an abort in the WebAssembly loader.
+ */
+async function downloadEngine(): Promise<ArrayBuffer> {
+  let response: Response;
+  try {
+    response = await fetch(WASM_URL);
+  } catch {
+    throw new Error("its file did not download");
+  }
+  if (!response.ok) throw new Error(`its file did not download: HTTP ${response.status}`);
+  return response.arrayBuffer();
+}
+
 export function loadSqlEngine(): Promise<SqlJsStatic> {
-  enginePromise ??= import("sql.js").then((module) =>
-    module.default({ locateFile: () => "/vendor/sql-wasm-browser.wasm" }),
+  enginePromise ??= Promise.all([import("sql.js"), downloadEngine()]).then(([module, wasmBinary]) =>
+    module.default({ wasmBinary }),
   );
   enginePromise.catch(() => {
     enginePromise = null;
@@ -66,14 +83,11 @@ export function useSqlMetrics(data: WeekData | null, decisions: Decision[] | nul
         writeDecisions(db, decisions);
         const metrics = runMetrics(db);
         versionRef.current += 1;
-        setState({
-          status: "ready",
-          db,
-          metrics,
-          forDecisions: decisions,
-          version: versionRef.current,
-          queryMs: performance.now() - started,
-        });
+        const version = versionRef.current;
+        const queryMs = performance.now() - started;
+        startTransition(() =>
+          setState({ status: "ready", db, metrics, forDecisions: decisions, version, queryMs }),
+        );
       })
       .catch((error: unknown) => {
         if (!cancelled) {

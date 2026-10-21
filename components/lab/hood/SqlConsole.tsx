@@ -164,7 +164,7 @@ export function SqlConsole({ sql, onOpen }: SqlConsoleProps) {
       <div aria-live="polite" className={styles.consoleOutput}>
         {sql.status === "loading" ? <p className={styles.hint}>Starting SQLite…</p> : null}
         {sql.status === "error" ? (
-          <p className={styles.errorText}>The SQL engine could not start: {sql.message}</p>
+          <p className={styles.errorText}>The SQL engine could not start ({sql.message}).</p>
         ) : null}
         {outcome?.kind === "error" ? <p className={styles.errorText}>{outcome.message}</p> : null}
         {outcome?.kind === "ok" ? (

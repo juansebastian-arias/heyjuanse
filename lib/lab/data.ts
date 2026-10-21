@@ -4,7 +4,7 @@
  * Loads one week of published data in the browser and prepares it for the lab. Everything the
  * page shows is computed from these files.
  */
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { type AiIndex, indexAiRun } from "@/core/ai/outputs";
 import type { AiRunFile } from "@/core/ai/schema";
 import type { LeadAiSignals } from "@/core/ai/signals";
@@ -113,7 +113,9 @@ export function useLabData(weekId: string | null): LabDataState {
           promise.catch(() => weekCache.delete(week.id));
         }
         const data = await promise;
-        if (!cancelled) setState({ status: "ready", manifest, data });
+        // Rendering the whole lab is the heaviest step of the first load. As a transition, React
+        // can pause it to handle input instead of blocking the page until it finishes.
+        if (!cancelled) startTransition(() => setState({ status: "ready", manifest, data }));
       })
       .catch((error: unknown) => {
         manifestPromise = null;

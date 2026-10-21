@@ -11,8 +11,11 @@ const display = Schibsted_Grotesk({
   variable: "--font-display",
   display: "swap",
 });
+// Body text only uses the regular weight, upright and italic. Asking for that one weight makes the
+// two files 40 KB instead of 103 KB for the full variable font.
 const body = Source_Serif_4({
   subsets: ["latin"],
+  weight: ["400"],
   variable: "--font-body",
   display: "swap",
   style: ["normal", "italic"],
