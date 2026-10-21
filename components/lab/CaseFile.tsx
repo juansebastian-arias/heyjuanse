@@ -4,6 +4,7 @@ import { type ReactNode, useEffect, useMemo, useRef } from "react";
 import type { MessageAi } from "@/core/ai/outputs";
 import type { LeadAiSignals } from "@/core/ai/signals";
 import { quoteAppearsIn } from "@/core/ai/verify";
+import { plural } from "@/core/backtest/explain";
 import { leadHasNeed } from "@/core/backtest/metrics";
 import { countryName, MATCH_METHOD_LABELS } from "@/core/cleaning/enrich";
 import {
@@ -19,11 +20,26 @@ import {
   TIMELINE_LABELS,
 } from "@/core/model";
 import { DATA_RULES, type Decision, LANE_LABELS, REASONS } from "@/core/routing/route";
-import { type TraceStep, traceDecision } from "@/core/routing/trace";
+import {
+  type NoAiPointsReason,
+  type TraceStep,
+  traceDecision,
+  whyNoAiPoints,
+} from "@/core/routing/trace";
 import type { LabSettings } from "@/core/settings";
 import { formatDate, formatDateTime, signed } from "@/lib/format";
 import type { WeekData } from "@/lib/lab/data";
 import styles from "./CaseFile.module.css";
+
+const NO_AI_POINTS: Record<NoAiPointsReason, string> = {
+  data_rule:
+    "No AI points: a data rule decided this lead first, and AI cannot override a data rule.",
+  injection:
+    "No AI points: the message tried to instruct the AI, so its reading was set aside and a person reviews the lead.",
+  untrusted: "No AI points: the signal was not trusted under the current policy.",
+  nothing_scored:
+    "No AI points: the signal was trusted, but nothing it found carries points. Only evaluating a solution, a stated timeline or budget, or a request for a demo, pricing or a call does.",
+};
 
 interface CaseFileProps {
   leadId: string | null;
@@ -249,6 +265,7 @@ export function CaseFile({
   const intentLines = decision.score.lines.filter((line) => line.group === "intent");
   const aiLines = decision.score.lines.filter((line) => line.group === "ai");
   const usesAnswerKey = settings.extraction === "answer_key";
+  const noAiPoints = whyNoAiPoints(lead, ai, settings, decision);
 
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: a click on the backdrop is a pointer shortcut; Escape closes the dialog from the keyboard
@@ -362,11 +379,7 @@ export function CaseFile({
                 ))}
               </tbody>
             </table>
-            {aiLines.length === 0 && settings.aiPolicy !== "off" && ai ? (
-              <p className={styles.muted}>
-                No AI points: the signal was not trusted under the current policy.
-              </p>
-            ) : null}
+            {noAiPoints ? <p className={styles.muted}>{NO_AI_POINTS[noAiPoints]}</p> : null}
           </Section>
 
           <Section
@@ -464,9 +477,7 @@ export function CaseFile({
               </div>
               <div>
                 <dt>Company size</dt>
-                <dd>
-                  {lead.match ? `${SIZE_LABELS[lead.match.company.sizeBand]} employees` : "Unknown"}
-                </dd>
+                <dd>{lead.match ? SIZE_LABELS[lead.match.company.sizeBand] : "Unknown"}</dd>
               </div>
               <div>
                 <dt>Country</dt>
@@ -482,12 +493,15 @@ export function CaseFile({
               <div>
                 <dt>Web activity, last 30 days</dt>
                 <dd>
-                  {lead.activity.pricingPageViews} pricing views, {lead.activity.docsVisits} docs
-                  visits, {lead.activity.emailClicks} email clicks
+                  {plural(lead.activity.pricingPageViews, "pricing view")},{" "}
+                  {plural(lead.activity.docsVisits, "docs visit")},{" "}
+                  {plural(lead.activity.emailClicks, "email click")}
                   {lead.activity.webinarAttended ? ", attended a webinar" : ""}
-                  {lead.activity.lastActivityDaysAgo !== null
-                    ? `; last active ${lead.activity.lastActivityDaysAgo} days before submitting`
-                    : "; no recorded activity"}
+                  {lead.activity.lastActivityDaysAgo === null
+                    ? "; no recorded activity"
+                    : lead.activity.lastActivityDaysAgo === 0
+                      ? "; last active the day they submitted"
+                      : `; last active ${plural(lead.activity.lastActivityDaysAgo, "day")} before submitting`}
                 </dd>
               </div>
             </dl>

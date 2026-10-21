@@ -126,7 +126,6 @@
 
 .null {
   color: var(--faint);
-  font-style: italic;
 }
 
 /* Tables of query results */
@@ -169,7 +168,6 @@
 
 .empty {
   color: var(--muted);
-  font-style: italic;
 }
 
 /* Stat rows */

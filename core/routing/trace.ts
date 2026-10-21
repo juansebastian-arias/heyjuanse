@@ -10,6 +10,7 @@ import {
   AI_INTENT_RULES,
   DATA_RULES,
   type Decision,
+  dataRule,
   LANE_LABELS,
   type Lane,
   QUEUE_ORDER_LABELS,
@@ -126,6 +127,26 @@ export function traceDecision(
     lane: "sales",
   });
   return steps;
+}
+
+/**
+ * Why a score has no AI points even though the policy is on and the lead has an AI reading.
+ * Follows the router's order: data rules, then the injection check, then the trust policy.
+ */
+export type NoAiPointsReason = "data_rule" | "injection" | "untrusted" | "nothing_scored";
+
+export function whyNoAiPoints(
+  lead: Lead,
+  ai: LeadAiSignals | null,
+  settings: RoutingSettings,
+  decision: Decision,
+): NoAiPointsReason | null {
+  if (settings.aiPolicy === "off" || !ai) return null;
+  if (decision.score.lines.some((line) => line.group === "ai")) return null;
+  if (dataRule(lead)) return "data_rule";
+  if (ai.injection) return "injection";
+  if (!isTrusted(ai.confidence, settings.aiPolicy)) return "untrusted";
+  return "nothing_scored";
 }
 
 export function finalLane(steps: TraceStep[]): Lane | null {

@@ -33,7 +33,8 @@ They live next to the code (`*.test.ts` in `core/`, `server/` and `scripts/`).
   confidence, and the trust policy.
 - **Metrics**: every need is counted exactly once, more capacity never reaches fewer needs, and
   the decisions do not change when the answer key changes.
-- **Explanations**: what the "what changed" panel says for each kind of change.
+- **Explanations**: what the "what changed" panel says for each kind of change, and that a case
+  file's reason for a score without AI points matches how the router decided.
 - **Extraction client**, with the Anthropic client mocked: refusals, cut-off answers and output
   that does not match the schema are stored as failures, rate limits fail one message, and an
   authentication error stops the run.
@@ -72,8 +73,17 @@ engine.
   closing it with Escape, with focus returned to the lead.
 - The SQL console refuses writes and answers read-only queries.
 - On a phone, the rules fold into one line and the try-one-change buttons work with a tap.
+- Failures (`tests/e2e/resilience.spec.ts`): if the data cannot load, the lab says so and offers
+  a reload; if SQLite cannot start, the reference implementation computes the metrics and the page
+  says so, with no uncaught errors. Addresses with nonsense settings fall back to the defaults or
+  the nearest allowed value, and a link to a case that does not exist leaves the lab as it was.
+- Privacy: no page requests anything from another site, sets a cookie or stores anything in the
+  browser, which is what the colophon promises.
+- Reflow: no page scrolls sideways at 320 pixels wide (WCAG 1.4.10), including the lab's three
+  views and an open case file.
 
 Not covered yet: manual screen reader testing, visual regression tests and performance budgets.
+Performance was checked by hand with Lighthouse on its mobile profile; it is not part of CI.
 
 ## Evaluating the AI outputs
 

@@ -261,6 +261,18 @@ textarea {
   font-variant-numeric: tabular-nums;
 }
 
+/* Mono is loaded in two weights, 400 and 500. Inside bold text it uses the 500 face instead of a
+   copy the browser thickens artificially. */
+code,
+pre,
+kbd,
+samp,
+.eyebrow,
+.tag,
+.num {
+  font-synthesis-weight: none;
+}
+
 .button {
   display: inline-flex;
   align-items: center;

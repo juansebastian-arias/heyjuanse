@@ -159,6 +159,7 @@
   font-family: var(--f-mono);
   font-size: 0.8125rem;
   white-space: nowrap;
+  font-synthesis-weight: none;
 }
 
 .table tbody th.mono {
