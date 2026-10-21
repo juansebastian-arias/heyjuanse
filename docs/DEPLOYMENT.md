@@ -42,15 +42,16 @@ The extraction runs in GitHub Actions, so the API key never reaches the site or 
    sensible second cap.
 2. In the GitHub repository, add it under **Settings → Secrets and variables → Actions → New
    repository secret** with the name `ANTHROPIC_API_KEY`.
-3. Under **Settings → Actions → General**, enable **Allow GitHub Actions to create and approve pull
-   requests**, so the workflow can open its pull request. Without it the branch is still pushed and
-   the pull request can be opened by hand.
-4. In the **Actions** tab, run **Generate AI outputs**. The defaults are the model
+3. In the **Actions** tab, run **Generate AI outputs**. The defaults are the model
    `claude-haiku-5-5` at low effort, all weeks, and a 3 US dollar cap on estimated spend. The dry
    run before it estimates about 13 cents per week.
-5. Review the pull request. Its description has the scorecard against the answer key. Pull
-   requests opened by a workflow do not start CI on their own, so push a commit or close and reopen
-   it to run CI, then merge. The merge deploys the outputs.
+4. The run checks, tests and builds the site with the new outputs, scores them against the answer
+   key and pushes them to a new branch. Its summary shows the scorecard and links to a pre-filled
+   pull request. Open it, and CI runs on it like on any other pull request. Merging it deploys the
+   outputs.
+
+The workflow does not open the pull request itself, because a pull request opened with a
+workflow's own token does not start CI.
 
 Each stored run records the hash of the leads file it read. If the data is regenerated, the lab
 marks older outputs as stale and stops using them until the workflow runs again.
