@@ -25,13 +25,14 @@ export default function AboutPage() {
         </p>
         <p>
           I trained as an industrial engineer at Pontificia Universidad Javeriana in Colombia and
-          started in logistics operations at Flexport and Amazon. At Bees2Biz I moved into business
-          analysis and customer success: modeling processes, turning requirements into software
-          workflows, and implementing and integrating CRMs.
+          started in logistics operations, first at Amazon and then at Flexport, where I became a
+          team lead. At Bees2Biz I moved into business analysis and customer success: modeling
+          processes, turning requirements into software workflows, and implementing and integrating
+          CRMs.
         </p>
         <p>
           Since January 2024 I have worked in the Office of the CEO at BairesDev, across sales
-          operations, GTM systems, analytics and internal AI automation. Since January 2026 I have
+          operations, GTM systems, analytics and internal AI automation. Since October 2025 I have
           also been co-founder and part-time CTO of Sintropia, a small company that implements CRM,
           automation and AI-enabled workflows for its clients. More in{" "}
           <Link href="/work">selected work</Link>.

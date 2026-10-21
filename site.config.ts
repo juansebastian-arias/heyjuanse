@@ -10,8 +10,8 @@ export const SITE = {
   specialties: ["GTM systems", "SQL and analytics", "AI automation", "CRM implementation"],
   repository: "https://github.com/juansebastian-arias/heyjuanse",
   contact: {
-    email: null as string | null,
-    linkedin: null as string | null,
+    email: "juan.arias2025@gmail.com" as string | null,
+    linkedin: "https://www.linkedin.com/in/juansebastian-arias" as string | null,
     github: "https://github.com/juansebastian-arias" as string | null,
   },
 } as const;
