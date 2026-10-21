@@ -33,7 +33,8 @@ They live next to the code (`*.test.ts` in `core/`, `server/` and `scripts/`).
   confidence, and the trust policy.
 - **Metrics**: every need is counted exactly once, more capacity never reaches fewer needs, and
   the decisions do not change when the answer key changes.
-- **Explanations**: what the "what changed" panel says for each kind of change.
+- **Explanations**: what the "what changed" panel says for each kind of change, and that a case
+  file's reason for a score without AI points matches how the router decided.
 - **Extraction client**, with the Anthropic client mocked: refusals, cut-off answers and output
   that does not match the schema are stored as failures, rate limits fail one message, and an
   authentication error stops the run.

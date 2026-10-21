@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { plural } from "@/core/backtest/explain";
 import type { Metrics } from "@/core/backtest/metrics";
 import type { Decision } from "@/core/routing/route";
 import { runQuery } from "@/core/sql/load";
@@ -29,7 +30,7 @@ const PRIMARY: MetricSpec[] = [
   {
     id: "callsWithoutNeed",
     label: "Calls without a need",
-    context: (m) => `of ${m.callsMade} calls made`,
+    context: (m) => `of ${plural(m.callsMade, "call")} made`,
     better: "down",
   },
   {
