@@ -67,8 +67,9 @@ effort, prompt version, date and cost. The site never calls a model.
 
 To generate them, add an `ANTHROPIC_API_KEY` repository secret and run the **Generate AI outputs**
 workflow from the Actions tab. It estimates the cost, stops at a spending cap (3 US dollars by
-default), runs the checks and the build, scores the outputs against the answer key and opens a
-pull request with the scorecard. Details in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+default), runs the checks and the build, scores the outputs against the answer key and pushes
+them to a new branch, with a link to open the pull request. Details in
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ```bash
 pnpm ai:extract --dry-run   # count messages and estimate the cost, no API calls
