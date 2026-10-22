@@ -3,6 +3,7 @@ import {
   expectedMetrics,
   expectNoAxeViolations,
   metricValue,
+  storedRun,
   waitForSql,
   watchErrors,
 } from "./helpers";
@@ -75,18 +76,34 @@ test.describe("on desktop", () => {
     await expect(mark).toBeFocused();
   });
 
+  test("stored AI signals are labeled with the model and the date of the run", async ({ page }) => {
+    const run = storedRun();
+    test.skip(!run, "No stored model run for the default week.");
+    await page.goto("/lab");
+    await waitForSql(page);
+    await page.getByRole("button", { name: "Use AI signals" }).click();
+    await expect(page).toHaveURL(/ai=high/);
+    const { metrics } = expectedMetrics({ aiPolicy: "high" });
+    for (const id of COUNT_METRICS) {
+      await expect(page.locator(`[data-metric="${id}"] .num`).first(), id).toHaveText(
+        String(metrics[id]),
+      );
+    }
+    await expect(page.getByText(`Uses answers stored from a ${run?.model} run on`)).toBeVisible();
+  });
+
   test("the perfect-reading experiment is labeled as the answer key, never as AI output", async ({
     page,
   }) => {
-    await page.goto("/lab");
+    await page.goto("/lab?ai=high&source=answer_key");
     await waitForSql(page);
-    await page.getByRole("button", { name: "Try perfect message reading" }).click();
-    await expect(page).toHaveURL(/source=answer_key/);
     const { metrics } = expectedMetrics({ extraction: "answer_key", aiPolicy: "high" });
     await expect(page.locator('[data-metric="needsReached"] .num').first()).toHaveText(
       String(metrics.needsReached),
     );
-    await expect(page.getByText(/answer key/i).first()).toBeVisible();
+    await expect(
+      page.getByText("This is an upper bound, not AI output.", { exact: false }),
+    ).toBeVisible();
   });
 
   test("the SQL console answers read-only queries and refuses writes", async ({ page }) => {

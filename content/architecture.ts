@@ -3,6 +3,7 @@
  * and limitations. Everything else on that page is rendered from the code itself.
  */
 import { ASSUMPTIONS, RAW_LEADS_PER_WEEK } from "@/core/dataset/generate";
+import { MESSAGE_TEMPLATES } from "@/core/dataset/messages";
 
 /** Readable names for the planted defects in the generator's assumptions. */
 export const DEFECT_LABELS: Record<keyof typeof ASSUMPTIONS.defects, string> = {
@@ -172,7 +173,7 @@ export const DECISIONS: DecisionRecord[] = [
     decision:
       "Use Claude Haiku 5.5 at low effort with structured outputs. Keep the model a setting, so a larger one can be compared on the same scorecard.",
     consequence:
-      "A dry run estimates about 13 cents per week of messages; each stored run records its actual cost. The scorecard shows where the small model falls short.",
+      "A dry run estimates about 13 cents per week of messages, and the stored run cost about 8. The scorecard shows where the small model falls short.",
   },
   {
     title: "SQLite in the browser",
@@ -212,7 +213,8 @@ export const DECISIONS: DecisionRecord[] = [
 export const LIMITATIONS: string[] = [
   "The answer key comes from the same generator that wrote the data. The lab shows how the rules behave under these assumptions, not how they would perform on a real market.",
   `Each week has ${RAW_LEADS_PER_WEEK} submissions, so differences of one or two needs are noise. The lab reports counts rather than precise rates for that reason.`,
-  "AI outputs are produced offline and stored. Until the extraction workflow has run, the AI dial is off and only the answer key can show what AI could add.",
+  "AI outputs are produced offline, once per prompt version, and stored, so a visitor cannot try a message of their own yet.",
+  `The messages come from ${MESSAGE_TEMPLATES.length} hand-written templates, so the AI scorecard measures extraction on short messages written for this demo, not on real inbound mail.`,
   "The human review lane shows who would need a person, but there is no review queue yet. Approving, correcting and escalating cases, and the sandbox action with its audit log, are planned for the next release.",
   "Scoring weights are set by hand, not fitted to data. The calibration chart shows how well they rank leads.",
   "Company matching uses exact domains and names. There is no fuzzy matching of company names.",

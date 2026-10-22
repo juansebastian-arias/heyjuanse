@@ -133,8 +133,10 @@ Current limitations, also published on the site:
   behave under its assumptions, not how they would perform on a real market.
 - Each week has 400 submissions, so differences of one or two needs are noise. The lab reports
   counts rather than precise rates for that reason.
-- AI outputs are produced offline. Until the extraction workflow has run, the AI dial is off and
-  only the answer key can show what AI could add.
+- AI outputs are produced offline, once per prompt version, and stored, so a visitor cannot try a
+  message of their own yet.
+- The messages come from 111 hand-written templates, so the AI scorecard measures extraction on
+  short messages written for this demo, not on real inbound mail.
 - The human review lane shows who would need a person, but there is no review queue yet.
 - Scoring weights are set by hand, not fitted to data. The calibration chart shows how well they
   rank leads.

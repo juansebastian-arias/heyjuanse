@@ -38,13 +38,14 @@ proves the WebAssembly engine loaded under the content security policy.
 
 The extraction runs in GitHub Actions, so the API key never reaches the site or a laptop.
 
-1. Create an API key in the Anthropic Console. Setting a monthly spend limit on the workspace is a
-   sensible second cap.
+1. Create an API key in the Claude Console, inside a workspace. A workspace just for this site can
+   carry a monthly spend limit, which is a sensible second cap. A key that is not scoped to a
+   workspace fails on the first request with an error asking for a workspace ID.
 2. In the GitHub repository, add it under **Settings → Secrets and variables → Actions → New
    repository secret** with the name `ANTHROPIC_API_KEY`.
 3. In the **Actions** tab, run **Generate AI outputs**. The defaults are the model
    `claude-haiku-5-5` at low effort, all weeks, and a 3 US dollar cap on estimated spend. The dry
-   run before it estimates about 13 cents per week.
+   run before it estimates about 13 cents per week; the stored runs cost about 8.
 4. The run checks, tests and builds the site with the new outputs, scores them against the answer
    key and pushes them to a new branch. Its summary shows the scorecard and links to a pre-filled
    pull request. Open it, and CI runs on it like on any other pull request. Merging it deploys the
