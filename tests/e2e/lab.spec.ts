@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { LAB_SKILLS } from "../../content/lab";
 import {
   expectedMetrics,
   expectNoAxeViolations,
@@ -28,6 +29,14 @@ test("the metrics on screen match the engine for the default rules", async ({ pa
   }
   await expect(page.getByText(/SQL and the reference implementation disagree/)).toHaveCount(0);
   expect(errors).toEqual([]);
+});
+
+test("the lab lists the skills it shows as plain text, not as controls", async ({ page }) => {
+  await page.goto("/lab");
+  const skills = page.getByRole("list", { name: "Skills this shows" });
+  await expect(skills.getByRole("listitem")).toHaveText([...LAB_SKILLS]);
+  await expect(skills.getByRole("button")).toHaveCount(0);
+  await expect(skills.getByRole("link")).toHaveCount(0);
 });
 
 test("a shared link restores the rules it was made with", async ({ page }) => {

@@ -71,7 +71,8 @@ engine.
   are labeled with the model and the date of the run, and the answer key as an upper bound.
 - The one-line results on the home page and at the top of the lab match what the engine computes
   for the default week, with and without the stored AI outputs, and the work result on the home
-  page carries its program-level label.
+  page carries its program-level label. The lab's list of the skills it shows is plain text, with
+  no buttons or links in it.
 - A shared link restores the settings it was made with.
 - Keyboard paths: the skip link, moving a dial with arrow keys, opening a case file with Enter and
   closing it with Escape, with focus returned to the lead.

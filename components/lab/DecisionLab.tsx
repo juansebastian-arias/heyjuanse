@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { LAB_SKILLS } from "@/content/lab";
 import type { LeadAiSignals } from "@/core/ai/signals";
 import { type Explanation, explainChange } from "@/core/backtest/explain";
 import { leadHasNeed, type Metrics } from "@/core/backtest/metrics";
@@ -234,6 +235,16 @@ export function DecisionLab({ result = null }: { result?: LabResult | null }) {
             {!data || hasModelOutputs ? " Press “Use AI signals” to see who moves, and why." : null}
           </p>
         ) : null}
+        <div className={styles.skills}>
+          <p id="lab-skills" className="eyebrow">
+            Skills this shows
+          </p>
+          <ul aria-labelledby="lab-skills">
+            {LAB_SKILLS.map((skill) => (
+              <li key={skill}>{skill}</li>
+            ))}
+          </ul>
+        </div>
         <p className={styles.lede}>
           Larkspur sells freight-operations software. About 400 people fill in its forms each week,
           with typos, duplicates and the occasional prompt injection. These rules clean them, score

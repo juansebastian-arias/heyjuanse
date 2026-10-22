@@ -33,6 +33,32 @@
   border-left: 2px solid var(--rule-strong);
 }
 
+.skills {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: var(--measure);
+}
+
+/* Labels, like the specialties on the home page: plain text in an outline, not controls. */
+.skills ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skills li {
+  font-family: var(--f-mono);
+  font-size: 0.8125rem;
+  padding: 4px 10px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  color: var(--ink);
+}
+
 .modes,
 .displays {
   margin: 0;
