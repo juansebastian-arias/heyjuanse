@@ -38,6 +38,25 @@ test.describe("when something fails", () => {
     await expect(page.getByText(/Computed by SQLite/)).toHaveCount(0);
     expect(crashes).toEqual([]);
   });
+
+  test("if the stored AI outputs cannot load, AI stays off and the answer key is offered instead", async ({
+    page,
+  }) => {
+    const crashes = watchCrashes(page);
+    await page.route("**/ai.json", (route) => route.abort());
+    await page.goto("/lab?ai=high");
+    await waitForSql(page);
+    const aiOff = expectedMetrics({ aiPolicy: "off" }).metrics;
+    expect(await metricValue(page, "needsReached")).toBe(String(aiOff.needsReached));
+    expect(await metricValue(page, "reviewCases")).toBe("0");
+    await page.getByRole("button", { name: "Try perfect message reading" }).click();
+    await expect(page).toHaveURL(/source=answer_key/);
+    const answerKey = expectedMetrics({ extraction: "answer_key", aiPolicy: "high" }).metrics;
+    await expect(page.locator('[data-metric="needsReached"] .num').first()).toHaveText(
+      String(answerKey.needsReached),
+    );
+    expect(crashes).toEqual([]);
+  });
 });
 
 test.describe("addresses that do not make sense", () => {

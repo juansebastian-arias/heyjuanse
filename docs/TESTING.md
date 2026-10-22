@@ -67,16 +67,19 @@ engine.
   dark mode.
 - Every internal link and in-page anchor resolves, and unknown addresses return a 404 page.
 - The metrics on screen match what the engine computes for the same settings, including after a
-  dial moves and in the answer-key experiment.
+  dial moves, with the stored AI outputs on, and in the answer-key experiment. The stored outputs
+  are labeled with the model and the date of the run, and the answer key as an upper bound.
 - A shared link restores the settings it was made with.
 - Keyboard paths: the skip link, moving a dial with arrow keys, opening a case file with Enter and
   closing it with Escape, with focus returned to the lead.
 - The SQL console refuses writes and answers read-only queries.
 - On a phone, the rules fold into one line and the try-one-change buttons work with a tap.
-- Failures (`tests/e2e/resilience.spec.ts`): if the data cannot load, the lab says so and offers
-  a reload; if SQLite cannot start, the reference implementation computes the metrics and the page
-  says so, with no uncaught errors. Addresses with nonsense settings fall back to the defaults or
-  the nearest allowed value, and a link to a case that does not exist leaves the lab as it was.
+- Failures (`tests/e2e/resilience.spec.ts`): if the data cannot load, the lab says so and offers a
+  reload; if SQLite cannot start, the reference implementation computes the metrics and the page
+  says so, with no uncaught errors; if the stored AI outputs cannot load, AI stays off and the lab
+  offers the answer-key experiment instead. Addresses with nonsense settings fall back to the
+  defaults or the nearest allowed value, and a link to a case that does not exist leaves the lab as
+  it was.
 - Privacy: no page requests anything from another site, sets a cookie or stores anything in the
   browser, which is what the colophon promises.
 - Reflow: no page scrolls sideways at 320 pixels wide (WCAG 1.4.10), including the lab's three
@@ -99,3 +102,32 @@ Performance was checked by hand with Lighthouse on its mobile profile; it is not
 Every miss is listed with the expected and returned values. The answer key comes from the same
 generator as the messages, so these numbers measure extraction on this synthetic data, not on real
 inbound mail.
+
+### Stored runs
+
+Two runs have been made, each with `claude-haiku-5-5` at low effort over the 578 messages in the
+three weeks. The lab uses the second. Totals for all three weeks:
+
+| Measure | Prompt 2026-10-20.1 | Prompt 2026-10-22.1 (in use) |
+| --- | --- | --- |
+| Answers lowered to low confidence by the quote check | 146 | 2 |
+| Answers the rules saw as high confidence | 193 | 316 |
+| All four routing fields right | 79.9% | 84.9% |
+| Intent right | 96.4% | 96.2% |
+| Next step right | 85.8% | 91.7% |
+| Prompt injections caught | 12 of 12, no false alarms | 12 of 12, no false alarms |
+| Needs reached at the default settings with AI on, high confidence only (AI off: 78 of 213; answer key: 97) | 79 | 90 |
+| Cases sent to human review at those settings | 45 | 27 |
+| Estimated cost | $0.21 | $0.23 |
+
+The first run read most fields correctly, but a quarter of its answers were lowered to low
+confidence. In 113 of the 146, intent had no quote of its own, often because the sentence that
+showed it was quoted once, under another field. The second prompt asks for one evidence item per
+field, repeating a quote when one sentence supports several, and only quotes from inside the
+message. The answer key was not used to write the change.
+
+Each prompt ran once, so part of the change in field accuracy may be run-to-run variation; the drop
+in downgrades is what the change targeted. The 578 messages come from 105 of the 111 hand-written
+templates (140 distinct texts once the placeholders are filled), so a template the model misreads
+counts several times, and the shares are not 578 independent measurements. The first run's outputs
+are kept on the `ai-outputs/20261022-000353` branch.

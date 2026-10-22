@@ -63,12 +63,13 @@ when the generator's logic changes.
 
 A small model reads each free-text message once, offline, and returns structured signals with
 quotes from the message. The answers are stored in `public/data/<week>/ai.json` with the model,
-effort, prompt version, date and cost. The site never calls a model.
+effort, prompt version, date and cost. The site never calls a model. The scorecards of every
+stored run are in [docs/TESTING.md](docs/TESTING.md#stored-runs).
 
-To generate them, add an `ANTHROPIC_API_KEY` repository secret and run the **Generate AI outputs**
-workflow from the Actions tab. It estimates the cost, stops at a spending cap (3 US dollars by
-default), runs the checks and the build, scores the outputs against the answer key and pushes
-them to a new branch, with a link to open the pull request. Details in
+To generate them, add an `ANTHROPIC_API_KEY` repository secret (a key created inside a workspace)
+and run the **Generate AI outputs** workflow from the Actions tab. It estimates the cost, stops at a
+spending cap (3 US dollars by default), runs the checks and the build, scores the outputs against
+the answer key and pushes them to a new branch, with a link to open the pull request. Details in
 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ```bash

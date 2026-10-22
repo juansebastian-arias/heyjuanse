@@ -154,8 +154,14 @@ function AiOutput({
             <dd>{value}</dd>
           </div>
         ))}
+        {output.summary ? (
+          // The model's own paraphrase, so it is not shown in quotation marks like a quote.
+          <div className={styles.wide}>
+            <dt>Summary, in the model’s words</dt>
+            <dd>{output.summary}</dd>
+          </div>
+        ) : null}
       </dl>
-      {output.summary ? <p className={styles.summary}>“{output.summary}”</p> : null}
       <div className={styles.checks}>
         <p className={styles.checksTitle}>Checks before the rules may use it</p>
         <ul>

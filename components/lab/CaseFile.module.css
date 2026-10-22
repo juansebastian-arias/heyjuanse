@@ -347,10 +347,8 @@
   overflow-wrap: anywhere;
 }
 
-.summary {
-  font-family: var(--f-body);
-  font-style: italic;
-  font-size: 0.9375rem;
+.pairs .wide {
+  grid-column: 1 / -1;
 }
 
 .checks ul {

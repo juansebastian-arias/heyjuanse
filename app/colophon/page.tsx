@@ -108,6 +108,13 @@ export default function ColophonPage() {
               Every AI output in the lab is labeled as stored. The site never calls a model while
               you browse.
             </p>
+            <p>
+              An earlier run, with prompt <code>2026-10-20.1</code>, was replaced: its answers often
+              had no quote for intent, so the checks set a quarter of them to low confidence. Both
+              runs’ scorecards are in the{" "}
+              <a href={`${SITE.repository}/blob/main/docs/TESTING.md#stored-runs`}>testing notes</a>
+              .
+            </p>
           </>
         ) : (
           <p>
