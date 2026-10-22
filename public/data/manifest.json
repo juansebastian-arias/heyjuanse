@@ -10,7 +10,7 @@
       "files": {
         "leads": "2026-w39/leads.json",
         "labels": "2026-w39/labels.json",
-        "ai": null
+        "ai": "2026-w39/ai.json"
       },
       "sha256": {
         "leads": "10832e5a047cc3f8614d55927c79e7f8990a36fbe75c6db999ac520bcd5b776a",
@@ -26,7 +26,7 @@
       "files": {
         "leads": "2026-w40/leads.json",
         "labels": "2026-w40/labels.json",
-        "ai": null
+        "ai": "2026-w40/ai.json"
       },
       "sha256": {
         "leads": "dec87030bdd2761d17a74a354c952daabe8c15cd3c66b534169469690e34e5b0",
@@ -42,7 +42,7 @@
       "files": {
         "leads": "2026-w41/leads.json",
         "labels": "2026-w41/labels.json",
-        "ai": null
+        "ai": "2026-w41/ai.json"
       },
       "sha256": {
         "leads": "35fc511c852696389c550ed26dc64f043da63693e439b48626b375732d0b36b6",
