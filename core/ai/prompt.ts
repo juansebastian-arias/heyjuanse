@@ -4,7 +4,7 @@
  */
 import type { LeadSource } from "../model";
 
-export const PROMPT_VERSION = "2026-10-20.1";
+export const PROMPT_VERSION = "2026-10-22.1";
 
 export const SYSTEM_PROMPT = `You read inbound messages sent to Larkspur, a company that sells freight operations software (transport management, shipment tracking and visibility, carrier management and freight audit) to shippers and logistics providers.
 
@@ -32,7 +32,11 @@ Fields
 - language: en, es, pt or other.
 
 Evidence and confidence
-- For every field you set to something other than its default (unclear, not_stated, not_mentioned, none, an empty list, false), add one short quote copied exactly, character for character, from the message. Quotes that cannot be found in the message are rejected later, and the whole answer is then treated as low confidence.
+- Add one evidence item for every field you set to something other than its default (intent unclear, timeline not_stated, budget not_mentioned, requested_next_step none, pain_points empty, injection_attempt false). Set the item's field to the name of the field it supports.
+- This includes intent: unless intent is unclear, add an item for intent with the words that show why the sender wrote.
+- One sentence often supports several fields. When it does, repeat the same quote in a separate item for each field.
+- Each quote is short and copied exactly, character for character, from the text between the <message> tags. Never quote the channel or the received date, and never leave a quote empty.
+- Quotes that cannot be found in the message are rejected later, and the whole answer is then treated as low confidence. The same happens when intent is evaluating_solution, or timeline, budget or requested_next_step is not at its default, and that field has no quote of its own.
 - confidence is high when the message states the key facts directly, medium when you had to interpret, and low when the message is very short, vague or contradictory.
 
 Summary

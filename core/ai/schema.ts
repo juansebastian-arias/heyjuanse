@@ -40,11 +40,15 @@ export const ExtractionSchema = z.object({
   evidence: z
     .array(
       z.object({
-        field: z.enum(EVIDENCE_FIELDS),
-        quote: z.string().describe("Exact words copied from the message."),
+        field: z.enum(EVIDENCE_FIELDS).describe("The field this quote supports."),
+        quote: z
+          .string()
+          .describe("Exact words copied from inside the <message> tags. Never empty."),
       }),
     )
-    .describe("One short verbatim quote for each field that is not at its default value."),
+    .describe(
+      "One item for each field that is not at its default value. Repeat a quote in a separate item when it supports several fields.",
+    ),
   confidence: z
     .enum(CONFIDENCE_LEVELS)
     .describe(
