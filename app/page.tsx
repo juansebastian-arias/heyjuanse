@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ContactLinks } from "@/components/ContactLinks";
 import { LobbyMarks } from "@/components/LobbyMarks";
+import { HOME_RESULT, WORK } from "@/content/work";
+import { labResult } from "@/lib/server/lab-result";
 import { lobbySnapshot } from "@/lib/server/lobby";
 import { SITE } from "@/site.config";
 import styles from "./page.module.css";
@@ -56,8 +58,18 @@ const PRINCIPLES = [
   },
 ];
 
+/** The current role, from the work history, so the two cannot disagree. */
+function currentRole(): string | null {
+  const entry = WORK[0];
+  const role = entry?.roles[0];
+  const since = role?.period.match(/^(.+) – present$/)?.[1];
+  return entry && role && since ? `${role.title} at ${entry.organization} since ${since}.` : null;
+}
+
 export default function Home() {
   const snapshot = lobbySnapshot();
+  const lab = labResult();
+  const role = currentRole();
   return (
     <>
       <section className={`page ${styles.hero}`} aria-labelledby="home-title">
@@ -66,9 +78,30 @@ export default function Home() {
             {SITE.name}
           </h1>
           <p className={styles.claim}>I design and build the systems revenue teams run on.</p>
-          <p className={styles.subclaim}>
-            Clean data, explainable decisions, and automation and AI that know when to ask a human.
-          </p>
+          {role ? <p className={styles.role}>{role}</p> : null}
+          <ul className={styles.results} aria-label="Results">
+            <li className={styles.result}>
+              <p className="eyebrow">{HOME_RESULT.label}</p>
+              <p className={styles.resultHeadline}>
+                <span aria-hidden="true">{HOME_RESULT.figure}</span>
+                <span className="visually-hidden">{HOME_RESULT.spokenFigure}</span>{" "}
+                {HOME_RESULT.headline}
+              </p>
+              <p className={styles.resultText}>{HOME_RESULT.text}</p>
+            </li>
+            {lab ? (
+              <li className={styles.result}>
+                <p className="eyebrow">Decision Lab · my working demo</p>
+                <p className={styles.resultHeadline}>
+                  {lab.withAi} of {lab.calls} sales calls find a real need
+                </p>
+                <p className={styles.resultText}>
+                  when an AI model also reads the messages, up from {lab.withRules} with rules
+                  alone. The company and its data are made up.
+                </p>
+              </li>
+            ) : null}
+          </ul>
           <ul className={styles.specialties} aria-label="Specialties">
             {SITE.specialties.map((specialty) => (
               <li key={specialty}>{specialty}</li>

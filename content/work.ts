@@ -126,6 +126,20 @@ export const WORK: WorkEntry[] = [
   },
 ];
 
+/**
+ * The program-level result on the home page, in short. It restates the cleared result of the
+ * first BairesDev item above, so the two must change together, and it keeps the label that says
+ * the result belongs to the whole initiative.
+ */
+export const HOME_RESULT = {
+  label: "Program-level result · BairesDev",
+  figure: "~60%",
+  /** How the figure is read aloud, since "~" is not. */
+  spokenFigure: "About 60%",
+  headline: "higher contract value",
+  text: "from leads contacted through an AI-assisted lead-prioritization program I helped build, compared with a control group in an A/B test. A result of the whole program, not mine alone.",
+};
+
 export const EDUCATION = {
   degree: "Industrial Engineering",
   school: "Pontificia Universidad Javeriana",

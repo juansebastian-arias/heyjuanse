@@ -1,5 +1,11 @@
 import { expect, test } from "@playwright/test";
-import { expectNoAxeViolations, waitForSql, watchErrors } from "./helpers";
+import {
+  expectedMetrics,
+  expectNoAxeViolations,
+  storedRun,
+  waitForSql,
+  watchErrors,
+} from "./helpers";
 
 const PAGES = ["/", "/lab", "/work", "/about", "/architecture", "/colophon"];
 
@@ -66,6 +72,29 @@ test("the home page marks are the engine's output, not an illustration", async (
   const figure = page.getByRole("img", { name: /leads/ });
   await expect(figure).toBeVisible();
   await expect(page.getByText(/Real output, not an illustration/)).toBeVisible();
+});
+
+test("the home page names the current role and labels the work result as program-level", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.getByText(/^Office of the CEO Analyst at BairesDev since/)).toBeVisible();
+  const results = page.getByRole("list", { name: "Results" });
+  await expect(results).toContainText("Program-level result");
+  await expect(results).toContainText("A result of the whole program, not mine alone.");
+});
+
+test("the home page states the lab's result as the engine computes it", async ({ page }) => {
+  test.skip(!storedRun(), "No stored model run for the default week.");
+  const rules = expectedMetrics({ aiPolicy: "off" }).metrics;
+  const ai = expectedMetrics({ aiPolicy: "high" }).metrics;
+  await page.goto("/");
+  const results = page.getByRole("list", { name: "Results" });
+  await expect(results).toContainText(
+    `${ai.callsWithNeed} of ${ai.callsMade} sales calls find a real need`,
+  );
+  await expect(results).toContainText(`up from ${rules.callsWithNeed} with rules alone`);
+  await expect(results).toContainText("The company and its data are made up.");
 });
 
 test("security headers are sent", async ({ request }) => {

@@ -49,6 +49,8 @@ test.describe("when something fails", () => {
     const aiOff = expectedMetrics({ aiPolicy: "off" }).metrics;
     expect(await metricValue(page, "needsReached")).toBe(String(aiOff.needsReached));
     expect(await metricValue(page, "reviewCases")).toBe("0");
+    // The summary at the top no longer points to a button that is not there.
+    await expect(page.getByText("Press “Use AI signals”")).toHaveCount(0);
     await page.getByRole("button", { name: "Try perfect message reading" }).click();
     await expect(page).toHaveURL(/source=answer_key/);
     const answerKey = expectedMetrics({ extraction: "answer_key", aiPolicy: "high" }).metrics;
