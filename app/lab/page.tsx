@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DecisionLab } from "@/components/lab/DecisionLab";
+import { labResult } from "@/lib/server/lab-result";
 
 export const metadata: Metadata = {
   title: "Decision Lab",
@@ -8,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function LabPage() {
-  return <DecisionLab />;
+  return <DecisionLab result={labResult()} />;
 }

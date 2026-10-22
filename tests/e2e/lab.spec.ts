@@ -92,6 +92,20 @@ test.describe("on desktop", () => {
     await expect(page.getByText(`Uses answers stored from a ${run?.model} run on`)).toBeVisible();
   });
 
+  test("the summary at the top gives the result that “Use AI signals” shows", async ({ page }) => {
+    test.skip(!storedRun(), "No stored model run for the default week.");
+    const rules = expectedMetrics({ aiPolicy: "off" }).metrics;
+    const ai = expectedMetrics({ aiPolicy: "high" }).metrics;
+    await page.goto("/lab");
+    await waitForSql(page);
+    const summary = page.locator("p", { hasText: "In short:" });
+    await expect(summary).toContainText(
+      `the rules alone send ${rules.callsWithNeed} of the ${rules.callsMade} sales calls`,
+    );
+    await expect(summary).toContainText(`${ai.callsWithNeed} of ${ai.callsMade} do.`);
+    await expect(summary).toContainText("Press “Use AI signals”");
+  });
+
   test("the perfect-reading experiment is labeled as the answer key, never as AI output", async ({
     page,
   }) => {

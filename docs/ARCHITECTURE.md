@@ -78,7 +78,10 @@ flowchart LR
 
 - **Static pages.** Every page is pre-rendered at build time. Server components read
   `public/data` from disk while building, which is how the home page shows the engine's real
-  output for the default week and how the Under the hood page lists the test results.
+  output for the default week and how the Under the hood page lists the test results. The
+  one-line result on the home page and at the top of the lab (`lib/server/lab-result.ts`) is
+  computed the same way: the default week routed with the rules alone and with the stored AI
+  outputs, skipped if no stored run matches the published leads.
 - **The lab is a client component.** It fetches the manifest and one week's files from the same
   origin, prepares the week, and routes all leads synchronously on every change. SQLite (sql.js,
   compiled to WebAssembly) loads after the first render; until it is ready, the metrics come from

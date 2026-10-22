@@ -69,6 +69,9 @@ engine.
 - The metrics on screen match what the engine computes for the same settings, including after a
   dial moves, with the stored AI outputs on, and in the answer-key experiment. The stored outputs
   are labeled with the model and the date of the run, and the answer key as an upper bound.
+- The one-line results on the home page and at the top of the lab match what the engine computes
+  for the default week, with and without the stored AI outputs, and the work result on the home
+  page carries its program-level label.
 - A shared link restores the settings it was made with.
 - Keyboard paths: the skip link, moving a dial with arrow keys, opening a case file with Enter and
   closing it with Escape, with focus returned to the lead.
@@ -76,8 +79,9 @@ engine.
 - On a phone, the rules fold into one line and the try-one-change buttons work with a tap.
 - Failures (`tests/e2e/resilience.spec.ts`): if the data cannot load, the lab says so and offers a
   reload; if SQLite cannot start, the reference implementation computes the metrics and the page
-  says so, with no uncaught errors; if the stored AI outputs cannot load, AI stays off and the lab
-  offers the answer-key experiment instead. Addresses with nonsense settings fall back to the
+  says so, with no uncaught errors; if the stored AI outputs cannot load, AI stays off, the summary
+  at the top stops pointing to "Use AI signals", and the lab offers the answer-key experiment
+  instead. Addresses with nonsense settings fall back to the
   defaults or the nearest allowed value, and a link to a case that does not exist leaves the lab as
   it was.
 - Privacy: no page requests anything from another site, sets a cookie or stores anything in the

@@ -24,6 +24,15 @@
   color: var(--muted);
 }
 
+.result {
+  font-family: var(--f-body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  max-width: var(--measure);
+  padding-left: 14px;
+  border-left: 2px solid var(--rule-strong);
+}
+
 .modes,
 .displays {
   margin: 0;

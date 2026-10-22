@@ -16,6 +16,7 @@ import {
 } from "@/core/settings";
 import { useLabData } from "@/lib/lab/data";
 import { useSqlMetrics } from "@/lib/lab/sql";
+import type { LabResult } from "@/lib/server/lab-result";
 import { CaseFile } from "./CaseFile";
 import styles from "./DecisionLab.module.css";
 import { Dials } from "./Dials";
@@ -53,7 +54,8 @@ function readAddress(): {
   };
 }
 
-export function DecisionLab() {
+/** `result` is the default week's result in one line, computed when the site is built. */
+export function DecisionLab({ result = null }: { result?: LabResult | null }) {
   const [hydrated, setHydrated] = useState(false);
   const [settings, setSettings] = useState<LabSettings>(DEFAULT_SETTINGS);
   const [mode, setMode] = useState<ViewMode>("explore");
@@ -223,6 +225,15 @@ export function DecisionLab() {
       <header className={`page ${styles.intro}`}>
         <p className="eyebrow">Decision Lab · Larkspur, a fictional company · synthetic data</p>
         <h1 className={styles.title}>Which inbound leads should sales call this week?</h1>
+        {result ? (
+          <p className={styles.result}>
+            <strong>In short:</strong> in {result.weekLabel}, the rules alone send{" "}
+            {result.withRules} of the {result.calls} sales calls to someone with a real need. When
+            an AI model also reads the messages, {result.withAi} of {result.calls} do.
+            {/* The button is only there when the stored AI answers loaded. */}
+            {!data || hasModelOutputs ? " Press “Use AI signals” to see who moves, and why." : null}
+          </p>
+        ) : null}
         <p className={styles.lede}>
           Larkspur sells freight-operations software. About 400 people fill in its forms each week,
           with typos, duplicates and the occasional prompt injection. These rules clean them, score
