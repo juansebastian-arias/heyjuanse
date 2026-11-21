@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { compareMotions, decide, type Move } from "@/core/gtm/decide";
 import {
   ALL_OFF,
@@ -15,6 +15,7 @@ import {
   TEAM,
 } from "@/core/gtm/model";
 import { Assumptions } from "./Assumptions";
+import { DecisionPath, type PathStep } from "./DecisionPath";
 import { FlowDiagram } from "./FlowDiagram";
 import { formatHours, formatMoney, formatSigned, formatSignedMoney } from "./format";
 import styles from "./Simulator.module.css";
@@ -27,7 +28,9 @@ function moveLabel(move: Move): string {
 export function Simulator() {
   const [motion, setMotion] = useState<MotionId>("inbound");
   const [automations, setAutomations] = useState<Automations>(ALL_OFF);
-  const [log, setLog] = useState<{ label: string; meetings: number }[]>([]);
+  const [log, setLog] = useState<PathStep[]>([]);
+  const [start, setStart] = useState<{ meetings: number; costPerMeeting: number } | null>(null);
+  const [playing, setPlaying] = useState(false);
 
   const decision = useMemo(() => decide(motion, automations), [motion, automations]);
   const motions = useMemo(() => compareMotions(automations), [automations]);
@@ -35,22 +38,48 @@ export function Simulator() {
   const isManual = AUTOMATION_IDS.every((id) => !automations[id]);
   const top = contributions[0];
 
-  const reset = (next: Automations) => {
-    setAutomations(next);
+  const clearPath = () => {
     setLog([]);
+    setStart(null);
+    setPlaying(false);
+  };
+  const reset = (preset: Automations) => {
+    setAutomations(preset);
+    clearPath();
   };
   const pickMotion = (id: MotionId) => {
     setMotion(id);
-    setLog([]);
+    clearPath();
   };
   const toggle = (id: AutomationId) => {
     setAutomations((prev) => ({ ...prev, [id]: !prev[id] }));
-    setLog([]);
+    clearPath();
   };
   const apply = (move: Move) => {
+    if (!log.length)
+      setStart({ meetings: current.meetings, costPerMeeting: current.costPerMeeting });
     setAutomations((prev) => ({ ...prev, [move.automation]: move.turnOn }));
-    setLog((prev) => [...prev, { label: moveLabel(move), meetings: move.deltaMeetings }]);
+    setLog((prev) => [
+      ...prev,
+      {
+        label: `${move.turnOn ? "" : "Off: "}${AUTOMATIONS[move.automation].short}`,
+        delta: move.deltaMeetings,
+        meetings: current.meetings + move.deltaMeetings,
+        costPerMeeting: current.costPerMeeting + move.deltaCostPerMeeting,
+      },
+    ]);
   };
+
+  // "Follow the data": keep applying the recommendation, one step at a time, until none is left.
+  useEffect(() => {
+    if (!playing) return;
+    if (!next) {
+      setPlaying(false);
+      return;
+    }
+    const timer = window.setTimeout(() => apply(next), log.length ? 900 : 0);
+    return () => window.clearTimeout(timer);
+  });
 
   const kpis = [
     {
@@ -181,34 +210,37 @@ export function Simulator() {
                     ? " With the other automations freeing up rep time, this rule now holds back good leads."
                     : ""}
                 </p>
-                <button
-                  type="button"
-                  className="button"
-                  data-variant="primary"
-                  onClick={() => apply(next)}
-                >
-                  Apply this decision
-                </button>
+                <div className={styles.decisionActions}>
+                  <button
+                    type="button"
+                    className="button"
+                    data-variant="primary"
+                    onClick={() => apply(next)}
+                    disabled={playing}
+                  >
+                    Apply this decision
+                  </button>
+                  <button
+                    type="button"
+                    className="button"
+                    data-variant="quiet"
+                    onClick={() => setPlaying(true)}
+                    disabled={playing}
+                  >
+                    Follow the data to the end
+                  </button>
+                </div>
               </>
             ) : (
               <p className={styles.decisionText}>
                 <strong>No single switch adds more meetings from here.</strong>{" "}
                 {top
-                  ? `The biggest driver is ${AUTOMATIONS[top.automation].name.toLowerCase()}: without it, ${Math.abs(top.deltaMeetings)} fewer meetings.`
+                  ? `The biggest driver is “${AUTOMATIONS[top.automation].name}”: without it, ${Math.abs(top.deltaMeetings)} fewer meetings.`
                   : ""}{" "}
                 Next step would be a new channel, not another automation: compare strategies below.
               </p>
             )}
-            {log.length ? (
-              <ol className={styles.log} aria-label="Decisions applied">
-                {log.map((entry, index) => (
-                  <li key={entry.label}>
-                    <span className="num">{index + 1}.</span> {entry.label}{" "}
-                    <span className="num">({formatSigned(entry.meetings)} meetings)</span>
-                  </li>
-                ))}
-              </ol>
-            ) : null}
+            {log.length && start ? <DecisionPath start={start} steps={log} /> : null}
           </div>
 
           <FlowDiagram result={current} automations={automations} />

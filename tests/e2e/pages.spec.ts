@@ -85,6 +85,17 @@ test("the simulator recommends a move, and applying it adds meetings", async ({ 
   expect(errors).toEqual([]);
 });
 
+test("following the data to the end stacks up decisions until none is left", async ({ page }) => {
+  await page.goto("/#simulator");
+  await page.getByRole("button", { name: "Follow the data to the end" }).click();
+  await expect(page.getByText("No single switch adds more meetings from here.")).toBeVisible({
+    timeout: 15_000,
+  });
+  const steps = page.getByRole("list", { name: "Decisions applied" }).getByRole("listitem");
+  expect(await steps.count()).toBeGreaterThan(3);
+  await expectNoAxeViolations(page, "#simulator");
+});
+
 test("security headers are sent", async ({ request }) => {
   const response = await request.get("/");
   const headers = response.headers();

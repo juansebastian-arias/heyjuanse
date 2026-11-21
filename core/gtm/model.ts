@@ -133,6 +133,8 @@ export const MOTION_IDS = Object.keys(MOTIONS) as MotionId[];
 export interface Automation {
   id: AutomationId;
   name: string;
+  /** One or two words, for tight spaces such as chart labels. */
+  short: string;
   /** What it does, in plain words. */
   what: string;
   /** What it changes in the simulation. */
@@ -145,6 +147,7 @@ export const AUTOMATIONS: Record<AutomationId, Automation> = {
   dedupe: {
     id: "dedupe",
     name: "Dedupe and CRM hygiene",
+    short: "Dedupe",
     what: "Merges a new lead into the existing contact and account instead of creating a copy.",
     effect: "Duplicates never reach a rep, so no time is spent on them.",
     monthlyCost: 0,
@@ -152,6 +155,7 @@ export const AUTOMATIONS: Record<AutomationId, Automation> = {
   enrichment: {
     id: "enrichment",
     name: "Enrichment waterfall",
+    short: "Enrich data",
     what: "Fills company size, industry and role from several data providers, one after another.",
     effect: "Scoring sees the real fit, and reps skip 4 minutes of manual lookup per lead.",
     monthlyCost: 900,
@@ -159,6 +163,7 @@ export const AUTOMATIONS: Record<AutomationId, Automation> = {
   scoring: {
     id: "scoring",
     name: "Fit and intent scoring",
+    short: "Scoring",
     what: "Ranks every lead by how well it fits and how ready it looks, and nurtures the low end.",
     effect: "Reps work the best leads first instead of first come, first served.",
     monthlyCost: 0,
@@ -166,6 +171,7 @@ export const AUTOMATIONS: Record<AutomationId, Automation> = {
   instantRouting: {
     id: "instantRouting",
     name: "Instant routing",
+    short: "Instant routing",
     what: "Assigns each lead to the right rep and alerts them within minutes, day or night.",
     effect: "The first touch no longer waits for someone to sort the inbox.",
     monthlyCost: 50,
@@ -173,6 +179,7 @@ export const AUTOMATIONS: Record<AutomationId, Automation> = {
   aiDrafts: {
     id: "aiDrafts",
     name: "AI research and drafts, a person approves",
+    short: "AI drafts",
     what: "An AI agent researches the account and drafts the first message; the rep edits and sends.",
     effect: "Messages are more relevant, and a first-touch sequence takes 9 minutes instead of 25.",
     monthlyCost: 400,
@@ -180,6 +187,7 @@ export const AUTOMATIONS: Record<AutomationId, Automation> = {
   signals: {
     id: "signals",
     name: "Buying-signal triggers",
+    short: "Buying signals",
     what: "Watches for pricing-page visits, usage spikes and job changes on leads that were not ready.",
     effect: "Leads that come back to life go straight back to a rep.",
     monthlyCost: 300,

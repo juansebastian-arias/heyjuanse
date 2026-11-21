@@ -272,16 +272,10 @@
   font-family: var(--f-display);
 }
 
-.log {
-  flex-basis: 100%;
-  margin: 0;
-  padding: 10px 0 0;
-  list-style: none;
-  border-top: 1px solid color-mix(in srgb, var(--mark-ink) 25%, transparent);
-  font-size: 0.875rem;
+.decisionActions {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 6px;
 }
 
 .moves summary,
