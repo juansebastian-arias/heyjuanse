@@ -1,134 +1,155 @@
 import Link from "next/link";
 import { ContactLinks } from "@/components/ContactLinks";
-import { LobbyMarks } from "@/components/LobbyMarks";
-import { lobbySnapshot } from "@/lib/server/lobby";
+import { HeroEngine } from "@/components/gtm/HeroEngine";
+import { Simulator } from "@/components/gtm/Simulator";
+import { PLAYBOOKS } from "@/content/playbooks";
+import { AUTOMATIONS } from "@/core/gtm/model";
 import { SITE } from "@/site.config";
 import styles from "./page.module.css";
 
-const WAYS_IN = [
+const PROOF = [
   {
-    href: "/lab",
-    title: "Decision Lab",
-    kicker: "About a minute, no sign-up",
-    text: "A fictional company, a week of messy inbound leads and too few sales calls. Change the rules, watch every lead move, and open any one to see why it went where it did.",
-    cta: "Open the Decision Lab",
+    where: "BairesDev · Office of the CEO",
+    what: "Owned the automation and decision layer of an AI-assisted lead program: enrichment, scoring, retrieval of context, AI-drafted messages with human approval, and the A/B audit.",
+    result:
+      "≈60% higher contract value in the contacted cohort than in the control group, in an A/B test. A result of the whole program, not of my work alone.",
   },
   {
-    href: "/architecture",
-    title: "Under the hood",
-    kicker: "Ten minutes, for technical reviewers",
-    text: "The requirements, the rule catalogue, the SQL, the AI contract, the tests and the decisions behind them, all generated from the code that runs the lab.",
-    cta: "View the architecture",
+    where: "BairesDev · Office of the CEO",
+    what: "Replaced a spreadsheet process with an AI-assisted app that classifies messages, routes opportunities and maps relationships for the executive office.",
   },
   {
-    href: "/work",
-    title: "Selected work",
-    kicker: "Professional experience",
-    text: "GTM systems, analytics and AI automation at BairesDev, CRM and automation projects at Sintropia, and earlier work in business analysis and logistics. Kept separate from the demo.",
-    cta: "Explore my work",
-  },
-];
-
-const PRINCIPLES = [
-  {
-    title: "Start from the decision, not the tool.",
-    text: "The lab begins with a business constraint, a fixed number of sales calls, and every rule exists to spend them well.",
-    href: "/architecture#rules",
-    link: "Read the rules",
-  },
-  {
-    title: "Make every number show its work.",
-    text: "Each metric in the lab is a SQL query that runs in your browser, and a test keeps it identical to the reference code.",
-    href: "/lab",
-    link: "Open a query",
-  },
-  {
-    title: "Use AI where rules cannot read, and let a person decide when it is unsure.",
-    text: "A model reads free-text messages once, offline. Its answers are checked against the message, and doubtful ones go to human review.",
-    href: "/architecture#ai",
-    link: "See the AI contract",
-  },
-  {
-    title: "Design the failure states, not just the happy path.",
-    text: "Typos, duplicates, look-alike names and prompt injections are planted in the data on purpose. The data quality report shows how each one was handled, mistakes included.",
-    href: "/lab?view=hood",
-    link: "Open the report",
+    where: "Co-founder and CTO, part-time",
+    what: "CRM, automation and AI systems for clients: a healthcare CRM and operations system that runs in production, and lead and workflow automation for real estate.",
   },
 ];
 
 export default function Home() {
-  const snapshot = lobbySnapshot();
   return (
     <>
       <section className={`page ${styles.hero}`} aria-labelledby="home-title">
         <div className={styles.intro}>
-          <h1 id="home-title" className={styles.name}>
-            {SITE.name}
+          <p className={styles.role}>GTM engineer · RevOps · AI automation</p>
+          <h1 id="home-title" className={styles.claim}>
+            I build the automated engine that turns leads into sales meetings.
           </h1>
-          <p className={styles.claim}>I design and build the systems revenue teams run on.</p>
           <p className={styles.subclaim}>
-            Clean data, explainable decisions, and automation and AI that know when to ask a human.
+            Routing, enrichment, scoring and AI agents that draft while a person approves. Each one
+            switched on because the data says it pays.
           </p>
-          <ul className={styles.specialties} aria-label="Specialties">
+          <ul className={styles.specialties} aria-label="Skills">
             {SITE.specialties.map((specialty) => (
               <li key={specialty}>{specialty}</li>
             ))}
           </ul>
           <div className={styles.actions}>
-            <Link href="/lab" className="button" data-variant="primary">
-              Open the Decision Lab
-            </Link>
-            <Link href="/work" className="button">
-              Selected work
-            </Link>
+            <a href="#simulator" className="button" data-variant="primary">
+              Try the GTM simulator
+            </a>
+            <a href="#playbooks" className="button">
+              See the playbooks
+            </a>
             <Link href="/about#contact" className="button" data-variant="quiet">
               Get in touch
             </Link>
           </div>
         </div>
         <div className={styles.visual}>
-          <LobbyMarks snapshot={snapshot} />
+          <HeroEngine />
         </div>
       </section>
 
-      <section className={`page ${styles.section}`} aria-labelledby="ways-title">
-        <h2 id="ways-title" className={styles.sectionTitle}>
-          Three ways in
-        </h2>
-        <ul className={styles.ways}>
-          {WAYS_IN.map((way) => (
-            <li key={way.href} className={styles.way}>
-              <p className="eyebrow">{way.kicker}</p>
-              <h3 className={styles.wayTitle}>{way.title}</h3>
-              <p className={styles.wayText}>{way.text}</p>
-              <Link href={way.href} className={styles.wayLink}>
-                {way.cta} <span aria-hidden="true">→</span>
-              </Link>
+      <section
+        className={`page ${styles.section}`}
+        id="simulator"
+        aria-labelledby="simulator-title"
+      >
+        <header className={styles.sectionHeader}>
+          <p className="eyebrow">GTM simulator · synthetic data</p>
+          <h2 id="simulator-title" className={styles.sectionTitle}>
+            Pick a strategy, switch on automations, and let the data choose the next move.
+          </h2>
+          <p className={styles.sectionLede}>
+            A fictional software company with three sales reps and 90 days of leads, simulated lead
+            by lead. Every run replays the same leads, so any change you see comes from the switch
+            you flipped. Start from &ldquo;all manual&rdquo; and follow the recommendation.
+          </p>
+        </header>
+        <Simulator />
+      </section>
+
+      <section
+        className={`page ${styles.section}`}
+        id="playbooks"
+        aria-labelledby="playbooks-title"
+      >
+        <header className={styles.sectionHeader}>
+          <p className="eyebrow">Automation playbooks</p>
+          <h2 id="playbooks-title" className={styles.sectionTitle}>
+            The flows I design and build, and how each one is judged.
+          </h2>
+        </header>
+        <ul className={styles.playbooks}>
+          {PLAYBOOKS.map((playbook) => (
+            <li key={playbook.id} className={styles.playbook} id={playbook.id}>
+              <h3 className={styles.playbookName}>{playbook.name}</h3>
+              <p className={styles.problem}>{playbook.problem}</p>
+              <ol className={styles.steps}>
+                <li className={styles.trigger}>
+                  <span className={styles.stepKind}>When</span> {playbook.trigger}
+                </li>
+                {playbook.steps.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+              <p className={styles.guardrail}>
+                <span className={styles.stepKind}>Guardrail</span> {playbook.guardrail}
+              </p>
+              <dl className={styles.playbookMeta}>
+                <div>
+                  <dt>Judged by</dt>
+                  <dd>{playbook.metric}</dd>
+                </div>
+                {playbook.simulator ? (
+                  <div>
+                    <dt>In the simulator</dt>
+                    <dd>{AUTOMATIONS[playbook.simulator].name}</dd>
+                  </div>
+                ) : null}
+              </dl>
+              <ul className={styles.tools} aria-label="Tools">
+                {playbook.tools.map((tool) => (
+                  <li key={tool} className="tag">
+                    {tool}
+                  </li>
+                ))}
+              </ul>
             </li>
           ))}
         </ul>
       </section>
 
-      <section className={`page ${styles.section}`} aria-labelledby="principles-title">
-        <h2 id="principles-title" className={styles.sectionTitle}>
-          How I work, and where you can check it
-        </h2>
-        <ol className={styles.principles}>
-          {PRINCIPLES.map((principle, index) => (
-            <li key={principle.title} className={styles.principle}>
-              <span className={styles.index} aria-hidden="true">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <div>
-                <h3 className={styles.principleTitle}>{principle.title}</h3>
-                <p className={styles.principleText}>{principle.text}</p>
-                <Link href={principle.href} className={styles.principleLink}>
-                  {principle.link}
-                </Link>
-              </div>
+      <section className={`page ${styles.section}`} aria-labelledby="proof-title">
+        <header className={styles.sectionHeader}>
+          <p className="eyebrow">Real work, not simulated</p>
+          <h2 id="proof-title" className={styles.sectionTitle}>
+            Where I have built this for real.
+          </h2>
+        </header>
+        <ul className={styles.proof}>
+          {PROOF.map((item) => (
+            <li key={item.what} className={styles.proofItem}>
+              <p className="eyebrow">{item.where}</p>
+              <p className={styles.proofText}>{item.what}</p>
+              {item.result ? <p className={styles.proofResult}>{item.result}</p> : null}
             </li>
           ))}
-        </ol>
+        </ul>
+        <p className={styles.more}>
+          <Link href="/work">All my work</Link> ·{" "}
+          <Link href="/lab">Case study: the lead-scoring Decision Lab</Link> ·{" "}
+          <Link href="/architecture">How it is built</Link>
+        </p>
       </section>
 
       <section
@@ -140,7 +161,7 @@ export default function Home() {
             Get in touch
           </h2>
           <p className={styles.contactText}>
-            Questions about the lab, the code or my work are welcome.
+            Questions about the simulator, the playbooks or my work are welcome.
           </p>
         </div>
         <ContactLinks />

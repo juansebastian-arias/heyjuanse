@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
 import styles from "./SiteHeader.module.css";
 
 const LINKS = [
-  { href: "/lab", label: "Lab" },
+  { href: "/#simulator", label: "Simulator" },
+  { href: "/#playbooks", label: "Playbooks" },
   { href: "/work", label: "Work" },
-  { href: "/architecture", label: "Under the hood" },
+  { href: "/lab", label: "Case study" },
   { href: "/about", label: "About" },
 ];
 
@@ -17,7 +18,9 @@ export function NavLinks() {
     <nav aria-label="Main" className={styles.nav}>
       <ul className={styles.links}>
         {LINKS.map((link) => {
-          const current = pathname === link.href || pathname.startsWith(`${link.href}/`);
+          const current =
+            !link.href.includes("#") &&
+            (pathname === link.href || pathname.startsWith(`${link.href}/`));
           return (
             <li key={link.href}>
               <Link

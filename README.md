@@ -1,8 +1,13 @@
 # heyjuanse.com
 
-The personal site of Juan Sebastián Arias. Its centerpiece is the **Decision Lab**: a working
-lead-routing system for a fictional company that you can change and inspect in the browser.
+The personal site of Juan Sebastián Arias, GTM engineer. Its centerpiece is the **GTM
+simulator** on the home page: pick a go-to-market strategy (inbound, outbound to target accounts,
+product-led, events and partners), switch automations on and off, and watch 90 days of synthetic
+leads play out. After every change it measures each possible next switch and recommends the one
+that adds the most meetings. The model, its assumptions and its tests live in `core/gtm/`.
 
+- **[GTM simulator and playbooks](https://heyjuanse.com/#simulator)**: the simulator, six
+  automation playbooks (trigger, steps, guardrail, metric) and real-work results.
 - **[Decision Lab](https://heyjuanse.com/lab)**: a week of messy inbound leads and too few sales
   calls. Change the rules, watch every lead move, and open any lead to see why it went where it
   did. Every metric is a SQL query that runs in your browser.
@@ -11,7 +16,7 @@ lead-routing system for a fictional company that you can change and inspect in t
 - **[Selected work](https://heyjuanse.com/work)**: short, factual descriptions of professional
   work, kept separate from the demo.
 
-Everything in the lab is synthetic. Larkspur is a fictional company, and every person, company
+Everything in the simulator and the lab is synthetic. Larkspur is a fictional company, and every person, company
 and message was produced by a seeded generator. The lab is an independent demonstration: it has
 not been used in production and it is not a copy of any employer's or client's system.
 

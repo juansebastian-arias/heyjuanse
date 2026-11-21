@@ -1,0 +1,110 @@
+.figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.caption {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.flow {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px 22px;
+  counter-reset: step;
+}
+
+.step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--rule-strong);
+  background: var(--card);
+  min-width: 0;
+}
+
+/* Arrow to the next step. */
+.step:not(:last-child)::after {
+  content: "→";
+  position: absolute;
+  right: -18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--faint);
+  font-size: 0.875rem;
+}
+
+.step:nth-child(4n)::after {
+  content: "↙";
+  right: auto;
+  left: -18px;
+  top: auto;
+  bottom: -18px;
+  transform: none;
+  opacity: 0;
+}
+
+.step[data-mode="auto"] {
+  border-color: var(--operable);
+  background: var(--operable-soft);
+}
+
+.step[data-mode="manual"] {
+  border-style: dashed;
+  background: transparent;
+}
+
+.mode {
+  font-family: var(--f-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--faint);
+  min-height: 1em;
+}
+
+.step[data-mode="auto"] .mode {
+  color: var(--operable);
+}
+
+.name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.25;
+}
+
+.count {
+  font-size: 1.375rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.detail {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+@media (max-width: 700px) {
+  .flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 18px;
+  }
+
+  .step:nth-child(2n)::after {
+    opacity: 0;
+  }
+
+  .step:not(:last-child)::after {
+    right: -14px;
+  }
+}

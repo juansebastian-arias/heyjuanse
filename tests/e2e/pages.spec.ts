@@ -61,11 +61,28 @@ test("the skip link moves focus to the main content", async ({ page, isMobile })
   await expect(page.locator("#main")).toBeFocused();
 });
 
-test("the home page marks are the engine's output, not an illustration", async ({ page }) => {
+test("the home page says the role and the result in the first screen", async ({ page }) => {
   await page.goto("/");
-  const figure = page.getByRole("img", { name: /leads/ });
-  await expect(figure).toBeVisible();
-  await expect(page.getByText(/Real output, not an illustration/)).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "turns leads into sales meetings",
+  );
+  await expect(page.getByText("GTM engineer", { exact: false }).first()).toBeVisible();
+  await expect(page.getByRole("table", { name: /inbound leads/ })).toBeVisible();
+});
+
+test("the simulator recommends a move, and applying it adds meetings", async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto("/#simulator");
+  const meetings = page.locator("dl dd").first();
+  const before = Number((await meetings.textContent())?.replace(/\D/g, ""));
+  await page.getByRole("button", { name: "Apply this decision" }).click();
+  await expect(page.getByRole("list", { name: "Decisions applied" })).toBeVisible();
+  const after = Number((await meetings.textContent())?.replace(/\D/g, ""));
+  expect(after).toBeGreaterThan(before);
+  await page.getByRole("radio", { name: /Product-led/ }).check();
+  await expect(page.getByRole("list", { name: "Decisions applied" })).toHaveCount(0);
+  await expectNoAxeViolations(page, "#simulator");
+  expect(errors).toEqual([]);
 });
 
 test("security headers are sent", async ({ request }) => {

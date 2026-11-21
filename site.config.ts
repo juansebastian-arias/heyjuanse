@@ -6,8 +6,14 @@ export const SITE = {
   name: "Juan Sebastián Arias",
   url: "https://heyjuanse.com",
   positioning:
-    "I design and build the systems revenue teams run on: clean data, explainable decisions, and automation and AI that know when to ask a human.",
-  specialties: ["GTM systems", "SQL and analytics", "AI automation", "CRM implementation"],
+    "GTM engineer. I build the automated engine that turns leads into sales meetings: routing, enrichment, scoring and AI agents that draft while a person approves, each one chosen with data.",
+  specialties: [
+    "Lead routing and scoring",
+    "GTM automation with n8n",
+    "AI agents with human approval",
+    "SQL and A/B tests",
+    "CRM systems",
+  ],
   repository: "https://github.com/juansebastian-arias/heyjuanse",
   contact: {
     email: "juan.arias2025@gmail.com" as string | null,

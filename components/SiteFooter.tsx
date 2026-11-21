@@ -7,10 +7,13 @@ export function SiteFooter() {
     <footer className={styles.footer}>
       <div className={`page ${styles.inner}`}>
         <p className={styles.note}>
-          The lab uses synthetic data only. Larkspur is a fictional company, and every person,
-          company and message in it was generated.
+          The simulator and the lab use synthetic data only. Their companies are fictional, and
+          every person, company, lead and message in them was generated.
         </p>
         <ul className={styles.links}>
+          <li>
+            <Link href="/architecture">How it is built</Link>
+          </li>
           <li>
             <Link href="/colophon">Colophon</Link>
           </li>
