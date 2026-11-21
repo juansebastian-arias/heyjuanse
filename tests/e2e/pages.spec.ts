@@ -96,6 +96,33 @@ test("following the data to the end stacks up decisions until none is left", asy
   await expectNoAxeViolations(page, "#simulator");
 });
 
+test("your own numbers produce an ordered plan", async ({ page }) => {
+  await page.goto("/#diagnose");
+  await page.getByRole("button", { name: "Build my plan" }).click();
+  const steps = page.getByRole("list", { name: "Your plan, step by step" }).getByRole("listitem");
+  await expect(steps.first()).toBeVisible();
+  expect(await steps.count()).toBeGreaterThan(1);
+  await expectNoAxeViolations(page, "#diagnose");
+});
+
+test("the live agent explains itself and fails gracefully without a key", async ({ page }) => {
+  // The test server has no API key, so the route answers that the agent is switched off.
+  await page.goto("/#agent");
+  await expect(page.getByText("An AI agent does the research. A person decides.")).toBeVisible();
+  await page.getByLabel("A real company to research").fill("Example Software");
+  await page.getByRole("button", { name: "Research and draft" }).click();
+  await expect(page.getByText("The live agent is switched off right now.")).toBeVisible();
+  await expectNoAxeViolations(page, "#agent");
+});
+
+test("the agent route refuses requests from other sites", async ({ request }) => {
+  const response = await request.post("/api/agent", {
+    headers: { Origin: "https://elsewhere.example" },
+    data: { company: "Example", offer: "Lead routing for B2B teams" },
+  });
+  expect([403, 503]).toContain(response.status());
+});
+
 test("security headers are sent", async ({ request }) => {
   const response = await request.get("/");
   const headers = response.headers();

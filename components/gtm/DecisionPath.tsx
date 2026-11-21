@@ -17,9 +17,11 @@ export interface PathStep {
 export function DecisionPath({
   start,
   steps,
+  label = "Decisions applied",
 }: {
   start: { meetings: number; costPerMeeting: number };
   steps: PathStep[];
+  label?: string;
 }) {
   const last = steps[steps.length - 1];
   const end = last?.meetings ?? start.meetings;
@@ -51,7 +53,7 @@ export function DecisionPath({
         {formatMoney(last?.costPerMeeting ?? start.costPerMeeting)}. No single change does it; they
         add up.
       </figcaption>
-      <ol className={styles.steps} aria-label="Decisions applied">
+      <ol className={styles.steps} aria-label={label}>
         {bars.map((bar) => (
           <li key={bar.key} className={styles.step}>
             <span className={`num ${styles.value}`}>{bar.meetings}</span>

@@ -1,0 +1,168 @@
+"use client";
+
+import { type FormEvent, useState } from "react";
+import { type Plan, plan } from "@/core/gtm/decide";
+import { ALL_OFF, AUTOMATIONS, MOTION_IDS, MOTIONS, type MotionId } from "@/core/gtm/model";
+import { DecisionPath } from "./DecisionPath";
+import styles from "./Diagnose.module.css";
+import { formatMoney } from "./format";
+
+interface Inputs {
+  motion: MotionId;
+  leadsPerMonth: number;
+  reps: number;
+  responseHours: number;
+  dealSize: number;
+}
+
+const LIMITS = {
+  leadsPerMonth: { min: 50, max: 3000, step: 50 },
+  reps: { min: 1, max: 15, step: 1 },
+  responseHours: { min: 1, max: 96, step: 1 },
+  dealSize: { min: 2000, max: 150000, step: 1000 },
+} as const;
+
+const clamp = (value: number, key: keyof typeof LIMITS) => {
+  const { min, max } = LIMITS[key];
+  return Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : min;
+};
+
+/** "Diagnose your funnel": the simulator run on the visitor's own numbers, as an ordered plan. */
+export function Diagnose() {
+  const [inputs, setInputs] = useState<Inputs>({
+    motion: "inbound",
+    leadsPerMonth: 400,
+    reps: 2,
+    responseHours: 24,
+    dealSize: 20000,
+  });
+  const [result, setResult] = useState<{ inputs: Inputs; plan: Plan } | null>(null);
+
+  const set = (key: keyof Inputs, value: string) =>
+    setInputs((prev) => ({
+      ...prev,
+      [key]: key === "motion" ? (value as MotionId) : Number(value),
+    }));
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    const clean: Inputs = {
+      motion: inputs.motion,
+      leadsPerMonth: clamp(inputs.leadsPerMonth, "leadsPerMonth"),
+      reps: clamp(Math.round(inputs.reps), "reps"),
+      responseHours: clamp(inputs.responseHours, "responseHours"),
+      dealSize: clamp(inputs.dealSize, "dealSize"),
+    };
+    setInputs(clean);
+    setResult({
+      inputs: clean,
+      plan: plan(clean.motion, ALL_OFF, {
+        leads: clean.leadsPerMonth * 3,
+        reps: clean.reps,
+        manualRoutingHours: clean.responseHours,
+        dealSize: clean.dealSize,
+      }),
+    });
+  };
+
+  const fields: { key: Exclude<keyof Inputs, "motion">; label: string; hint: string }[] = [
+    { key: "leadsPerMonth", label: "New leads a month", hint: "50 to 3,000" },
+    { key: "reps", label: "Reps who make first contact", hint: "1 to 15" },
+    { key: "responseHours", label: "Hours until a lead first hears from you", hint: "1 to 96" },
+    { key: "dealSize", label: "Average deal size, US dollars", hint: "2,000 to 150,000" },
+  ];
+
+  const start = result?.plan.start;
+  const steps = result?.plan.steps ?? [];
+  const end = steps[steps.length - 1]?.result ?? start;
+  const first = steps[0];
+
+  return (
+    <div className={styles.wrap}>
+      <form className={styles.form} onSubmit={submit}>
+        <label className={styles.field}>
+          <span className={styles.label}>Your main strategy</span>
+          <select value={inputs.motion} onChange={(event) => set("motion", event.target.value)}>
+            {MOTION_IDS.map((id) => (
+              <option key={id} value={id}>
+                {MOTIONS[id].name}
+              </option>
+            ))}
+          </select>
+        </label>
+        {fields.map((field) => (
+          <label key={field.key} className={styles.field}>
+            <span className={styles.label}>{field.label}</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={LIMITS[field.key].min}
+              max={LIMITS[field.key].max}
+              step={LIMITS[field.key].step}
+              value={inputs[field.key]}
+              onChange={(event) => set(field.key, event.target.value)}
+            />
+            <span className={styles.hint}>{field.hint}</span>
+          </label>
+        ))}
+        <button type="submit" className="button" data-variant="primary">
+          Build my plan
+        </button>
+      </form>
+
+      <div className={styles.result} aria-live="polite">
+        {start && end && result ? (
+          <>
+            <p className="eyebrow">Your plan for the next quarter</p>
+            <p className={styles.headline}>
+              From <span className="num">{start.meetings}</span> to{" "}
+              <span className="num">{end.meetings}</span> meetings a quarter, with the same{" "}
+              {result.inputs.reps === 1 ? "rep" : `${result.inputs.reps} reps`}.
+            </p>
+            <p className={styles.sub}>
+              Cost per meeting {formatMoney(start.costPerMeeting)} →{" "}
+              {formatMoney(end.costPerMeeting)}; pipeline {formatMoney(start.pipeline)} →{" "}
+              {formatMoney(end.pipeline)}.
+            </p>
+            {first ? (
+              <p className={styles.firstMove}>
+                <strong>Start with “{AUTOMATIONS[first.move.automation].name}”.</strong>{" "}
+                {AUTOMATIONS[first.move.automation].effect}
+              </p>
+            ) : (
+              <p className={styles.firstMove}>
+                With these numbers no single automation adds meetings: the constraint is the number
+                of leads, not the process.
+              </p>
+            )}
+            {steps.length ? (
+              <DecisionPath
+                start={{ meetings: start.meetings, costPerMeeting: start.costPerMeeting }}
+                steps={steps.map((step) => ({
+                  label: `${step.move.turnOn ? "" : "Off: "}${AUTOMATIONS[step.move.automation].short}`,
+                  delta: step.move.deltaMeetings,
+                  meetings: step.result.meetings,
+                  costPerMeeting: step.result.costPerMeeting,
+                }))}
+                label="Your plan, step by step"
+              />
+            ) : null}
+            <p className={styles.note}>
+              An estimate from the same simulation and assumptions as above, with your numbers in
+              place of the defaults. It shows the order to work in, not a promise.
+            </p>
+          </>
+        ) : (
+          <div className={styles.empty}>
+            <p className={styles.headline}>Your numbers in, an ordered plan out.</p>
+            <p className={styles.sub}>
+              The simulator runs a quarter of your leads by hand, then keeps adding the automation
+              that helps most until nothing else does. It runs in your browser; nothing you type is
+              sent anywhere.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { ContactLinks } from "@/components/ContactLinks";
+import { AgentDemo } from "@/components/gtm/AgentDemo";
+import { Diagnose } from "@/components/gtm/Diagnose";
 import { HeroEngine } from "@/components/gtm/HeroEngine";
 import { Simulator } from "@/components/gtm/Simulator";
 import { PLAYBOOKS } from "@/content/playbooks";
@@ -76,6 +78,26 @@ export default function Home() {
           </p>
         </header>
         <Simulator />
+      </section>
+
+      <section className={`page ${styles.section}`} id="diagnose" aria-labelledby="diagnose-title">
+        <header className={styles.sectionHeader}>
+          <p className="eyebrow">Diagnose your funnel</p>
+          <h2 id="diagnose-title" className={styles.sectionTitle}>
+            Put in your own numbers and get the order to automate in.
+          </h2>
+        </header>
+        <Diagnose />
+      </section>
+
+      <section className={`page ${styles.section}`} id="agent" aria-labelledby="agent-title">
+        <header className={styles.sectionHeader}>
+          <p className="eyebrow">Live AI agent</p>
+          <h2 id="agent-title" className={styles.sectionTitle}>
+            An agent that researches a real company and drafts the first message. You approve it.
+          </h2>
+        </header>
+        <AgentDemo />
       </section>
 
       <section

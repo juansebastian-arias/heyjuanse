@@ -10,7 +10,7 @@ import {
   MOTION_IDS,
   type MotionId,
 } from "./model";
-import { type SimResult, simulate } from "./simulate";
+import { type Custom, type SimResult, simulate } from "./simulate";
 
 export interface Move {
   automation: AutomationId;
@@ -37,11 +37,11 @@ function flip(automations: Automations, id: AutomationId): Automations {
   return { ...automations, [id]: !automations[id] };
 }
 
-export function decide(motion: MotionId, automations: Automations): Decision {
-  const current = simulate(motion, automations);
-  const baseline = simulate(motion, ALL_OFF);
+export function decide(motion: MotionId, automations: Automations, custom: Custom = {}): Decision {
+  const current = simulate(motion, automations, custom);
+  const baseline = simulate(motion, ALL_OFF, custom);
   const moves = AUTOMATION_IDS.map((id): Move => {
-    const other = simulate(motion, flip(automations, id));
+    const other = simulate(motion, flip(automations, id), custom);
     return {
       automation: id,
       turnOn: !automations[id],
@@ -68,4 +68,30 @@ export function compareMotions(automations: Automations): MotionRow[] {
   return MOTION_IDS.map((motion) => ({ motion, result: simulate(motion, automations) })).sort(
     (a, b) => a.result.costPerMeeting - b.result.costPerMeeting,
   );
+}
+
+export interface PlanStep {
+  move: Move;
+  /** The result after this step. */
+  result: SimResult;
+}
+
+export interface Plan {
+  start: SimResult;
+  steps: PlanStep[];
+}
+
+/** Follow the recommendation from a starting setup until no single switch adds meetings. */
+export function plan(motion: MotionId, from: Automations, custom: Custom = {}): Plan {
+  let automations = { ...from };
+  let decision = decide(motion, automations, custom);
+  const start = decision.current;
+  const steps: PlanStep[] = [];
+  for (let i = 0; i < AUTOMATION_IDS.length * 2 && decision.next; i++) {
+    const move = decision.next;
+    automations = { ...automations, [move.automation]: move.turnOn };
+    decision = decide(motion, automations, custom);
+    steps.push({ move, result: decision.current });
+  }
+  return { start, steps };
 }

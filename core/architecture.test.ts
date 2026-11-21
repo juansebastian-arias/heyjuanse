@@ -42,14 +42,19 @@ describe("engine boundaries", () => {
     },
   );
 
-  it("the site never imports the API client", () => {
-    const siteFiles = ["app", "components", "lib"].flatMap((dir) => {
-      try {
-        return sourceFiles(join(process.cwd(), dir), [".ts", ".tsx"]);
-      } catch {
-        return [];
-      }
-    });
+  it("the site never imports the API client, except the one live agent route", () => {
+    // The live agent is the only place a visitor's request reaches the Claude API. It is a
+    // server route; pages and components only call it over fetch.
+    const ALLOWED = new Set([join("app", "api", "agent", "route.ts")]);
+    const siteFiles = ["app", "components", "lib"]
+      .flatMap((dir) => {
+        try {
+          return sourceFiles(join(process.cwd(), dir), [".ts", ".tsx"]);
+        } catch {
+          return [];
+        }
+      })
+      .filter((file) => !ALLOWED.has(relative(process.cwd(), file)));
     expect(siteFiles.length).toBeGreaterThan(10);
     for (const file of siteFiles) {
       for (const source of imports(file)) {

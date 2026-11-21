@@ -41,12 +41,30 @@ function skewedMean(u: number, mean: number): number {
   return u ** (1 / mean - 1);
 }
 
-const cache = new Map<MotionId, Lead[]>();
+const cache = new Map<string, Lead[]>();
+
+/**
+ * A visitor's own numbers, layered over a motion's defaults. Leaving every field out gives the
+ * motion exactly as it is defined in the model.
+ */
+export interface Custom {
+  leads?: number;
+  reps?: number;
+  manualRoutingHours?: number;
+  dealSize?: number;
+}
 
 export function generateLeads(motion: Motion): Lead[] {
-  const cached = cache.get(motion.id);
+  // The seed only depends on the motion and the number of leads, so custom runs that differ in
+  // anything else still replay the same leads.
+  const key = `${motion.id}:${motion.leads}`;
+  const cached = cache.get(key);
   if (cached) return cached;
-  const rng = createRng(hashString(`gtm-sim:${motion.id}:v1`));
+  const seedLabel =
+    motion.leads === MOTIONS[motion.id].leads
+      ? `gtm-sim:${motion.id}:v1`
+      : `gtm-sim:${motion.id}:${motion.leads}:v1`;
+  const rng = createRng(hashString(seedLabel));
   const leads: Lead[] = [];
   for (let id = 0; id < motion.leads; id++) {
     const arrivalDay =
@@ -84,7 +102,7 @@ export function generateLeads(motion: Motion): Lead[] {
     });
   }
   leads.sort((a, b) => a.arrivalDay - b.arrivalDay || a.id - b.id);
-  cache.set(motion.id, leads);
+  cache.set(key, leads);
   return leads;
 }
 
@@ -140,10 +158,15 @@ interface QueueItem {
   score: number;
 }
 
-export function simulate(motionId: MotionId, automations: Automations): SimResult {
-  const motion = MOTIONS[motionId];
+export function simulate(
+  motionId: MotionId,
+  automations: Automations,
+  custom: Custom = {},
+): SimResult {
+  const { reps = TEAM.reps, ...overrides } = custom;
+  const motion: Motion = { ...MOTIONS[motionId], ...overrides };
   const leads = generateLeads(motion);
-  const capacityPerDay = TEAM.reps * TEAM.sellingHoursPerDay * 60;
+  const capacityPerDay = reps * TEAM.sellingHoursPerDay * 60;
   const routingHours = automations.instantRouting ? 0.1 : motion.manualRoutingHours;
   const lift = (lead: Lead) =>
     (automations.aiDrafts ? TEAM.aiLift : 1) *

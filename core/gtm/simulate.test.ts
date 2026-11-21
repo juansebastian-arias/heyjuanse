@@ -1,6 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { compareMotions, decide } from "./decide";
+import { compareMotions, decide, plan } from "./decide";
 import {
   ALL_OFF,
   ALL_ON,
@@ -123,5 +123,38 @@ describe("decisions", () => {
         rows[i - 1]?.result.costPerMeeting ?? 0,
       );
     }
+  });
+});
+
+describe("a visitor's own numbers", () => {
+  it("defaults leave the model unchanged, and custom numbers are respected", () => {
+    expect(simulate("inbound", ALL_ON, {})).toEqual(simulate("inbound", ALL_ON));
+    const small = simulate("inbound", ALL_OFF, { leads: 300, reps: 1 });
+    expect(small.stages.captured).toBe(300);
+    const moreReps = simulate("inbound", ALL_OFF, { leads: 3000, reps: 8 });
+    const fewReps = simulate("inbound", ALL_OFF, { leads: 3000, reps: 1 });
+    expect(moreReps.meetings).toBeGreaterThan(fewReps.meetings);
+  });
+
+  it("a plan only takes steps that add meetings, and ends when none is left", () => {
+    fc.assert(
+      fc.property(
+        fc.constantFrom(...MOTION_IDS),
+        fc.integer({ min: 50, max: 800 }),
+        fc.integer({ min: 1, max: 6 }),
+        fc.integer({ min: 1, max: 96 }),
+        (motion, leadsPerMonth, reps, hours) => {
+          const custom = { leads: leadsPerMonth * 3, reps, manualRoutingHours: hours };
+          const result = plan(motion, ALL_OFF, custom);
+          let previous = result.start.meetings;
+          for (const step of result.steps) {
+            expect(step.result.meetings).toBe(previous + step.move.deltaMeetings);
+            expect(step.move.deltaMeetings).toBeGreaterThan(0);
+            previous = step.result.meetings;
+          }
+        },
+      ),
+      { numRuns: 15 },
+    );
   });
 });

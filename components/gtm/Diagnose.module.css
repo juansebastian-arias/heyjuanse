@@ -1,0 +1,104 @@
+.wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.field input,
+.field select {
+  min-height: 44px;
+  padding: 8px 10px;
+  font: inherit;
+  font-family: var(--f-mono);
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+}
+
+.field select {
+  font-family: var(--f-display);
+}
+
+.field input:focus-visible,
+.field select:focus-visible {
+  outline: 2px solid var(--operable);
+  outline-offset: 1px;
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 22px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--mark) 35%, var(--card));
+  border-left: 4px solid var(--mark);
+  min-width: 0;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.headline {
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.sub {
+  font-family: var(--f-body);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.firstMove {
+  font-family: var(--f-body);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.firstMove strong {
+  font-family: var(--f-display);
+}
+
+.note {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+@media (max-width: 960px) {
+  .wrap {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
