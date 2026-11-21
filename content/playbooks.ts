@@ -36,7 +36,7 @@ export const PLAYBOOKS: Playbook[] = [
     guardrail:
       "Every assignment is logged with its reason; anything ambiguous goes to a fallback queue.",
     metric: "Median minutes to first touch",
-    tools: ["n8n", "CRM", "SQL", "Slack"],
+    tools: ["n8n", "HubSpot", "SQL", "Slack"],
     simulator: "instantRouting",
   },
   {
@@ -54,7 +54,7 @@ export const PLAYBOOKS: Playbook[] = [
     guardrail:
       "Claims are checked against their sources, untrusted text cannot give the agent instructions, and a person sends.",
     metric: "Minutes per first touch and meeting rate",
-    tools: ["Claude API", "RAG", "n8n", "CRM"],
+    tools: ["Claude API", "RAG", "n8n", "HubSpot"],
     simulator: "aiDrafts",
   },
   {
@@ -70,7 +70,7 @@ export const PLAYBOOKS: Playbook[] = [
     ],
     guardrail: "One alert per account per week, so reps trust the alerts instead of muting them.",
     metric: "Meetings from re-engaged accounts",
-    tools: ["n8n", "SQL", "CRM", "Claude API"],
+    tools: ["n8n", "Zapier", "SQL", "Claude API"],
     simulator: "signals",
   },
   {
@@ -85,7 +85,7 @@ export const PLAYBOOKS: Playbook[] = [
     ],
     guardrail: "Thresholds are re-checked monthly against which trials actually converted.",
     metric: "Trial-to-paid conversion by score band",
-    tools: ["SQL", "Databricks", "n8n", "CRM"],
+    tools: ["SQL", "Python", "Databricks", "HubSpot"],
     simulator: "scoring",
   },
   {
@@ -101,7 +101,7 @@ export const PLAYBOOKS: Playbook[] = [
     ],
     guardrail: "Merges are reversible and every change is logged.",
     metric: "Duplicate rate and field completeness",
-    tools: ["SQL", "n8n", "CRM"],
+    tools: ["Make", "Python", "HubSpot", "Zoho"],
     simulator: "dedupe",
   },
   {
@@ -117,6 +117,6 @@ export const PLAYBOOKS: Playbook[] = [
     ],
     guardrail: "Decide the success metric before the test starts.",
     metric: "Lift over the control group",
-    tools: ["SQL", "Databricks", "Dashboards"],
+    tools: ["SQL", "Python", "Databricks", "Dashboards"],
   },
 ];
