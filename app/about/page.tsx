@@ -31,16 +31,25 @@ export default function AboutPage() {
           CRMs.
         </p>
         <p>
-          Since January 2024 I have worked in the Office of the CEO at BairesDev, across sales
-          operations, GTM systems, analytics and internal AI automation. Since October 2025 I have
-          also been co-founder and part-time CTO of Sintropia, a small company that implements CRM,
-          automation and AI-enabled workflows for its clients. More in{" "}
-          <Link href="/work">selected work</Link>.
+          I build GTM systems for sales teams: lead routing and scoring, CRM automation, and AI
+          agents that research and draft while a person approves, each change measured against a
+          control group.
+          {SITE.contact.linkedin ? (
+            <>
+              {" "}
+              Roles, dates and results are on{" "}
+              <a href={SITE.contact.linkedin} rel="noopener noreferrer">
+                my LinkedIn profile
+              </a>
+              .
+            </>
+          ) : null}
         </p>
         <p>
-          This site is itself a piece of work: the <Link href="/lab">Decision Lab</Link> is a
-          working system, and <Link href="/architecture">under the hood</Link> explains how it is
-          built and why. The <Link href="/colophon">colophon</Link> says how it was made.
+          This site is itself a piece of work: the <Link href="/">home page</Link> shows what a
+          90-day project could look like at your company, the <Link href="/lab">Decision Lab</Link>{" "}
+          is a working system, and <Link href="/architecture">under the hood</Link> explains how it
+          is built and why. The <Link href="/colophon">colophon</Link> says how it was made.
         </p>
       </div>
 

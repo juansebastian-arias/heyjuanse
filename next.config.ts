@@ -30,6 +30,10 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  // The work history page was retired: experience lives on LinkedIn. Old links land on About.
+  async redirects() {
+    return [{ source: "/work", destination: "/about", permanent: false }];
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

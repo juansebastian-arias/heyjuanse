@@ -25,7 +25,7 @@ export default function NotFound() {
           <Link href="/architecture">Under the hood</Link>
         </li>
         <li>
-          <Link href="/work">Selected work</Link>
+          <Link href="/about">About</Link>
         </li>
       </ul>
     </div>

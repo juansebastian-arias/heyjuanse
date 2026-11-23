@@ -6,7 +6,7 @@ const recordings = JSON.parse(readFileSync("content/agent/recordings.json", "utf
   recordedAt: string | null;
 };
 
-const PAGES = ["/", "/lab", "/work", "/about", "/architecture", "/colophon"];
+const PAGES = ["/", "/lab", "/about", "/architecture", "/colophon"];
 
 for (const path of PAGES) {
   test(`${path} loads with one main heading, no errors and no WCAG violations`, async ({
@@ -59,7 +59,7 @@ test("unknown addresses return 404 with a way back", async ({ page }) => {
 
 test("the skip link moves focus to the main content", async ({ page, isMobile }) => {
   test.skip(isMobile, "Keyboard navigation is tested on desktop.");
-  await page.goto("/work");
+  await page.goto("/about");
   await page.keyboard.press("Tab");
   await expect(page.getByRole("link", { name: "Skip to content" })).toBeFocused();
   await page.keyboard.press("Enter");
@@ -101,13 +101,23 @@ test("following the data to the end stacks up decisions until none is left", asy
   await expectNoAxeViolations(page, "#simulator");
 });
 
-test("your own numbers produce an ordered plan", async ({ page }) => {
-  await page.goto("/#diagnose");
-  await page.getByRole("button", { name: "Recalculate with my numbers" }).click();
-  const steps = page.getByRole("list", { name: "Your plan, step by step" }).getByRole("listitem");
-  await expect(steps.first()).toBeVisible();
-  expect(await steps.count()).toBeGreaterThan(1);
-  await expectNoAxeViolations(page, "#diagnose");
+test("the 90-day project opens computed and follows the visitor's numbers", async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto("/#project");
+  const project = page.locator("#project");
+  const phases = project.getByRole("list", { name: "Your 90-day project" }).locator(":scope > li");
+  await expect(phases).toHaveCount(3);
+  await expect(project.getByText(/By day 90: about/)).toBeVisible();
+  await project.getByRole("spinbutton", { name: "Reps on new leads" }).fill("5");
+  await project.getByRole("button", { name: "Recalculate with my numbers" }).click();
+  await expect(project.getByText(/with the same 5 reps/)).toBeVisible();
+  await expectNoAxeViolations(page, "#project");
+  expect(errors).toEqual([]);
+});
+
+test("the retired work page sends old links to About", async ({ page }) => {
+  await page.goto("/work");
+  await expect(page).toHaveURL(/\/about$/);
 });
 
 test("the agent handles a sample lead and a person approves the draft", async ({ page }) => {

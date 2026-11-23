@@ -59,7 +59,7 @@ export const SKILLS: Skill[] = [
     tools: ["A/B tests", "Control groups", "Simulation"],
     plain: "Every change priced in dollars, and proven.",
     see: [
-      { label: "Your company", href: "#diagnose" },
+      { label: "Your 90-day plan", href: "#project" },
       { label: "Playbook: holdout", href: "#measurement" },
     ],
   },
