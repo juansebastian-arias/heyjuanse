@@ -78,7 +78,7 @@ test("the home page says the role and the result in the first screen", async ({ 
 test("the simulator recommends a move, and applying it adds meetings", async ({ page }) => {
   const errors = watchErrors(page);
   await page.goto("/#simulator");
-  const meetings = page.locator("dl dd").first();
+  const meetings = page.locator("#simulator dl dd").first();
   const before = Number((await meetings.textContent())?.replace(/\D/g, ""));
   await page.getByRole("button", { name: "Apply this decision" }).click();
   await expect(page.getByRole("list", { name: "Decisions applied" })).toBeVisible();
