@@ -270,7 +270,7 @@ export function AgentDemo({ worth }: { worth: AgentWorth }) {
               <textarea
                 value={own.message}
                 onChange={(event) => setOwn({ ...own, message: event.target.value })}
-                placeholder="For example: we have 30 reps on Salesforce and deals go quiet without anyone noticing. Can we see a demo next week?"
+                placeholder="For example: we run 40 vans from one depot and plan the routes by hand every evening. Can we see a demo next week?"
                 minLength={15}
                 maxLength={600}
                 rows={4}

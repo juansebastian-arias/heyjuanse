@@ -13,19 +13,19 @@ import {
 const triage: Triage = {
   intent: "demo_request",
   urgency: "this_week",
-  fit: { score: 82, reason: "Mid-size logistics company on HubSpot." },
-  route: { owner: "ana", reason: "Latin America, 220 employees." },
-  reply: { subject: "Routing your inbound leads", body: "Hi Mariana, ..." },
+  fit: { score: 82, reason: "Courier with 62 vehicles of its own." },
+  route: { owner: "ana", reason: "Latin America, under 100 vehicles." },
+  reply: { subject: "Time windows for pharmacy deliveries", body: "Hi Mariana, ..." },
   crm_note: "Asked for a demo. Next: book a call.",
   checks: [],
 };
 
-describe("inbound lead agent contract", () => {
+describe("sales-desk agent contract", () => {
   it("cleans and bounds what a visitor sends", () => {
-    expect(AgentInput.parse({ message: "  We need a demo\u0000 for 40 reps  " })).toEqual({
+    expect(AgentInput.parse({ message: "  We need a demo\u0000 for 40 vans  " })).toEqual({
       name: "",
       company: "",
-      message: "We need a demo for 40 reps",
+      message: "We need a demo for 40 vans",
     });
     expect(AgentInput.safeParse({ message: "too short" }).success).toBe(false);
     expect(AgentInput.safeParse({ message: "x".repeat(601) }).success).toBe(false);

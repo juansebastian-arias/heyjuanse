@@ -1,31 +1,36 @@
 /**
- * The inbound desk the live agent works on: a fictional company that sells a revenue analytics
- * product, its routing rules and four sample leads. Every person and company here is invented.
+ * The sales desk the live agent works on: Larkspur, the made-up company the site simulates, its
+ * assignment rules and four sample requests. Every person and company here is invented.
  */
+import { BASE } from "../../core/flow/company";
 
 export const SELLER = {
   name: "Larkspur",
-  sells:
-    "Larkspur is a revenue analytics platform for B2B companies: it connects the CRM, shows where pipeline is stuck and alerts reps when a deal goes quiet. Plans start at USD 1,500 a month; it suits companies with 50 to 5,000 employees and a sales team of at least five people.",
+  sells: `Larkspur is route-planning software for companies that deliver with their own vehicles: it plans each day's routes around delivery time windows, gives drivers their stops in a phone app and warns dispatch when a delivery is running late. It costs USD ${BASE.pricePerVehicle} per vehicle per year, invoiced up front, and suits fleets of 5 to 2,500 vehicles.`,
   idealCustomer:
-    "B2B companies with 50 to 5,000 employees, a sales team of five or more, and a CRM (HubSpot, Salesforce or Zoho). Software, logistics, health and financial services fit best.",
+    "Companies that run their own delivery fleet of at least 5 vehicles: couriers and parcel carriers, food and beverage distributors, pharmacy and medical supply, furniture and appliance retailers. Not a fit: companies that hand all their deliveries to an outside carrier, passenger transport, and individuals.",
 } as const;
 
 export const OWNERS = {
   ana: {
     name: "Ana Ruiz",
-    queue: "Mid-market, Latin America",
-    rule: "Companies with 50 to 500 employees in Latin America, Spain or Portugal.",
+    queue: "Fleets under 100 vehicles, Latin America",
+    rule: "Fleets of 5 to 99 vehicles in Latin America, Spain or Portugal.",
   },
   ben: {
     name: "Ben Carter",
-    queue: "Mid-market, North America and Europe",
-    rule: "Companies with 50 to 500 employees anywhere except Latin America, Spain and Portugal.",
+    queue: "Fleets under 100 vehicles, North America",
+    rule: "Fleets of 5 to 99 vehicles in the United States or Canada.",
+  },
+  lena: {
+    name: "Lena Fischer",
+    queue: "Fleets under 100 vehicles, everywhere else",
+    rule: "Fleets of 5 to 99 vehicles in any country Ana and Ben do not cover.",
   },
   priya: {
     name: "Priya Shah",
-    queue: "Enterprise",
-    rule: "Companies with more than 500 employees, any region, and any security or procurement request.",
+    queue: "Large fleets",
+    rule: "Fleets of 100 vehicles or more, any region, and any security, procurement or integration request.",
   },
   support: {
     name: "Support team",
@@ -33,9 +38,9 @@ export const OWNERS = {
     rule: "Anyone who already uses Larkspur and reports a problem or asks how to do something.",
   },
   nurture: {
-    name: "Nurture emails",
+    name: "Follow-up emails",
     queue: "Not a fit yet",
-    rule: "Companies below 50 employees, students, job seekers, vendors selling to us, and spam.",
+    rule: "Fewer than 5 vehicles, companies with no fleet of their own, students, job seekers, vendors selling to us, and spam.",
   },
 } as const;
 
@@ -58,40 +63,40 @@ export const SAMPLE_LEADS: SampleLead[] = [
     id: "andes",
     arrived: "9:02",
     name: "Mariana López",
-    role: "Head of Sales Operations",
+    role: "Operations Manager",
     company: "Andes Freight",
     record:
-      "Logistics, Bogotá, Colombia. About 220 employees. Uses HubSpot. Visited pricing twice.",
+      "Courier and freight, Bogotá, Colombia. 62 vehicles, 2 depots. Plans routes in spreadsheets. Visited the pricing page twice.",
     message:
-      "Hi, we just hired 8 SDRs and our inbound leads sit in a shared inbox for days before anyone answers. Can you show me how Larkspur would flag that with HubSpot? We want something running before Q1.",
+      "Hi, we run 62 vans out of two depots in Bogotá and still plan routes in Excel every night. It takes our dispatcher three hours. Can you show me how Larkspur handles time windows for pharmacy deliveries? We want something running before December.",
   },
   {
     id: "northwind",
     arrived: "9:14",
     name: "Danielle Okafor",
-    role: "VP Revenue Operations",
-    company: "Northwind Health",
-    record: "Health services, Chicago, USA. About 2,300 employees. Uses Salesforce.",
+    role: "Director of Logistics",
+    company: "Northwind Foods",
+    record: "Food distribution, Chicago, USA. About 480 vehicles across 9 depots.",
     message:
-      "We're evaluating pipeline analytics vendors in an RFP that closes December 15. Please send your SOC 2 report and details on SSO, and tell me who would run a technical session with our team.",
+      "We're running an RFP for route planning that closes December 15. Please send your SOC 2 report and details on SSO and your API for our warehouse system, and tell me who would run a technical session with our IT team.",
   },
   {
     id: "pixel",
     arrived: "9:31",
     name: "Tom Becker",
-    role: "Founder",
-    company: "Pixel & Pine",
-    record: "Design studio, Portland, USA. 6 employees. No CRM on record.",
-    message: "how much is it? it's just me and my partner, we want to keep track of a few clients",
+    role: "Owner",
+    company: "Pine Street Flowers",
+    record: "Florist, Portland, USA. 1 van. No earlier contact on record.",
+    message: "how much is it? it's just me and one van, about 15 drops a day",
   },
   {
     id: "brightline",
     arrived: "9:40",
     name: "Kenji Watanabe",
-    role: "Sales Manager",
-    company: "Brightline Software",
-    record: "Software, Toronto, Canada. About 140 employees. Customer since March 2026.",
+    role: "Dispatch Lead",
+    company: "Brightline Parcel",
+    record: "Parcel delivery, Toronto, Canada. 140 vehicles. Customer since March 2026.",
     message:
-      "Since yesterday the stuck-deals dashboard shows no data for my team. Nothing changed on our side. Can someone look today? We use it in our Monday forecast.",
+      "Since yesterday the driver app shows tomorrow's routes as empty for two of our depots. Nothing changed on our side. Can someone look today? Drivers start at 6.",
   },
 ];
