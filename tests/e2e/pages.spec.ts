@@ -103,7 +103,7 @@ test("following the data to the end stacks up decisions until none is left", asy
 
 test("your own numbers produce an ordered plan", async ({ page }) => {
   await page.goto("/#diagnose");
-  await page.getByRole("button", { name: "Build my plan" }).click();
+  await page.getByRole("button", { name: "Recalculate with my numbers" }).click();
   const steps = page.getByRole("list", { name: "Your plan, step by step" }).getByRole("listitem");
   await expect(steps.first()).toBeVisible();
   expect(await steps.count()).toBeGreaterThan(1);

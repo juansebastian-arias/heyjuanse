@@ -2,12 +2,13 @@ import Link from "next/link";
 import { ContactLinks } from "@/components/ContactLinks";
 import { AgentDemo } from "@/components/gtm/AgentDemo";
 import { Diagnose } from "@/components/gtm/Diagnose";
-import { formatMoney, formatSigned } from "@/components/gtm/format";
+import { formatHours, formatMoney, formatSigned } from "@/components/gtm/format";
 import { HeroEngine } from "@/components/gtm/HeroEngine";
 import { Simulator } from "@/components/gtm/Simulator";
 import { PLAYBOOKS } from "@/content/playbooks";
+import { SKILLS } from "@/content/skills";
 import { plan, valuePlan } from "@/core/gtm/decide";
-import { ALL_OFF, AUTOMATIONS } from "@/core/gtm/model";
+import { ALL_OFF, ALL_ON, AUTOMATIONS } from "@/core/gtm/model";
 import { simulate } from "@/core/gtm/simulate";
 import { SITE } from "@/site.config";
 import styles from "./page.module.css";
@@ -39,6 +40,32 @@ const agentValue = {
   meetings: agentSteps.reduce((sum, step) => sum + step.meetingsPerQuarter, 0),
   revenue: agentSteps.reduce((sum, step) => sum + step.revenuePerYear, 0),
 };
+const automatedInbound = simulate("inbound", ALL_ON);
+
+/** The problems a sales team brings, in their words, each with the fix, its value and a demo. */
+const WHAT = [
+  {
+    problem: "New leads wait days for a first answer.",
+    fix: "I route every new lead to the right salesperson in minutes and have AI draft the reply. A person approves before anything is sent.",
+    impact: `First answer in ${formatHours(automatedInbound.medianHoursToTouch)} instead of ${formatHours(manualInbound.medianHoursToTouch)}: ${formatSigned(agentValue.meetings)} sales meetings a quarter, about ${formatMoney(agentValue.revenue)} a year.`,
+    see: { label: "Watch the AI agent answer a lead", href: "#agent" },
+    skills: ["Lead routing", "AI agents", "HubSpot", "n8n"],
+  },
+  {
+    problem: "Nobody knows which tools and automations actually pay off.",
+    fix: "I put a dollar value on each change before it is built, then prove it with a control group after launch.",
+    impact: `In the example, the ${inboundValue.steps.length} changes that help are worth ${formatMoney(inboundValue.total.revenuePerYear)} a year together, and each one is priced on its own.`,
+    see: { label: "See the value of each change", href: "#diagnose" },
+    skills: ["Python", "SQL", "A/B tests", "Simulation"],
+  },
+  {
+    problem: "Salespeople lose hours to duplicates and missing data.",
+    fix: "I clean and complete the CRM automatically every night and rank leads, so reps start with the ones most likely to buy.",
+    impact: `Duplicates alone waste ${Math.round(manualInbound.wastedHours)} rep hours a quarter in the example; the cleanup gives them back.`,
+    see: { label: "See how the cleanup works", href: "#hygiene" },
+    skills: ["HubSpot", "Zoho", "Make", "Zapier"],
+  },
+] as const;
 
 export default function Home() {
   return (
@@ -50,8 +77,9 @@ export default function Home() {
             I build the automated engine that turns leads into sales meetings.
           </h1>
           <p className={styles.subclaim}>
-            Routing, enrichment, scoring and AI agents that draft while a person approves. Each one
-            switched on because the data says it pays.
+            In plain words: every potential customer gets a fast, relevant answer from the right
+            salesperson. I build it with automation and AI, and I show what each change is worth in
+            dollars.
           </p>
           <ul className={styles.specialties} aria-label="Skills">
             {SITE.specialties.map((specialty) => (
@@ -59,11 +87,11 @@ export default function Home() {
             ))}
           </ul>
           <div className={styles.actions}>
-            <a href="#simulator" className="button" data-variant="primary">
-              Try the GTM simulator
+            <a href="#what" className="button" data-variant="primary">
+              What I do for a sales team
             </a>
-            <a href="#playbooks" className="button">
-              See the playbooks
+            <a href="#agent" className="button">
+              Watch the AI agent
             </a>
             <Link href="/about#contact" className="button" data-variant="quiet">
               Get in touch
@@ -75,45 +103,54 @@ export default function Home() {
         </div>
       </section>
 
-      <section
-        className={`page ${styles.section}`}
-        id="simulator"
-        aria-labelledby="simulator-title"
-      >
+      <section className={`page ${styles.section}`} id="what" aria-labelledby="what-title">
         <header className={styles.sectionHeader}>
-          <p className="eyebrow">GTM simulator · synthetic data</p>
-          <h2 id="simulator-title" className={styles.sectionTitle}>
-            Pick a strategy, switch on automations, and let the data choose the next move.
+          <p className="eyebrow">What I do, in plain words</p>
+          <h2 id="what-title" className={styles.sectionTitle}>
+            Three problems most sales teams have, and what fixing them is worth.
           </h2>
           <p className={styles.sectionLede}>
-            A fictional software company with three sales reps and 90 days of leads, simulated lead
-            by lead. Every run replays the same leads, so any change you see comes from the switch
-            you flipped. Start from &ldquo;all manual&rdquo; and follow the recommendation.
+            Figures come from the simulator on this page, with made-up data for a team of three
+            salespeople, and assume 1 in 4 sales opportunities closes.
           </p>
         </header>
-        <Simulator />
-      </section>
-
-      <section className={`page ${styles.section}`} id="diagnose" aria-labelledby="diagnose-title">
-        <header className={styles.sectionHeader}>
-          <p className="eyebrow">Diagnose your funnel</p>
-          <h2 id="diagnose-title" className={styles.sectionTitle}>
-            Put in your own numbers and get the order to automate in.
-          </h2>
-        </header>
-        <Diagnose />
+        <ol className={styles.what}>
+          {WHAT.map((item) => (
+            <li key={item.problem} className={styles.whatItem}>
+              <p className={styles.whatProblem}>{item.problem}</p>
+              <p className={styles.whatFix}>{item.fix}</p>
+              <p className={styles.whatImpact}>{item.impact}</p>
+              <a href={item.see.href} className={styles.whatLink}>
+                {item.see.label} ↓
+              </a>
+              <ul className={styles.tools} aria-label="Skills used">
+                {item.skills.map((skill) => (
+                  <li key={skill} className="tag">
+                    {skill}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ol>
+        <p className={styles.whatReal}>
+          Done for real, not only simulated: at BairesDev I owned the automation and decision layer
+          of an AI-assisted lead program. In its A/B test the contacted group brought ≈60% higher
+          contract value than the control group, a result of the whole program, not my work alone.
+        </p>
       </section>
 
       <section className={`page ${styles.section}`} id="agent" aria-labelledby="agent-title">
         <header className={styles.sectionHeader}>
-          <p className="eyebrow">AI agent · real runs</p>
+          <p className="eyebrow">See it working · AI agent</p>
           <h2 id="agent-title" className={styles.sectionTitle}>
             A new lead, answered in seconds. A person approves.
           </h2>
           <p className={styles.sectionLede}>
-            Pick a lead from the inbox. The agent works out what they want, scores the fit, routes
-            it to the right rep and drafts the reply and the CRM note. In the simulator, answering
-            every inbound lead this way adds{" "}
+            Pick a message from the inbox. The agent works out what the person wants, how good a
+            customer they could be and which salesperson should answer, then drafts the reply and
+            the note for the customer database. These are real runs, recorded. Answering every new
+            lead this way adds, in the simulator,{" "}
             <strong className="num">{formatSigned(agentValue.meetings)}</strong> meetings a quarter,
             about <strong className="num">{formatMoney(agentValue.revenue)}</strong> in sales a
             year.
@@ -122,15 +159,99 @@ export default function Home() {
         <AgentDemo worth={{ manualWaitHours: manualInbound.medianHoursToTouch }} />
       </section>
 
+      <section className={`page ${styles.section}`} id="diagnose" aria-labelledby="diagnose-title">
+        <header className={styles.sectionHeader}>
+          <p className="eyebrow">For your company</p>
+          <h2 id="diagnose-title" className={styles.sectionTitle}>
+            What this could be worth at your company.
+          </h2>
+          <p className={styles.sectionLede}>
+            Already calculated for a typical team of two salespeople. Change the numbers to yours
+            and it recalculates: which change to make first, and what each one is worth a year.
+          </p>
+        </header>
+        <Diagnose />
+      </section>
+
+      <section className={`page ${styles.section}`} id="skills" aria-labelledby="skills-title">
+        <header className={styles.sectionHeader}>
+          <p className="eyebrow">Technical skills, with proof</p>
+          <h2 id="skills-title" className={styles.sectionTitle}>
+            Each skill, what it means, and where to see it.
+          </h2>
+        </header>
+        <section
+          className={styles.skillsWrap}
+          // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region needs a tab stop so its overflow can be scrolled by keyboard
+          tabIndex={0}
+          aria-label="Skills with proof"
+        >
+          <table className={styles.skills}>
+            <thead>
+              <tr>
+                <th scope="col">Skill and tools</th>
+                <th scope="col">In plain words</th>
+                <th scope="col">See it here</th>
+                <th scope="col">Used for real</th>
+              </tr>
+            </thead>
+            <tbody>
+              {SKILLS.map((skill) => (
+                <tr key={skill.id}>
+                  <th scope="row">
+                    <span className={styles.skillName}>{skill.name}</span>
+                    <span className={styles.skillTools}>{skill.tools.join(" · ")}</span>
+                  </th>
+                  <td>{skill.plain}</td>
+                  <td>
+                    <ul className={styles.skillLinks}>
+                      {skill.see.map((link) => (
+                        <li key={link.href}>
+                          {link.href.startsWith("/") ? (
+                            <Link href={link.href}>{link.label}</Link>
+                          ) : (
+                            <a href={link.href}>{link.label}</a>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </td>
+                  <td>{skill.real}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      </section>
+
+      <section
+        className={`page ${styles.section}`}
+        id="simulator"
+        aria-labelledby="simulator-title"
+      >
+        <header className={styles.sectionHeader}>
+          <p className="eyebrow">The full simulator · for a closer look</p>
+          <h2 id="simulator-title" className={styles.sectionTitle}>
+            Switch each automation on or off and see what it changes.
+          </h2>
+          <p className={styles.sectionLede}>
+            A made-up software company with three salespeople and 90 days of potential customers,
+            played out one by one. The same customers come in on every run, so any change you see
+            comes from the switch you flipped. The yellow box always says which switch to try next.
+          </p>
+        </header>
+        <Simulator />
+      </section>
+
       <section
         className={`page ${styles.section}`}
         id="playbooks"
         aria-labelledby="playbooks-title"
       >
         <header className={styles.sectionHeader}>
-          <p className="eyebrow">Automation playbooks</p>
+          <p className="eyebrow">How I build it · playbooks</p>
           <h2 id="playbooks-title" className={styles.sectionTitle}>
-            The flows I design and build, and how each one is judged.
+            Six automations I build, step by step, and how each one is judged.
           </h2>
         </header>
         <ul className={styles.playbooks}>
@@ -205,7 +326,7 @@ export default function Home() {
             Get in touch
           </h2>
           <p className={styles.contactText}>
-            Questions about the simulator, the playbooks or my work are welcome.
+            Happy to walk your team through any of this, or to look at your numbers together.
           </p>
         </div>
         <ContactLinks />

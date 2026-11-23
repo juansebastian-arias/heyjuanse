@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useMemo, useState } from "react";
 import { type Plan, plan, valuePlan } from "@/core/gtm/decide";
 import { ALL_OFF, AUTOMATIONS, MOTION_IDS, MOTIONS, type MotionId } from "@/core/gtm/model";
 import { DecisionPath } from "./DecisionPath";
@@ -28,16 +28,43 @@ const clamp = (value: number, key: keyof typeof LIMITS) => {
   return Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : min;
 };
 
-/** "Diagnose your funnel": the simulator run on the visitor's own numbers, as an ordered plan. */
+const DEFAULTS: Inputs = {
+  motion: "inbound",
+  leadsPerMonth: 400,
+  reps: 2,
+  responseHours: 24,
+  dealSize: 20000,
+};
+
+function build(raw: Inputs): { inputs: Inputs; plan: Plan } {
+  const clean: Inputs = {
+    motion: raw.motion,
+    leadsPerMonth: clamp(raw.leadsPerMonth, "leadsPerMonth"),
+    reps: clamp(Math.round(raw.reps), "reps"),
+    responseHours: clamp(raw.responseHours, "responseHours"),
+    dealSize: clamp(raw.dealSize, "dealSize"),
+  };
+  return {
+    inputs: clean,
+    plan: plan(clean.motion, ALL_OFF, {
+      leads: clean.leadsPerMonth * 3,
+      reps: clean.reps,
+      manualRoutingHours: clean.responseHours,
+      dealSize: clean.dealSize,
+    }),
+  };
+}
+
+/**
+ * "What this could be worth at your company": the simulator run on the visitor's own numbers, as
+ * an ordered plan with a dollar value per step. It opens already computed for a typical team, so
+ * a reader sees the answer before typing anything.
+ */
 export function Diagnose() {
-  const [inputs, setInputs] = useState<Inputs>({
-    motion: "inbound",
-    leadsPerMonth: 400,
-    reps: 2,
-    responseHours: 24,
-    dealSize: 20000,
-  });
-  const [result, setResult] = useState<{ inputs: Inputs; plan: Plan } | null>(null);
+  const [inputs, setInputs] = useState<Inputs>(DEFAULTS);
+  const [result, setResult] = useState<{ inputs: Inputs; plan: Plan } | null>(() =>
+    build(DEFAULTS),
+  );
 
   const set = (key: keyof Inputs, value: string) =>
     setInputs((prev) => ({
@@ -47,23 +74,9 @@ export function Diagnose() {
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    const clean: Inputs = {
-      motion: inputs.motion,
-      leadsPerMonth: clamp(inputs.leadsPerMonth, "leadsPerMonth"),
-      reps: clamp(Math.round(inputs.reps), "reps"),
-      responseHours: clamp(inputs.responseHours, "responseHours"),
-      dealSize: clamp(inputs.dealSize, "dealSize"),
-    };
-    setInputs(clean);
-    setResult({
-      inputs: clean,
-      plan: plan(clean.motion, ALL_OFF, {
-        leads: clean.leadsPerMonth * 3,
-        reps: clean.reps,
-        manualRoutingHours: clean.responseHours,
-        dealSize: clean.dealSize,
-      }),
-    });
+    const next = build(inputs);
+    setInputs(next.inputs);
+    setResult(next);
   };
 
   const fields: { key: Exclude<keyof Inputs, "motion">; label: string; hint: string }[] = [
@@ -77,6 +90,7 @@ export function Diagnose() {
   const steps = result?.plan.steps ?? [];
   const end = steps[steps.length - 1]?.result ?? start;
   const first = steps[0];
+  const worth = useMemo(() => (result ? valuePlan(result.plan) : null), [result]);
 
   return (
     <div className={styles.wrap}>
@@ -107,23 +121,27 @@ export function Diagnose() {
           </label>
         ))}
         <button type="submit" className="button" data-variant="primary">
-          Build my plan
+          Recalculate with my numbers
         </button>
       </form>
 
       <div className={styles.result} aria-live="polite">
-        {start && end && result ? (
+        {start && end && result && worth ? (
           <>
-            <p className="eyebrow">Your plan for the next quarter</p>
+            <p className="eyebrow">
+              {result.inputs.leadsPerMonth.toLocaleString("en-US")} leads a month,{" "}
+              {result.inputs.reps === 1 ? "1 rep" : `${result.inputs.reps} reps`},{" "}
+              {formatMoney(result.inputs.dealSize)} deals
+            </p>
             <p className={styles.headline}>
-              From <span className="num">{start.meetings}</span> to{" "}
-              <span className="num">{end.meetings}</span> meetings a quarter, with the same{" "}
+              About <span className="num">{formatMoney(worth.total.revenuePerYear)}</span> more in
+              sales a year, with the same{" "}
               {result.inputs.reps === 1 ? "rep" : `${result.inputs.reps} reps`}.
             </p>
             <p className={styles.sub}>
-              Cost per meeting {formatMoney(start.costPerMeeting)} →{" "}
-              {formatMoney(end.costPerMeeting)}; pipeline {formatMoney(start.pipeline)} →{" "}
-              {formatMoney(end.pipeline)}.
+              Sales meetings a quarter <span className="num">{start.meetings}</span> →{" "}
+              <span className="num">{end.meetings}</span>; cost of each meeting{" "}
+              {formatMoney(start.costPerMeeting)} → {formatMoney(end.costPerMeeting)}.
             </p>
             {first ? (
               <p className={styles.firstMove}>

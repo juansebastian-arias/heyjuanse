@@ -4,26 +4,36 @@ import { formatMoney, formatSigned, formatSignedMoney } from "./format";
 import styles from "./ValueTable.module.css";
 
 /** What each improvement in a plan is worth in dollars, in the order the data recommends it. */
-export function ValueTable({ value, label }: { value: PlanValue; label: string }) {
+export function ValueTable({
+  value,
+  label,
+  showTotal = true,
+}: {
+  value: PlanValue;
+  label: string;
+  showTotal?: boolean;
+}) {
   if (!value.steps.length) return null;
   const pct = Math.round(TEAM.winRate * 100);
   return (
     <div className={styles.wrap}>
-      <p className={styles.total}>
-        All together: <strong className="num">{formatMoney(value.total.revenuePerYear)}</strong>{" "}
-        more in sales a year,{" "}
-        {value.total.costPerYear <= 0 ? (
-          <>
-            and <span className="num">{formatMoney(-value.total.costPerYear)}</span> a year less
-            spent on tools and team time.
-          </>
-        ) : (
-          <>
-            for <span className="num">{formatMoney(value.total.costPerYear)}</span> a year in tools
-            and team time.
-          </>
-        )}
-      </p>
+      {showTotal ? (
+        <p className={styles.total}>
+          All together: <strong className="num">{formatMoney(value.total.revenuePerYear)}</strong>{" "}
+          more in sales a year,{" "}
+          {value.total.costPerYear <= 0 ? (
+            <>
+              and <span className="num">{formatMoney(-value.total.costPerYear)}</span> a year less
+              spent on tools and team time.
+            </>
+          ) : (
+            <>
+              for <span className="num">{formatMoney(value.total.costPerYear)}</span> a year in
+              tools and team time.
+            </>
+          )}
+        </p>
+      ) : null}
       <section
         className={styles.scroll}
         // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region needs a tab stop so its overflow can be scrolled by keyboard
