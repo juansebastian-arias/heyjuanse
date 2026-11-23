@@ -133,7 +133,9 @@ export async function expectSoFar(
   } else {
     await expect(line).not.toContainText("to waiting instead of");
   }
-  if (!cash || !lost) await expect(line).toContainText("no clear change");
+  // Sales that did not clearly move are said not to have moved.
+  if (cash) await expect(line).not.toContainText("no clear change");
+  else await expect(line).toContainText("no clear change");
 }
 
 /**

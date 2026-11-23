@@ -1,25 +1,26 @@
 # heyjuanse.com
 
-The personal site of Juan Sebastián Arias, GTM engineer. The home page shows one lead handled two
-ways and a working AI lead agent with human approval. The **GTM simulator** has its own page: pick a go-to-market strategy (inbound, outbound to target accounts,
-product-led, events and partners), switch automations on and off, and watch 90 days of synthetic
-leads play out. After every change it measures each possible next switch and recommends the one
-that adds the most meetings. The model, its assumptions and its tests live in `core/gtm/`.
+The site of Juan Sebastián Arias. It is one working product instead of a set of pages about its
+author: **Larkspur**, a made-up company that sells route-planning software to delivery fleets,
+simulated in the browser from a customer's first message to the paid invoice.
 
-- **[Home](https://heyjuanse.com)**: one lead handled two ways (the average 42-hour reply from a
-  published study against a system that answers in minutes), the AI lead agent, what it is worth,
-  what I build and how I work.
-- **[GTM simulator and playbooks](https://heyjuanse.com/simulator)**: the simulator and six
-  automation playbooks (trigger, steps, guardrail, metric).
-- **[Decision Lab](https://heyjuanse.com/lab)**: a week of messy inbound leads and too few sales
-  calls. Change the rules, watch every lead move, and open any lead to see why it went where it
-  did. Every metric is a SQL query that runs in your browser.
-- **[Under the hood](https://heyjuanse.com/architecture)**: requirements, the rule catalogue, the
-  SQL, the AI contract, the tests and the design decisions, rendered from this code.
+- **[The company](https://heyjuanse.com)**: watch requests move through five teams, see where
+  buyers give up waiting, make the change the model ranks first and read what it came to. Under
+  it: a panel for each team, the plan step by step, and five layers that answer what a careful
+  reader would ask (why the line forms, what happens to one customer, what if an assumption is
+  wrong, is the engine right, what does the AI step do).
+- **[How it is built](https://heyjuanse.com/engine)**: what runs for real and what is made up,
+  the life of a request, the decisions behind the numbers, every assumption with its value, the
+  checks against known formulas, and the test report of the build.
 
-Everything in the simulator and the lab is synthetic. Larkspur is a fictional company, and every person, company
-and message was produced by a seeded generator. The lab is an independent demonstration: it has
-not been used in production and it is not a copy of any employer's or client's system.
+## What is real and what is made up
+
+| Runs for real | Made up, and labeled so |
+| --- | --- |
+| The simulation: every dot, wait and dollar is computed in the visitor's browser, again after each change. | Larkspur and its customers. No real company's data is used anywhere. |
+| The comparison: each change is measured against today's company on the same simulated customers, over 60 quarters. | The assumptions: plausible for a small software company, not measured. All are listed on `/engine`; seven can be changed on the home page. |
+| The checks: the engine is tested against queueing formulas with known answers, and a visitor can rerun that test. | The dollar figures: they follow from the assumptions. They show how the method reasons and are not results achieved anywhere. |
+| The AI step: a visitor's own request is a live model call. The four samples replay real runs, recorded once. | |
 
 ## Quick start
 
@@ -29,80 +30,81 @@ Requires Node 22.12 or later and pnpm 10 (`corepack enable` installs the pinned 
 pnpm install
 pnpm dev          # http://localhost:3000
 pnpm check        # typecheck, lint, unit and property tests
-pnpm build        # runs the tests, then a static production build
+pnpm build        # runs the tests, then a production build
 pnpm test:e2e     # browser and accessibility tests against the production build
 ```
 
-No environment variables are needed to run or build the site. The API key is only used by the
-offline extraction workflow described below.
+Nothing needs to be configured to run or build the site. One optional variable, on the server
+only, switches on the live AI step: see [The AI step](#the-ai-step).
 
 ## How the code is organized
 
 | Path | What it holds |
 | --- | --- |
-| `core/` | The engine, in plain TypeScript with no React and no I/O, so it is tested on its own. |
-| `core/dataset/` | The seeded generator and the assumptions behind the synthetic data. |
-| `core/cleaning/` | Normalization, duplicate rules, survivorship and company matching. |
-| `core/scoring/`, `core/routing/` | Score tables, eligibility and message rules, the call queue and decision traces. |
-| `core/ai/` | The extraction contract: prompt, schema, quote checks and the trust policy. |
-| `core/backtest/` | Metrics against the answer key, the AI scorecard and the "what changed" explanations. |
-| `core/sql/` | SQLite schema and metric queries, kept equal to the TypeScript metrics by a test. |
-| `server/ai/` | The only code that calls the Anthropic API. Scripts use it; the site never does. |
-| `scripts/` | Data generation, offline AI extraction and evaluation. |
-| `app/`, `components/`, `lib/` | Next.js pages, the lab interface, and browser and build-time helpers. |
-| `content/` | Hand-written copy: work entries, requirements, decisions and limitations. |
-| `public/data/` | The published weeks: `leads.json` (what the rules see), `labels.json` (the answer key) and, once generated, `ai.json` (stored model outputs). |
+| `core/flow/` | The model, in plain TypeScript with no React and no I/O: the company and its assumptions, the event engine, seeded chance, the experiment over many quarters, the planner, sensitivity, and the comparison with queueing theory. |
+| `core/agent/` | The contract of the AI step: input and output shapes, limits and the rate limiter. |
+| `server/agent/` | The only code that calls the model. Used by the API route and by the recording script. |
+| `lib/flow/` | What the page needs around the model: the store, the worker pool, the view built from simulated quarters, the live stream drawn on the floor, and every sentence the page writes from a number. |
+| `lib/server/` | Build-time helpers: the test report and the build details that `/engine` publishes. |
+| `components/flow/` | The interface: the floor (a canvas with real HTML labels over it), the console with the next move, the scoreboard, the team and plan panels, and the layers under `inside/`. |
+| `app/` | The two pages, the 404, the API route `app/api/agent` and the global styles. |
+| `content/agent/` | The four sample requests and the recorded real runs that replay them. |
+| `scripts/` | `record-agent.ts`, which records those runs. |
 | `tests/e2e/` | Playwright browser and accessibility tests. |
 
-The cleaning, scoring, routing and AI modules cannot import the generator or the answer key; a
-test in `core/architecture.test.ts` enforces this. More in
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+`core/` cannot import React, Next.js or the model's SDK; the linter and a test in
+`core/architecture.test.ts` enforce it. More in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and
+the reasoning behind the product in [docs/PRODUCT.md](docs/PRODUCT.md).
 
-## Data
+## The model in one paragraph
 
-`pnpm data:generate` rewrites `public/data` from the generator. The output is deterministic, and a
-test fails if the committed files differ from what the generator produces, so a change to the
-generator must ship with regenerated data. Bump `GENERATOR_VERSION` in `core/dataset/generate.ts`
-when the generator's logic changes.
+Requests arrive through the working week and pass five teams: reply, quote, contract, set up,
+invoice. Each team has people, hours and a line; a request that waits too long gives up, and some
+of those would have bought. The engine is a discrete-event simulation. Each customer carries their
+own seeded chance, so two setups are compared on exactly the same customers. A setup is run for 60
+quarters after a warm-up, and a difference counts only when its mean is more than twice its
+standard error. The planner measures every change still open, takes the one with the best gain
+after cost that is clearly worth it, and looks again from there.
 
-## AI outputs
+## The AI step
 
-A small model reads each free-text message once, offline, and returns structured signals with
-quotes from the message. The answers are stored in `public/data/<week>/ai.json` with the model,
-effort, prompt version, date and cost. The site never calls a model. The scorecards of every
-stored run are in [docs/TESTING.md](docs/TESTING.md#stored-runs).
+"Try the AI step" hands a customer request to an agent that classifies it, picks an owner and
+drafts a reply and a CRM note. Nothing is sent: the visitor edits, approves or rejects the draft.
 
-To generate them, add an `ANTHROPIC_API_KEY` repository secret (a key created inside a workspace)
-and run the **Generate AI outputs** workflow from the Actions tab. It estimates the cost, stops at a
-spending cap (3 US dollars by default), runs the checks and the build, scores the outputs against
-the answer key and pushes them to a new branch, with a link to open the pull request. Details in
-[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+- The four sample requests replay real runs stored in `content/agent/recordings.json`, so they
+  work with no key and cost nothing.
+- A visitor's own request goes to `POST /api/agent`, which calls the model on the server. It needs
+  `ANTHROPIC_API_KEY` in the host's environment. Without it the route answers that the live agent
+  is switched off and the samples keep working.
+- The key never reaches the browser; a browser test reads every script the site ships to confirm
+  it. The route accepts same-origin requests only, limits each visitor and each day, and makes one
+  model call with a small output budget. The hard ceiling on cost is the spend limit of the API
+  workspace, set in the Claude Console.
 
-```bash
-pnpm ai:extract --dry-run   # count messages and estimate the cost, no API calls
-pnpm ai:eval                # score stored outputs against the answer key
-```
+`AGENT_ENABLED=false` switches the live agent off; `AGENT_DAILY_LIMIT` changes the daily limit
+(100 by default). The **Record agent runs** workflow re-records the samples when the requests, the
+contract or the prompt change (about 10 US cents per run).
 
 ## Tests
 
-- **Unit and property tests** (Vitest and fast-check) cover cleaning, duplicates, scoring,
-  routing, the AI checks, the metrics and the explanations. Property tests check rules that must
-  always hold, such as "more buying signals never lower a score" and "more capacity never removes
-  a call".
-- **Parity**: the SQL metrics and the TypeScript metrics are compared over random settings.
-- **Browser tests** (Playwright and axe) run against the production build on a desktop and a phone
-  viewport. They check that every page passes WCAG 2.2 A and AA rules in light and dark mode, that
-  the metrics on screen match the engine, and that the lab works from a keyboard.
-- **The build is gated**: `pnpm build` runs the unit tests first and writes the report that the
-  Under the hood page publishes.
+- **Unit and property tests** (Vitest and fast-check): 308 tests over the engine, the experiment,
+  the planner, the wording and the store. The engine is held to Erlang C, Erlang-A and
+  Pollaczek–Khinchine within their sampling error.
+- **Browser tests** (Playwright and axe) drive the production build on a desktop and a phone. They
+  compare the figures on screen with figures the engine computes separately in the test process,
+  for the first screen, every kind of change, a setup opened from a link and each layer. They also
+  cover the keyboard, reduced motion, a browser without workers, WCAG 2.2 A and AA in light and
+  dark, a 320 pixel screen, the security headers, and that a visit sets no cookie and contacts no
+  other site.
+- **The build is gated**: `pnpm build` runs the unit tests first and writes the report that
+  `/engine` publishes.
 
 More in [docs/TESTING.md](docs/TESTING.md).
 
 ## Deployment
 
-Every page is pre-rendered, so the site deploys as static files with security headers set in
-`next.config.ts`. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for Vercel, the domain and the AI
-workflow.
+The two pages are pre-rendered; the first screen arrives with its numbers already computed. The
+only server code is the AI route. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## How this was built
 
@@ -112,7 +114,13 @@ direction. It is held to the same tests and published rules as any other code.
 
 ## Known limitations
 
-The answer key comes from the same generator that wrote the data, so the lab shows how the rules
-behave under stated assumptions, not how they would perform on a real market. The full list, and
-what comes next, is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#limitations-and-next-steps) and
-on the [Under the hood](https://heyjuanse.com/architecture#limitations) page.
+- Larkspur's assumptions are chosen, not measured. The page shows how the method reasons under
+  stated assumptions, not what a real company would gain.
+- The model compares settled quarters. It does not simulate the weeks a change takes to bed in.
+- Results repeat exactly on one JavaScript engine; another may round the last digit of a logarithm
+  differently and move a figure very slightly.
+- The rate limits of the AI route are kept in memory, per server instance.
+- The content security policy allows inline scripts, because the framework's static pages need
+  them. Nothing is loaded from another origin.
+
+The full list is on [How it is built](https://heyjuanse.com/engine#limits).

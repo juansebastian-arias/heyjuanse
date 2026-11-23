@@ -87,7 +87,7 @@ test.describe("the first screen", () => {
     await expectBoard(page, today, null);
     // The sentence at the top, the scoreboard and the team's panel are the same measurement.
     const lost = count(today.now.totals.lostBuyers.mean);
-    const lede = page.getByRole("main").locator("header");
+    const lede = page.locator("header").filter({ hasText: "A made-up company" });
     await expect(lede.locator("strong")).toHaveText(`${lost} companies a month`);
     await expect(lede).toContainText(
       `As it runs today it collects about ${money(today.now.totals.cash.mean)} a month`,

@@ -1,154 +1,108 @@
 # Architecture
 
-This document explains how the Decision Lab is put together and why. The rule tables, queries,
-prompt, schema and test names are not repeated here: the
-[Under the hood](https://heyjuanse.com/architecture) page renders them from the code, so they
-cannot drift.
+How the site is put together, and why. The product reasoning is in [PRODUCT.md](PRODUCT.md); the
+model itself is explained for readers on the site's own page, [`/engine`](https://heyjuanse.com/engine).
 
-## The problem it solves
+## The shape of it
 
-Larkspur, a fictional freight-operations software company, gets 400 inbound form submissions a
-week and its sales team can make 45 calls. The submissions are messy: typos, duplicates, personal
-emails, missing companies, support requests sent through the sales form, and the occasional
-message written to manipulate an AI. The system has to decide who gets a call and say why, and the
-lab has to show whether those decisions were any good.
-
-## Data flow
-
-```mermaid
-flowchart LR
-  subgraph Offline["Offline, in the repository"]
-    G["Generator<br/>core/dataset"]
-    X["Extraction workflow<br/>scripts/extract-dataset.ts<br/>server/ai"]
-  end
-  subgraph Files["public/data/&lt;week&gt;/"]
-    L["leads.json<br/>what the rules see"]
-    K["labels.json<br/>the answer key"]
-    A["ai.json<br/>stored model outputs"]
-  end
-  subgraph Browser["In the visitor's browser"]
-    C["Clean, merge, match<br/>core/cleaning"]
-    V["Check AI answers<br/>core/ai"]
-    R["Score and route<br/>core/scoring, core/routing"]
-    S[("SQLite<br/>core/sql")]
-    M["Metrics<br/>core/backtest"]
-  end
-  G --> L
-  G --> K
-  L --> X --> A
-  L --> C --> R
-  A --> V --> R
-  R --> S
-  K --> S
-  S --> M
+```
+core/flow      the model: pure TypeScript, no React, no I/O
+core/agent     the AI step's contract: shapes, limits
+server/agent   the only code that calls the model
+lib/flow       the page's state and wording, built on core/flow
+components     the interface
+app            two pages, a 404 and one API route
 ```
 
-1. **Generate** (offline). A seeded generator writes three weeks of 400 submissions each, with
-   planted defects, and keeps what it knows about each person in a separate answer key.
-2. **Extract** (offline). A small model reads each free-text message once and returns structured
-   signals, each backed by a quote. The answers are stored with the model, effort, prompt version,
-   date, cost and the hash of the leads file they were made from.
-3. **Clean, merge and match** (once per week, in the browser). Fields are normalized with a reason
-   for every change. Two cautious rules merge duplicates; near matches are flagged, never merged.
-   Merged records keep each field by a stated survivorship rule. Leads are matched to the
-   simulated company data by email domain, then website, then exact company name.
-4. **Check AI answers.** Every quote must appear in the message and every field that adds points
-   must have one; otherwise the answer's confidence drops to low.
-5. **Score and route** (on every change). Eligibility rules run first, in a fixed order. Then, if
-   the AI policy allows, rules based on what the message says. Then the score threshold. Each lead
-   lands in exactly one lane with exactly one reason, and the sales lane is queued against
-   capacity.
-6. **Measure.** The decisions are written to SQLite next to the answer key, and every metric is a
-   query over them.
+Dependencies point one way: `app` and `components` use `lib`, which uses `core`. `core` cannot
+import React, Next.js or the model's SDK. A lint rule and `core/architecture.test.ts` enforce it,
+so the model can always be run and tested without a browser or a network.
 
-## Boundaries
+## The model (`core/flow`)
 
-- **The engine never sees the answers.** `core/cleaning`, `core/scoring`, `core/routing` and
-  `core/ai` cannot import the generator (`core/dataset`) or the metrics (`core/backtest`). Routing
-  takes no labels as input. `core/architecture.test.ts` enforces both.
-- **The answer key is its own file.** The engine only reads `leads.json`. Only the metrics and the
-  AI scorecard read `labels.json`.
-- **The site never calls a model.** `server/ai` is the only code that imports the Anthropic SDK,
-  and only the scripts use it. A test fails if anything in `app/`, `components/` or `lib/` imports
-  it, and the content security policy would block such a request anyway.
-- **`core/` is framework-free.** No React, no Next.js and no I/O, so it runs the same in the
-  browser, at build time and in tests.
+| Module | What it does |
+| --- | --- |
+| `company.ts` | Larkspur: the five teams, every assumption with its base value, the six improvements, what a setup costs. |
+| `calendar.ts` | Working hours, nights and weekends. |
+| `requests.ts`, `chance.ts`, `dist.ts` | The stream of customers. Each customer carries their own seeded chance, so their size, patience and decisions are the same under every setup. |
+| `engine.ts`, `heap.ts` | The discrete-event simulation: arrivals, assignment, lines, work, redo, giving up, invoices and payments. |
+| `experiment.ts`, `metrics.ts` | Many quarters of one setup, summarised; the paired difference between two setups and whether it is clear. |
+| `planner.ts` | Every move from a setup, measured and judged; the plan that takes the best one and looks again. |
+| `diagnose.ts` | Why work waits at a team: the wait split into its causes. |
+| `sensitivity.ts` | How much a gain depends on each assumption, moved one at a time. |
+| `theory.ts`, `validate.ts` | Erlang C, Erlang-A and Pollaczek–Khinchine, and the comparison of the engine with them. |
+| `trace.ts` | The path of single customers, for "Follow one customer". |
+| `scenario.ts` | A setup plus changed assumptions, and its form in a link. |
 
-## Runtime
+Three decisions make the numbers worth reading:
 
-- **Static pages.** Every page is pre-rendered at build time. Server components read
-  `public/data` from disk while building, which is how the home page shows the engine's real
-  output for the default week and how the Under the hood page lists the test results.
-- **The lab is a client component.** It fetches the manifest and one week's files from the same
-  origin, prepares the week, and routes all leads synchronously on every change. SQLite (sql.js,
-  compiled to WebAssembly) loads after the first render; until it is ready, the metrics come from
-  the TypeScript reference implementation, and once it is, from SQL. If the two ever disagree, the
-  card says so.
-- **State lives in the address.** Every setting, the open case file and the view are query
-  parameters, so any state can be shared as a link and survives a reload.
-- **Explanations describe bursts of change.** Changes less than 700 ms apart count as one
-  experiment, compared with the state before the burst, so dragging a slider produces one
-  explanation rather than twenty.
+1. **The same customers on both sides.** A change is measured as the difference on identical
+   customers, which removes most of the noise a comparison of two random runs would have.
+2. **A difference has to be clear.** Sixty quarters give a mean difference and its standard error.
+   The page states a difference only when the mean is more than twice that error, and says "no
+   clear change" otherwise.
+3. **The engine is checked against answers known in advance.** With its extras switched off, the
+   simulation must reproduce the formulas of queueing theory within sampling error. The check runs
+   in the unit tests, at build time for `/engine`, and in the visitor's browser on request.
 
-## Security
+## The page (`lib/flow`, `components/flow`)
 
-- **No secrets in the site.** The only credential is the `ANTHROPIC_API_KEY` repository secret,
-  used by a workflow that runs only when started by hand, stops at a cost cap, and passes inputs
-  through environment variables rather than interpolating them into shell commands.
-- **Content security policy.** `default-src 'self'` and `connect-src 'self'`: pages can only load
-  and request resources from this site. `wasm-unsafe-eval` lets SQLite compile.
-  `script-src 'unsafe-inline'` is needed because Next.js inlines its hydration data and nonces
-  would force every page to render on demand; with no third-party scripts and no user content
-  rendered as HTML, the exposure is small. Framing is denied, and HSTS, `nosniff`, a strict
-  referrer policy and a permissions policy are set in `next.config.ts`.
-- **The SQL console is read-only.** It accepts one `SELECT`, `WITH` or `EXPLAIN` statement, runs it
-  with `PRAGMA query_only`, and returns at most 200 rows. It runs on the visitor's own in-memory
-  copy of the data.
-- **Prompt injection is expected.** Messages are passed to the model as data inside tags, the
-  prompt tells it to report instructions rather than follow them, quotes are verified against the
-  message, and a detected injection always sends the lead to a person. AI can move a lead between
-  lanes only when its answer is trusted under the confidence policy, and never past an eligibility
-  rule such as a missing email or an opt-out.
+**The first screen is computed where the page is built.** `startView()` simulates today's company,
+every first move and the whole plan, and `app/page.tsx` renders it. The page arrives with its
+numbers and can be read with scripts switched off.
 
-## Design decisions
+**After that, everything runs in the browser.** `FlowStore` (`lib/flow/store.ts`) holds the
+scenario and the view. A change never blocks: the store publishes an empty view at once, asks the
+worker pool for the quarters it needs, and publishes each part as it is ready (the setup, then
+every option from it, then the plan step by step). Work for a scenario the visitor has already
+left is dropped. Quarters are kept by scenario, so going back is instant. When the visitor follows
+the plan, the rest of it is carried over instead of computed again. While the page is idle the
+store simulates what the recommended move leads to, so that taking it shows its result at once.
 
-The decision records, each with context, decision and consequence, are in
-`content/architecture.ts` and published on the Under the hood page. In short:
+**The pool** (`lib/flow/pool.ts`) runs up to four web workers. Where workers are not available the
+same code runs on the page.
 
-1. A backtest against an answer key, not a forecast. No revenue and no conversion rates.
-2. The answer key is kept away from the rules.
-3. Rules decide; AI adds evidence.
-4. Stored AI outputs first; live AI, rate-limited and budget-capped, later.
-5. A small, fast model for extraction, kept as a setting so a larger one can be compared.
-6. SQLite in the browser rather than a database server; DuckDB-WASM was rejected for its size.
-7. Two implementations of the metrics, SQL and TypeScript, kept equal by a test.
-8. Cautious duplicate rules: a false merge costs more than a missed duplicate.
-9. A static site with no server runtime.
+**The scenario is in the address.** `?on=routing&hire=quote:1&if=demand:16` reopens the same
+company. `decodeScenario` keeps what it recognises and drops the rest, so a mangled or hostile link
+cannot put the page in a state the model does not have.
 
-## Limitations and next steps
+**The floor** (`components/flow/Floor.tsx`) runs one stream of the same engine in real time.
+`Live` advances it, `Stage` draws it on a canvas, and the names, counts and buttons are HTML laid
+over the drawing, so they stay real text. The stream is the same for everyone (`LIVE_SEED`), chosen
+because its first weeks land close to the long-run averages; a test holds it to that.
 
-Current limitations, also published on the site:
+**The sentences** the page writes from numbers live in `lib/flow/words.ts` and
+`lib/flow/format.ts`, apart from the components, so each can be tested against the measurement it
+describes. Rounding never invents precision, and a difference that is not clear is never printed
+as one.
 
-- The answer key comes from the same generator that wrote the data, so the lab shows how the rules
-  behave under its assumptions, not how they would perform on a real market.
-- Each week has 400 submissions, so differences of one or two needs are noise. The lab reports
-  counts rather than precise rates for that reason.
-- AI outputs are produced offline, once per prompt version, and stored, so a visitor cannot try a
-  message of their own yet.
-- The messages come from 111 hand-written templates, so the AI scorecard measures extraction on
-  short messages written for this demo, not on real inbound mail.
-- The human review lane shows who would need a person, but there is no review queue yet.
-- Scoring weights are set by hand, not fitted to data. The calibration chart shows how well they
-  rank leads.
-- Company matching uses exact domains and names, with no fuzzy matching.
+**While numbers are recomputed** the previous ones stay on screen under a thin running line
+(`[data-busy]` in `app/globals.css`) and `aria-busy`. They are not dimmed: dimmed text fails the
+contrast rule, which the browser tests caught.
 
-Planned for the next release:
+## The AI step
 
-- Live extraction for a visitor's own test message, rate-limited and budget-capped, with the key
-  kept server-side.
-- A human review queue: approve, reject, correct or escalate a case, with every action recorded.
-- A sandbox action and an audit log in Postgres, so a decision can lead to a recorded, reversible
-  step without contacting anyone.
-- Failure drills: what the system does when the model times out, returns invalid output, refuses,
-  or the data arrives late.
-- About 40 hand-written evaluation cases run in CI, with the results on a public page.
+`app/api/agent/route.ts` accepts one request, checks it in order (same origin, a key is
+configured, the input is valid, the visitor and the day are under their limits) and calls
+`server/agent/triage.ts`. The model must answer through one tool whose input is validated with the
+schema in `core/agent/contract.ts`; anything else is reported as a failure and not shown. Nothing
+is sent anywhere: the page shows a draft, and a person edits, approves or rejects it.
+
+The four sample requests replay runs recorded by `scripts/record-agent.ts` into
+`content/agent/recordings.json`. The page says which is which.
+
+## Security and privacy
+
+- The API key exists only in the server's environment. A browser test reads every script the site
+  ships and fails if the key's name, a key or the API's address appears in one.
+- `next.config.ts` sends a content security policy, `X-Frame-Options: DENY`, `nosniff`, a referrer
+  policy, a permissions policy and HSTS with every response.
+- The site sets no cookie, stores nothing in the browser and requests nothing from another origin.
+  A browser test walks a whole visit and fails if any of that changes.
+- The policy allows inline scripts, because the framework inlines small scripts in static pages.
+  Nonces would make every page render on demand.
+
+## Addresses of earlier versions
+
+`/work`, `/about`, `/simulator` and `/lab` redirect to `/`; `/architecture` and `/colophon`
+redirect to `/engine`.
