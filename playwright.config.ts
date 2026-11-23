@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 /**
  * End-to-end tests run against the production build (`pnpm build` first), because that is what
- * visitors get: static pages, the strict content security policy and the compiled SQLite engine.
+ * visitors get: static pages, the strict content security policy and the simulation's workers.
  */
 const PORT = Number(process.env.E2E_PORT ?? 3300);
 

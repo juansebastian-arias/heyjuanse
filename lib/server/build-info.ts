@@ -1,6 +1,7 @@
 /**
  * Facts about the build, read when a page is rendered: the commit it was built from and the
- * versions of the main dependencies, taken from package.json so the colophon cannot drift.
+ * versions of the main dependencies, taken from package.json so what the site says about itself
+ * cannot drift.
  */
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";

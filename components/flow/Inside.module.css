@@ -1,0 +1,506 @@
+.inside {
+  margin-top: clamp(48px, 7vw, 88px);
+  padding-top: 28px;
+  border-top: 1px solid var(--ink);
+  scroll-margin-top: 16px;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  align-items: baseline;
+  gap: 8px 40px;
+}
+
+.title {
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  letter-spacing: -0.02em;
+}
+
+.intro {
+  max-width: 56ch;
+  font-family: var(--f-body);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
+.tabs {
+  display: flex;
+  gap: 0 4px;
+  margin-top: 24px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--rule-strong);
+  scrollbar-width: thin;
+}
+
+.tab {
+  flex: none;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color 150ms var(--ease),
+    border-color 150ms var(--ease);
+}
+
+.tab:hover {
+  color: var(--ink);
+}
+
+.tab[aria-selected="true"] {
+  border-bottom-color: var(--ink);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.tab:focus-visible {
+  outline-offset: -2px;
+}
+
+/*
+ * Five tabs do not fit in one row on a narrow screen, and a row that scrolls hides the last
+ * ones. Here they wrap instead, so every layer can be seen to exist.
+ */
+@media (max-width: 760px) {
+  .tabs {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-bottom: 14px;
+    overflow-x: visible;
+  }
+
+  .tab {
+    min-height: 40px;
+    padding: 6px 14px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 999px;
+    color: var(--ink);
+  }
+
+  .tab[aria-selected="true"] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    font-weight: 500;
+  }
+
+  .tab:focus-visible {
+    outline-offset: 2px;
+  }
+}
+
+.panel {
+  padding-top: 24px;
+}
+
+.stack {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.lead {
+  max-width: 72ch;
+  font-family: var(--f-body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+.note {
+  max-width: 78ch;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.notes {
+  display: grid;
+  gap: 6px;
+  max-width: 82ch;
+  margin: 0;
+  padding-left: 1.1em;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.error {
+  color: var(--bad);
+  font-size: 0.9375rem;
+}
+
+.result {
+  font-weight: 600;
+}
+
+.result[data-ok] {
+  color: var(--good);
+}
+
+/*
+ * Wide tables scroll inside their own box, never the page. A soft edge shows on the side where
+ * more of the table is waiting: the two covers move with the content and hide the edge at
+ * either end.
+ */
+.scroll {
+  --edge: color-mix(in srgb, var(--ink) 16%, transparent);
+  max-width: 100%;
+  overflow-x: auto;
+  background:
+    linear-gradient(to right, var(--paper) 40%, transparent) left / 32px 100% no-repeat local,
+    linear-gradient(to left, var(--paper) 40%, transparent) right / 32px 100% no-repeat local,
+    linear-gradient(to right, var(--edge), transparent) left / 12px 100% no-repeat scroll,
+    linear-gradient(to left, var(--edge), transparent) right / 12px 100% no-repeat scroll;
+}
+
+.table {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.table caption {
+  padding: 18px 0 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.table th[scope="col"],
+.table th[scope="colgroup"] {
+  vertical-align: bottom;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* A heading over several columns: a rule under it ties it to the columns it covers. */
+.table .span {
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--rule-strong);
+  text-align: right;
+}
+
+.table th[scope="row"] {
+  min-width: 9rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.table tbody th[scope="row"] {
+  font-weight: 500;
+}
+
+.table tfoot th,
+.table tfoot td {
+  border-bottom: 0;
+  font-weight: 600;
+}
+
+.number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+td.number {
+  white-space: nowrap;
+}
+
+/* One customer in two versions of the company: the two stories get the same room. */
+.story {
+  table-layout: fixed;
+}
+
+.story th:first-child {
+  width: 24%;
+}
+
+.table td:last-child,
+.table th:last-child {
+  padding-right: 0;
+}
+
+.before {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--muted);
+  white-space: normal;
+}
+
+td.number .before {
+  white-space: nowrap;
+}
+
+/* Said in the row's name on a narrow screen, in their own columns on a wide one. */
+.narrow {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .checks .wide {
+    display: none;
+  }
+
+  .checks .narrow {
+    display: block;
+    margin: 2px 0;
+    font-weight: 400;
+  }
+
+  .checks th[scope="row"] {
+    min-width: 7.5rem;
+  }
+
+  .checks th,
+  .checks td {
+    padding-right: 10px;
+  }
+}
+
+.table [data-gave-up],
+.table [data-fate="left"] {
+  color: var(--bad);
+}
+
+.table [data-fate="paid"] {
+  color: var(--good);
+}
+
+.table [data-pass="true"] {
+  color: var(--good);
+  font-weight: 600;
+}
+
+.table [data-pass="false"] {
+  color: var(--bad);
+  font-weight: 600;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  max-width: 46rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+/* A select is as wide as its longest option unless told otherwise; here it takes its column. */
+.field select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  text-overflow: ellipsis;
+  padding: 8px 10px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--ink);
+  font-size: 0.9375rem;
+}
+
+.sliders {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 18px 40px;
+}
+
+.slider {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 2px 12px;
+  padding-bottom: 6px;
+}
+
+.sliderLabel {
+  font-size: 0.875rem;
+  line-height: 1.35;
+}
+
+.sliderValue {
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.slider input {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  accent-color: var(--operable);
+}
+
+.textButton {
+  min-height: 32px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--operable);
+  font-size: 0.875rem;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  cursor: pointer;
+}
+
+.block {
+  display: grid;
+  gap: 12px;
+  padding-top: 22px;
+  border-top: 1px solid var(--rule);
+}
+
+.heading {
+  font-size: 1.125rem;
+}
+
+.progress {
+  display: block;
+  width: min(100%, 320px);
+  height: 6px;
+  margin-top: 8px;
+  accent-color: var(--operable);
+}
+
+/* How far a result moves when one assumption does: bars from the current result outward. */
+.tornado {
+  display: grid;
+  gap: 14px;
+  max-width: 820px;
+}
+
+.legend,
+.swingValues {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.legend li,
+.swingValues span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tornado i {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.tornado [data-side="low"] {
+  background: var(--part-2);
+}
+
+.tornado [data-side="high"] {
+  background: var(--part-1);
+}
+
+.tornado i[data-side="base"] {
+  width: 2px;
+  height: 14px;
+  border-radius: 0;
+  background: var(--ink);
+}
+
+.swings {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.swings li {
+  display: grid;
+  gap: 5px;
+}
+
+.swingLabel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.track {
+  position: relative;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--panel);
+}
+
+.baseline {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--ink);
+  z-index: 1;
+}
+
+.swing {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  min-width: 2px;
+}
+
+.swing[data-toward="left"] {
+  border-radius: 4px 0 0 4px;
+}
+
+.swing[data-toward="right"] {
+  border-radius: 0 4px 4px 0;
+}
+
+.swingValues b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.details {
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+}
+
+.details summary {
+  width: fit-content;
+  padding: 6px 0;
+  color: var(--operable);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.details .table th[scope="row"] {
+  width: 60%;
+}
+
+@media (max-width: 720px) {
+  .header {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

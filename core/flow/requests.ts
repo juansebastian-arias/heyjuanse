@@ -170,6 +170,24 @@ export function demandFor(seed: number, a: Assumptions = BASE): Demand {
   };
 }
 
+/**
+ * A name for the assumptions that shape the requests themselves. Two sets of assumptions with the
+ * same key receive exactly the same customers, so their streams can be shared.
+ */
+export function demandKey(a: Assumptions): string {
+  return [
+    a.requestsPerWeekday,
+    a.requestsPerWeekendDay,
+    a.officeHoursShare,
+    a.fitShare,
+    a.acceptShare,
+    a.signShare,
+    a.vehiclesMedian,
+    a.vehiclesSigma,
+    a.pricePerVehicle,
+  ].join("|");
+}
+
 /** Would this customer buy if nobody ever made them wait? */
 export function isBuyer(request: Request): boolean {
   return request.exitAfter === STATION_IDS.length;

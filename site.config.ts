@@ -5,15 +5,13 @@
 export const SITE = {
   name: "Juan Sebastián Arias",
   url: "https://heyjuanse.com",
+  /** What the site is, for the browser tab, search results and link previews. */
+  tagline: "A company you can watch, question and fix",
+  description:
+    "A working model of a company: watch customer requests move from first message to paid invoice, find where buyers give up waiting, and test which change is worth making. Simulated live, on made-up data.",
+  /** The one sentence about the person behind it. */
   positioning:
-    "GTM engineer. I build systems that turn leads into sales meetings: routing, scoring, CRM automation and AI agents that draft while a person approves, measured against a control group.",
-  specialties: [
-    "Lead routing and scoring",
-    "n8n, Zapier and Make",
-    "HubSpot and Zoho CRM",
-    "AI agents with human approval",
-    "Python, SQL and A/B tests",
-  ],
+    "I find where a business loses time and customers, and I build the rules, automations and AI steps that fix it.",
   repository: "https://github.com/juansebastian-arias/heyjuanse",
   contact: {
     email: "juan.arias2025@gmail.com" as string | null,

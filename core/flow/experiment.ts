@@ -39,6 +39,7 @@ export const TOTAL_KEYS = [
   "lostBuyers",
   "lostValue",
   "replyHours",
+  "replyWaitHours",
   "cashDays",
   "signedToCashDays",
   "handsOnHours",
@@ -148,6 +149,9 @@ export function summarize(stats: RunStats, setup: Setup, a: Assumptions = BASE):
       lostBuyers: lostBuyers * perMonth,
       lostValue: lostValue * perMonth,
       replyHours: median(stats.replyMinutes) / HOUR,
+      // The average wait before someone starts on a request: the same figure the sales desk's
+      // own reading shows, repeated here so that it can be compared between setups run by run.
+      replyWaitHours: stations.reply.meanWaitHours,
       cashDays: median(stats.cashMinutes) / CALENDAR_DAY,
       signedToCashDays: median(stats.signedToCashMinutes) / CALENDAR_DAY,
       handsOnHours: (handsOn / HOUR) * perMonth,

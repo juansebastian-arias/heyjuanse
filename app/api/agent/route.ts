@@ -3,13 +3,14 @@ import { AgentInput, Limiter } from "@/core/agent/contract";
 import { runTriage, TriageError } from "@/server/agent/triage";
 
 /**
- * The live inbound lead agent. One POST runs one lead: intent, urgency, fit, owner, a reply draft
- * and a CRM note. Nothing is ever sent from here; the page shows the draft to the visitor, who
- * approves or rejects it.
+ * The live sales-desk agent. One POST runs one request: intent, urgency, fit, owner, a reply
+ * draft and a CRM note. Nothing is ever sent from here; the page shows the draft to the visitor,
+ * who approves or rejects it.
  *
- * Abuse and cost controls, from first to last line of defense: same-origin requests only, a
- * per-visitor and a per-instance daily limit kept in memory, one model call with a small output
- * budget per run, and the spend limit set on the API workspace in the Claude Console.
+ * Abuse and cost controls in this code, from first to last line of defense: same-origin requests
+ * only, a per-visitor and a per-instance daily limit kept in memory, and one model call with a
+ * small output budget per run. The hard ceiling is not in this code: it is the spend limit on the
+ * API workspace, set in the Claude Console.
  */
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -18,6 +19,13 @@ const perVisitor = new Limiter(5, 60 * 60 * 1000);
 const daily = new Limiter(Number(process.env.AGENT_DAILY_LIMIT ?? 100), 24 * 60 * 60 * 1000);
 
 type Failure = "offline" | "forbidden" | "invalid" | "rate_limited" | "busy" | "failed";
+
+/** What the visitor is told when a run ends without a usable result. */
+const TRIAGE_MESSAGE: Record<TriageError["kind"], string> = {
+  refused: "The model declined this request.",
+  shape: "The result came back in an unexpected shape, so it was not shown.",
+  no_submit: "The agent finished without a result.",
+};
 
 function fail(error: Failure, status: number, message: string) {
   return Response.json({ ok: false, error, message }, { status });
@@ -33,7 +41,7 @@ export async function POST(request: Request) {
     return fail(
       "offline",
       503,
-      "The live agent is switched off right now. The four sample leads above still show real recorded runs.",
+      "The live agent is switched off right now. The four sample requests above still show real recorded runs.",
     );
   }
 
@@ -41,7 +49,7 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return fail("invalid", 400, "Write the lead's message.");
+    return fail("invalid", 400, "Write a message first.");
   }
   const parsed = AgentInput.safeParse(body);
   if (!parsed.success) {
@@ -53,7 +61,7 @@ export async function POST(request: Request) {
     return fail("rate_limited", 429, "Five live runs an hour per visitor. Try again later.");
   }
   if (!daily.take("all")) {
-    return fail("busy", 429, "Today's live runs are used up. The sample leads still work.");
+    return fail("busy", 429, "Today's live runs are used up. The sample requests still work.");
   }
 
   try {
@@ -61,7 +69,7 @@ export async function POST(request: Request) {
     return Response.json({ ok: true, ...run });
   } catch (error) {
     if (error instanceof TriageError) {
-      return fail("failed", error.kind === "refused" ? 422 : 502, error.message);
+      return fail("failed", error.kind === "refused" ? 422 : 502, TRIAGE_MESSAGE[error.kind]);
     }
     if (error instanceof Anthropic.RateLimitError) {
       return fail("busy", 429, "The AI service is busy. Try again in a minute.");
@@ -69,6 +77,6 @@ export async function POST(request: Request) {
     if (error instanceof Anthropic.APIError) {
       return fail("failed", 502, "The AI service returned an error.");
     }
-    return fail("failed", 500, "Something went wrong while handling the lead.");
+    return fail("failed", 500, "Something went wrong while handling the request.");
   }
 }

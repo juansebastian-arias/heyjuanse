@@ -1,28 +1,53 @@
 .footer {
+  margin-top: clamp(48px, 7vw, 88px);
+  padding: 32px 0 44px;
   border-top: 1px solid var(--rule);
-  margin-top: 96px;
-  padding: 28px 0 40px;
-  color: var(--muted);
-  font-size: 0.875rem;
+  scroll-margin-top: 16px;
 }
 
 .inner {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px 40px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 28px clamp(24px, 6vw, 80px);
 }
 
-.note {
-  max-width: 56ch;
+.who {
+  display: grid;
+  gap: 8px;
+}
+
+.by {
+  font-weight: 600;
+}
+
+.pitch {
+  max-width: 46ch;
+  font-family: var(--f-body);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
+.about {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  max-width: 52ch;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 .links {
   display: flex;
-  gap: 8px 20px;
-  list-style: none;
+  flex-wrap: wrap;
+  gap: 6px 20px;
   margin: 0;
   padding: 0;
-  flex-wrap: wrap;
+  list-style: none;
+}
+
+@media (max-width: 720px) {
+  .inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

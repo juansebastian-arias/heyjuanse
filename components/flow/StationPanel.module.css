@@ -1,0 +1,401 @@
+.panel {
+  min-width: 0;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  padding: 0 0 14px;
+  border: 0;
+}
+
+.tab {
+  min-height: 34px;
+  padding: 4px 12px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition:
+    background-color 150ms var(--ease),
+    border-color 150ms var(--ease),
+    color 150ms var(--ease);
+}
+
+.tab:hover {
+  border-color: var(--operable);
+  color: var(--operable);
+}
+
+.tab[aria-pressed="true"] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.header {
+  display: grid;
+  gap: 4px;
+}
+
+.title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  font-size: 1.5rem;
+}
+
+.team {
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+.does {
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.reading {
+  margin-top: 18px;
+}
+
+/* The line that runs while this is measured again sits clear of the first line of text. */
+.reading[data-busy]::before {
+  top: -9px;
+}
+
+.cause {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.why {
+  max-width: 64ch;
+  margin-top: 6px;
+  font-family: var(--f-body);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.facts {
+  display: grid;
+  margin: 16px 0 0;
+  border-top: 1px solid var(--rule);
+}
+
+.facts > div {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 4px 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.facts dt {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  padding-top: 2px;
+}
+
+.unit {
+  display: block;
+  font-size: 0.75rem;
+}
+
+.facts dd {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  min-width: 0;
+}
+
+.fact {
+  font-weight: 600;
+}
+
+.was {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.small {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.small :global(.num) {
+  color: var(--ink);
+}
+
+/* A thin segmented bar: one whole split into parts, with a gap in the surface color between them. */
+.wait {
+  display: grid;
+  gap: 8px;
+}
+
+.bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--panel);
+}
+
+.fill {
+  display: flex;
+  gap: 2px;
+  height: 100%;
+  min-width: 4px;
+  transition: width var(--move) var(--ease);
+}
+
+.fill span {
+  flex: 1 1 0;
+  min-width: 2px;
+  border-radius: 1px;
+}
+
+.fill span:first-child {
+  border-radius: 4px 1px 1px 4px;
+}
+
+.fill span:last-child {
+  border-radius: 1px 4px 4px 1px;
+}
+
+.fill span:only-child {
+  border-radius: 4px;
+}
+
+.wait [data-part="1"] {
+  background: var(--part-1);
+}
+
+.wait [data-part="2"] {
+  background: var(--part-2);
+}
+
+.wait [data-part="3"] {
+  background: var(--part-3);
+}
+
+.key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.key li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.key i {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.key b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.load {
+  display: grid;
+  gap: 8px;
+}
+
+/* A meter: the fill carries the state, the track is a paler step of the same color. */
+.meter {
+  --state: var(--good);
+  height: 8px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--state) 20%, var(--paper));
+}
+
+.meter[data-level="tight"] {
+  --state: var(--warn);
+}
+
+.meter[data-level="full"],
+.meter[data-level="over"] {
+  --state: var(--bad);
+}
+
+.meter span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--state);
+  transition: width var(--move) var(--ease);
+}
+
+.heading {
+  margin-top: 28px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.options {
+  display: grid;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--ink);
+}
+
+.option {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 250px);
+  gap: 12px 28px;
+  padding: 18px 0 18px 14px;
+  border-bottom: 1px solid var(--rule);
+  border-left: 3px solid transparent;
+}
+
+.option[data-best] {
+  border-left-color: var(--mark);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--mark) 14%, transparent),
+    transparent 55%
+  );
+}
+
+.option[data-on] {
+  border-left-color: var(--good);
+}
+
+.main,
+.side {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.side {
+  justify-items: start;
+}
+
+/* Measured from the previous setup: the line runs over each one until it is measured again. */
+.side[data-busy]::before {
+  top: -6px;
+}
+
+.side :global(.button) {
+  margin-top: 6px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.on {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--good);
+}
+
+.name {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.what {
+  max-width: 58ch;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+.more {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.more summary {
+  width: fit-content;
+  padding: 4px 0;
+  color: var(--operable);
+  cursor: pointer;
+}
+
+.more p {
+  max-width: 58ch;
+  margin-top: 4px;
+}
+
+.gain {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.amount {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.verdict {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.verdict strong {
+  font-weight: 600;
+}
+
+.verdict[data-verdict="worth"] strong {
+  color: var(--good);
+}
+
+.verdict[data-verdict="costs more"] strong {
+  color: var(--bad);
+}
+
+.verdict[data-verdict="unclear"] strong {
+  color: var(--ink);
+}
+
+@media (max-width: 720px) {
+  .facts > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .option {
+    grid-template-columns: minmax(0, 1fr);
+    padding-left: 12px;
+  }
+}
+
+@media (pointer: coarse) {
+  .tab {
+    min-height: 40px;
+  }
+}

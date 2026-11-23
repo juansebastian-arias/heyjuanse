@@ -13,10 +13,14 @@ export type Cause =
   | "handout"
   /** More hours of work arrive than the team has. */
   | "overload"
-  /** The team keeps up on average but has too little slack to absorb a busy day. */
+  /** Work arrives about as fast as the team can do it. */
+  | "full"
+  /** The team keeps up on average but has little slack to absorb a busy day. */
   | "tight"
-  /** The wait is nights and weekends. */
+  /** Most of the wait is for the office to open. */
   | "hours"
+  /** The team has time to spare; each item still waits for its turn. */
+  | "turn"
   | "clear";
 
 export interface Reading {
@@ -42,20 +46,25 @@ export interface Reading {
 
 /** A wait shorter than this is not worth explaining. */
 const NOTICEABLE_HOURS = 1;
-/** Load as a share of capacity from which a team counts as overloaded, and as tight. */
-const OVERLOAD = 0.98;
-const TIGHT = 0.85;
+/** Work arriving as a share of the team's hours, from which a team counts as overloaded, full and tight. */
+const OVERLOAD = 1;
+const FULL = 0.95;
+const TIGHT = 0.8;
 
+/**
+ * Why work waits at a team. The rule, in order: a short wait needs no reason; if most of the wait
+ * is spent unassigned, it is the hand-out; a team with as much work as hours has a capacity
+ * problem whatever else is true; otherwise the largest part of the wait names the cause.
+ */
 export function causeOf(reading: Omit<Reading, "cause">): Cause {
-  const { assignHours, closedHours, lineHours, loadHours, capacityHours } = reading;
-  if (assignHours >= NOTICEABLE_HOURS && assignHours >= Math.max(closedHours, lineHours)) {
-    return "handout";
-  }
+  const { waitHours, assignHours, closedHours, lineHours, loadHours, capacityHours } = reading;
+  if (waitHours < NOTICEABLE_HOURS) return "clear";
+  if (assignHours >= Math.max(closedHours, lineHours)) return "handout";
   const use = capacityHours > 0 ? loadHours / capacityHours : 0;
   if (use >= OVERLOAD) return "overload";
-  if (use >= TIGHT && lineHours >= NOTICEABLE_HOURS) return "tight";
-  if (closedHours >= NOTICEABLE_HOURS && closedHours >= lineHours) return "hours";
-  return "clear";
+  if (use >= FULL) return "full";
+  if (closedHours >= lineHours) return "hours";
+  return use >= TIGHT ? "tight" : "turn";
 }
 
 export function readStation(projection: Projection, station: StationId): Reading {
