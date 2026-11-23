@@ -1,0 +1,127 @@
+{
+  "recordedAt": "2026-11-23T18:35:45.530Z",
+  "runs": {
+    "andes": {
+      "triage": {
+        "intent": "demo_request",
+        "urgency": "this_week",
+        "fit": {
+          "score": 92,
+          "reason": "Courier with its own 62-van fleet across two depots, planning routes by hand in Excel and asking about pharmacy time windows, which is squarely the ideal customer."
+        },
+        "route": {
+          "owner": "ana",
+          "reason": "Fleet of 5 to 99 vehicles (62) in Latin America (Colombia) goes to Ana Ruiz."
+        },
+        "reply": {
+          "subject": "Larkspur demo: time windows for your pharmacy deliveries",
+          "body": "Hi Mariana,\n\nThanks for the detail. Larkspur plans each day's routes around delivery time windows, so your pharmacy stops would be scheduled inside their windows. Drivers get their stops in a phone app, and dispatch is warned when a delivery is running late. That should take most of the nightly Excel work off your dispatcher.\n\nFor 62 vans the price is USD 180 per vehicle per year, invoiced up front. I'll confirm a realistic go-live timeline before December on our call.\n\nCould you send me two or three times that suit you next week for a 30-minute demo using a sample of your pharmacy routes?\n\nBest,\nAna Ruiz"
+        },
+        "crm_note": "Mariana (Ops Manager) asked for a demo of time-window planning for pharmacy deliveries. Her 62 vans are planned in Excel, which takes 3 hours a night, and she wants to be live before December. Ana is proposing a demo next week.",
+        "checks": [
+          "Confirm whether a go-live before December is realistic for 62 vehicles and 2 depots before committing to it.",
+          "Decide whether to reply in Spanish: the message is in English, but the lead is in Bogotá.",
+          "Check whether pharmacy deliveries need anything beyond standard time windows, such as cold-chain or proof of delivery."
+        ]
+      },
+      "usage": {
+        "inputTokens": 2006,
+        "outputTokens": 768
+      },
+      "costUsd": 0.023384,
+      "seconds": 11.1,
+      "model": "claude-opus-5-5"
+    },
+    "northwind": {
+      "triage": {
+        "intent": "security_or_procurement",
+        "urgency": "this_week",
+        "fit": {
+          "score": 90,
+          "reason": "Food distributor running its own fleet of about 480 vehicles across 9 depots, well inside the 5 to 2,500 vehicle range and a core ideal-customer segment."
+        },
+        "route": {
+          "owner": "priya",
+          "reason": "Large fleets rule: 100 or more vehicles, plus a security, procurement and integration request, both go to Priya."
+        },
+        "reply": {
+          "subject": "Northwind Foods RFP: SOC 2, SSO, API and technical session",
+          "body": "Hi Danielle,\n\nThanks for including Larkspur in your RFP. I'm Priya Shah. I handle larger fleets, and I'll be your contact through the December 15 deadline.\n\nI'm confirming with our team what we can share on SOC 2, SSO and our API for connecting your warehouse system. I'll get back to you with exact answers rather than guess. I'll also set up the technical session with your IT team and tell you who from our side will run it.\n\nCould you send the RFP documents and a few times that work for your IT team over the next two weeks? I'll book the session from there.\n\nBest,\nPriya Shah"
+        },
+        "crm_note": "Danielle Okafor (Director of Logistics) is running a route-planning RFP that closes December 15 and asked for our SOC 2 report, SSO and API details for their warehouse system, and a technical session with IT. Priya to confirm the security and integration answers, get the RFP documents and book the technical session.",
+        "checks": [
+          "Whether Larkspur has a SOC 2 report and can share it (with or without an NDA).",
+          "Whether SSO and an API for warehouse-system integration exist, and what they support.",
+          "Who will run the technical session with Northwind's IT team, and that they are free before December 15."
+        ]
+      },
+      "usage": {
+        "inputTokens": 1965,
+        "outputTokens": 746
+      },
+      "costUsd": 0.02278,
+      "seconds": 7.9,
+      "model": "claude-opus-5-5"
+    },
+    "pixel": {
+      "triage": {
+        "intent": "pricing_question",
+        "urgency": "no_rush",
+        "fit": {
+          "score": 10,
+          "reason": "Pine Street Flowers runs its own deliveries but has only one van, below our 5-vehicle minimum."
+        },
+        "route": {
+          "owner": "nurture",
+          "reason": "Fewer than 5 vehicles goes to nurture."
+        },
+        "reply": {
+          "subject": "Larkspur pricing",
+          "body": "Hi Tom,\n\nLarkspur costs USD 180 per vehicle per year, invoiced up front. It's built for delivery fleets of 5 vehicles or more. It plans each day's routes around delivery time windows, sends drivers their stops in a phone app and alerts dispatch when a delivery is running late. With one van and about 15 drops a day, most of that would be more than you need right now.\n\nIf your fleet grows toward 5 vehicles, reply to this email and we'll set you up with a walkthrough.\n\nThe Larkspur team"
+        },
+        "crm_note": "Owner of a one-van florist in Portland asked about pricing. We sent the price and said Larkspur fits fleets of 5 or more vehicles, and the lead goes to nurture.",
+        "checks": [
+          "Confirm we won't sell to a single vehicle, since the stated range starts at 5 vehicles."
+        ]
+      },
+      "usage": {
+        "inputTokens": 1915,
+        "outputTokens": 570
+      },
+      "costUsd": 0.01906,
+      "seconds": 5.9,
+      "model": "claude-opus-5-5"
+    },
+    "brightline": {
+      "triage": {
+        "intent": "support_issue",
+        "urgency": "today",
+        "fit": {
+          "score": 90,
+          "reason": "Brightline Parcel is a Toronto parcel carrier with its own 140-vehicle fleet and is already a customer, so it matches the ideal customer."
+        },
+        "route": {
+          "owner": "support",
+          "reason": "Existing-customer rule: Brightline has used Larkspur since March 2026 and is reporting a problem, which goes to Support even though the fleet has more than 100 vehicles."
+        },
+        "reply": {
+          "subject": "Empty routes for tomorrow at two depots",
+          "body": "Hi Kenji,\n\nThanks for letting us know. We understand your drivers start at 6, so we're treating this as urgent.\n\nTo help us find the cause quickly, please reply with:\n- the names of the two depots that are affected\n- whether the routes also look empty in the dispatch view, or only in the driver app\n- roughly when you last saw the routes appear correctly\n\nOnce we have these details, a member of our support team will contact you with an update.\n\nThe Larkspur team"
+        },
+        "crm_note": "Kenji Watanabe reports that since yesterday the driver app shows tomorrow's routes as empty for two depots, with nothing changed on their side, and drivers start at 6. Support needs to investigate today and reply before the drivers' start time.",
+        "checks": [
+          "Check whether there is a known outage or route-sync issue affecting the driver app.",
+          "Confirm which time zone the 6:00 start is in (Toronto is probably Eastern) so the reply goes out in time.",
+          "Check whether the account owner or Priya should also be told, given it is a 140-vehicle account."
+        ]
+      },
+      "usage": {
+        "inputTokens": 1966,
+        "outputTokens": 689
+      },
+      "costUsd": 0.021644,
+      "seconds": 7.4,
+      "model": "claude-opus-5-5"
+    }
+  }
+}

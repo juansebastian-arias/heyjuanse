@@ -12,8 +12,5 @@ next-env.d.ts
 .DS_Store
 .vercel
 
-# Copied from node_modules at build time
-public/vendor
-
-# Test report written before each build and read by the Under the hood page
+# Test report written before each build and read by the pages that publish it
 .reports/

@@ -1,0 +1,69 @@
+# Records real runs of the inbound lead agent on the four sample leads, so the home page can replay
+# them without calling the API. Runs when the leads, the prompt or the recorder change on a
+# working branch, or by hand from the Actions tab. About 10 US cents per run.
+#
+# Needs the ANTHROPIC_API_KEY repository secret. Commits content/agent/recordings.json back to the
+# same branch for review in its pull request.
+name: Record agent runs
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore: [main]
+    paths:
+      - content/agent/leads.ts
+      - core/agent/contract.ts
+      - server/agent/triage.ts
+      - scripts/record-agent.ts
+      - .github/workflows/agent-recordings.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: agent-recordings-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  record:
+    # Pinned for the same reason as CI; see ci.yml.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Check the API key is configured
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::error::Add the ANTHROPIC_API_KEY repository secret first (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
+
+      - name: Record the sample leads
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: pnpm agent:record
+
+      - name: Commit the recordings
+        run: |
+          if git diff --quiet -- content/agent/recordings.json; then
+            echo "No change."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/agent/recordings.json
+          git commit -m "Record the inbound lead agent on the sample leads"
+          git push

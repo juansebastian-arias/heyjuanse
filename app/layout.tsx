@@ -27,13 +27,15 @@ const mono = IBM_Plex_Mono({
   display: "swap",
 });
 
+const title = `${SITE.name} · ${SITE.tagline}`;
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
-  title: { default: SITE.name, template: `%s · ${SITE.name}` },
-  description: SITE.positioning,
+  title: { default: title, template: `%s · ${SITE.name}` },
+  description: SITE.description,
   openGraph: {
-    title: SITE.name,
-    description: SITE.positioning,
+    title,
+    description: SITE.description,
     url: SITE.url,
     siteName: SITE.name,
     type: "website",

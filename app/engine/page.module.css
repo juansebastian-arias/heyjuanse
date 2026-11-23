@@ -1,0 +1,328 @@
+.page {
+  padding-top: clamp(32px, 5vw, 56px);
+  padding-bottom: 24px;
+}
+
+.header {
+  display: grid;
+  gap: 14px;
+  max-width: 74ch;
+}
+
+.title {
+  font-size: clamp(2rem, 1.3rem + 2.6vw, 3rem);
+  letter-spacing: -0.03em;
+}
+
+.lede {
+  font-family: var(--f-body);
+  font-size: 1.1875rem;
+  line-height: 1.55;
+}
+
+.toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 6px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--rule-strong);
+  list-style: none;
+  font-size: 0.875rem;
+}
+
+.toc a {
+  display: inline-block;
+  padding: 4px 0;
+}
+
+.section {
+  margin-top: clamp(40px, 6vw, 64px);
+  padding-top: 20px;
+  border-top: 1px solid var(--ink);
+  scroll-margin-top: 16px;
+}
+
+.sectionTitle {
+  max-width: 30ch;
+  margin-bottom: 20px;
+  font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem);
+  letter-spacing: -0.02em;
+}
+
+.subhead {
+  margin: 28px 0 10px;
+  font-size: 1.0625rem;
+}
+
+.subhead:first-of-type {
+  margin-top: 0;
+}
+
+.text {
+  max-width: 72ch;
+  margin-bottom: 14px;
+  font-family: var(--f-body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+/* Real on one side, made up on the other. */
+.split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px 56px;
+}
+
+.kicker {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule-strong);
+  font-family: var(--f-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.kicker[data-tone="good"] {
+  border-bottom-color: var(--good);
+  color: var(--good);
+}
+
+.list,
+.rules,
+.facts {
+  margin: 0;
+}
+
+.list > div,
+.rules > div {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.list dt,
+.rules dt,
+.facts dt {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.list dd,
+.rules dd,
+.facts dd {
+  margin: 2px 0 0;
+  font-family: var(--f-body);
+  line-height: 1.55;
+}
+
+.states {
+  display: grid;
+  grid-template-columns: minmax(0, 460px) minmax(0, 1fr);
+  align-items: start;
+  gap: 28px 56px;
+}
+
+.rules > div:first-child {
+  padding-top: 0;
+}
+
+/* The drawing stays in view while the rules beside it are read. */
+@media (min-width: 861px) and (min-height: 640px) {
+  .states > :first-child {
+    position: sticky;
+    top: 24px;
+  }
+}
+
+/* One decision per row: its name on the left, what it means on the right. */
+.decisions {
+  max-width: 1040px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: decision;
+}
+
+.decisions li {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 16rem) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 4px 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--rule);
+  counter-increment: decision;
+}
+
+.decisions li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.decisions li::before {
+  content: counter(decision);
+  font-family: var(--f-mono);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.decisions h3 {
+  padding-right: 32px;
+  font-size: 1.0625rem;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.decisions p {
+  max-width: 64ch;
+  font-family: var(--f-body);
+  line-height: 1.55;
+}
+
+.decisions a,
+.points a {
+  font-family: var(--f-mono);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.points,
+.steps {
+  display: grid;
+  gap: 10px;
+  max-width: 76ch;
+  margin: 0;
+  padding-left: 1.2em;
+  font-family: var(--f-body);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
+.steps strong {
+  font-family: var(--f-display);
+  font-weight: 600;
+}
+
+.assumptions {
+  max-width: 880px;
+}
+
+.assumptions th[scope="row"] {
+  width: 56%;
+}
+
+.assumptions .group {
+  padding-top: 22px;
+  font-family: var(--f-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom-color: var(--rule-strong);
+}
+
+.assumptions tbody:first-child .group {
+  padding-top: 0;
+}
+
+.files {
+  display: grid;
+  gap: 0;
+  max-width: 880px;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--rule-strong);
+  list-style: none;
+}
+
+.files > li {
+  border-bottom: 1px solid var(--rule);
+}
+
+.files summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px 16px;
+  padding: 9px 0;
+  cursor: pointer;
+}
+
+.files summary code {
+  font-size: 0.8125rem;
+}
+
+.tally {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.files details ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 2px 0 14px 1.2em;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.files [data-status="failed"] {
+  color: var(--bad);
+  font-weight: 600;
+}
+
+.facts {
+  max-width: 880px;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.facts > div {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  gap: 2px 20px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.facts dt {
+  color: var(--muted);
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.back {
+  margin-top: 28px;
+  font-weight: 600;
+}
+
+@media (max-width: 860px) {
+  .split,
+  .states {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .decisions li {
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+  }
+
+  .decisions h3 {
+    padding-right: 0;
+  }
+
+  .decisions p {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 560px) {
+  .facts > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

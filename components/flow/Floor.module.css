@@ -1,0 +1,370 @@
+/*
+ * The live floor. The drawing is a canvas; the labels are HTML laid over it, so they stay real
+ * text and real buttons. Sizes here mirror components/flow/floor/geometry.ts: the 620px switch
+ * to stacked teams, the heights of the bands and the padding of a column.
+ */
+.floor {
+  container: floor / inline-size;
+  margin-top: 22px;
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  padding-bottom: 8px;
+}
+
+.clock {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.clock :global(.num) {
+  min-width: 9ch;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* What the drawing shows, said beside it. Kept to the right so the running clock cannot nudge it. */
+.what {
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  text-align: right;
+}
+
+.controls {
+  display: flex;
+  gap: 6px;
+}
+
+.control {
+  min-height: 32px;
+  padding: 4px 12px;
+  white-space: nowrap;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition:
+    border-color 150ms var(--ease),
+    color 150ms var(--ease);
+}
+
+.control:hover {
+  border-color: var(--operable);
+  color: var(--operable);
+}
+
+.wrap {
+  position: relative;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.canvas {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  pointer-events: none;
+  /* The drawing's few labels use the mono face. */
+  font-family: var(--f-mono);
+}
+
+.cells {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  height: 340px;
+}
+
+.cell {
+  --edge: var(--rule);
+  --cap: transparent;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  margin: 0;
+  /* geometry.ts: pad = max(10, min(18, column * 0.09)) */
+  padding: 10px clamp(10px, 9%, 18px) 5px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow:
+    inset 0 3px 0 var(--cap),
+    inset 1px 0 0 var(--edge);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms var(--ease);
+}
+
+.cell:first-child {
+  --edge: transparent;
+}
+
+.cell:hover {
+  background: color-mix(in srgb, var(--operable) 6%, transparent);
+}
+
+.cell[aria-pressed="true"] {
+  --cap: var(--operable);
+  background: var(--card);
+}
+
+.cell[data-flagged] {
+  --cap: var(--mark);
+}
+
+.cell[data-flagged][aria-pressed="true"] {
+  --cap: var(--mark);
+}
+
+.cell:focus-visible {
+  outline-offset: -2px;
+}
+
+.cash {
+  cursor: default;
+}
+
+.cash:hover {
+  background: transparent;
+}
+
+.head {
+  display: grid;
+  justify-items: start;
+  gap: 1px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.team,
+.count {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count :global(.num) {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.flag {
+  margin-top: 5px;
+}
+
+.gone {
+  display: grid;
+  align-content: end;
+  min-height: 30px;
+  font-size: 0.6875rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.gone > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gone[data-some] {
+  color: var(--bad);
+}
+
+.gone[data-good] {
+  color: var(--good);
+}
+
+.under {
+  display: grid;
+  gap: 6px;
+  padding-top: 10px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.legend i {
+  display: inline-block;
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.legend [data-look="held"] {
+  border: 1.2px solid var(--ink);
+}
+
+.legend [data-look="queued"] {
+  background: var(--ink);
+}
+
+.legend [data-look="working"] {
+  background: var(--ink);
+  box-shadow:
+    0 0 0 1.5px var(--paper),
+    0 0 0 3.5px var(--operable);
+}
+
+.legend [data-look="redo"] {
+  border: 1.2px dashed var(--ink);
+}
+
+.legend [data-look="lostBuyer"] {
+  background: var(--bad);
+}
+
+.legend [data-look="lost"] {
+  border: 1.2px solid var(--bad);
+}
+
+.legend [data-look="paid"] {
+  background: var(--good);
+}
+
+.note {
+  max-width: 96ch;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+@container floor (width < 860px) {
+  .people {
+    display: none;
+  }
+}
+
+/* Too narrow for one line: the sentence goes under the clock and the controls. */
+@container floor (width < 940px) {
+  .what {
+    order: 1;
+    flex-basis: 100%;
+    text-align: left;
+  }
+}
+
+/* Teams stacked: one row each, labels on the left, the tray on the right. */
+@container floor (width < 620px) {
+  .cells {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: 64px;
+    height: auto;
+  }
+
+  .cell {
+    --edge: transparent;
+    display: block;
+    padding: 7px 0 0;
+    box-shadow:
+      inset 3px 0 0 var(--cap),
+      inset 0 1px 0 var(--line, var(--rule));
+  }
+
+  .cell:first-child {
+    --line: transparent;
+  }
+
+  .cell[data-flagged],
+  .cell[aria-pressed="true"] {
+    padding-left: 8px;
+  }
+
+  .head {
+    width: 96px;
+  }
+
+  .cell[data-flagged] .head,
+  .cell[aria-pressed="true"] .head {
+    width: 88px;
+  }
+
+  .name {
+    font-size: 0.8125rem;
+  }
+
+  .team {
+    display: none;
+  }
+
+  .count {
+    font-size: 0.6875rem;
+  }
+
+  .flag {
+    margin-top: 2px;
+    padding: 2px 5px;
+    font-size: 0.5625rem;
+  }
+
+  /* Under the tray: geometry.ts puts the tray 78px from the right edge, 72px wide. */
+  .gone {
+    position: absolute;
+    right: 6px;
+    bottom: 3px;
+    width: 72px;
+    min-height: 0;
+    font-size: 0.625rem;
+  }
+
+  .buyers,
+  .zero,
+  .long {
+    display: none;
+  }
+
+  /* The payments tray starts 56% of the way along the row after the label. */
+  .cash .gone {
+    left: calc(108px + (100% - 114px) * 0.56);
+    width: auto;
+    display: flex;
+    gap: 8px;
+  }
+
+  .cash .buyers {
+    display: inline;
+  }
+}
+
+@media (pointer: coarse) {
+  .control {
+    min-height: 40px;
+  }
+}

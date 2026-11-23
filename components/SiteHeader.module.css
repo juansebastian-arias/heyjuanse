@@ -5,17 +5,19 @@
 
 .inner {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px 28px;
-  min-height: 60px;
-  padding-block: 10px;
+  justify-content: space-between;
+  gap: 0 24px;
+  min-height: 52px;
 }
 
 .wordmark {
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: -0.01em;
+  padding: 10px 0;
   color: var(--ink);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -26,76 +28,54 @@
 }
 
 .nav {
-  margin-left: auto;
-}
-
-.links {
   display: flex;
-  gap: 4px 20px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  flex-wrap: wrap;
+  gap: 0 22px;
 }
 
 .link {
+  padding: 10px 0;
   color: var(--muted);
+  font-size: 0.875rem;
   text-decoration: none;
-  font-size: 0.9375rem;
-  padding: 8px 0;
-  display: inline-block;
+  white-space: nowrap;
 }
 
 .link:hover {
   color: var(--ink);
+  text-decoration: underline;
 }
 
-.link[aria-current="page"] {
-  color: var(--ink);
-  box-shadow: inset 0 -2px 0 var(--ink);
-}
-
-.contact {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  text-decoration: none;
-  padding: 7px 12px;
-  border: 1px solid var(--operable);
-  border-radius: var(--radius);
-  white-space: nowrap;
-}
-
-.contact:hover {
-  background: var(--operable-soft);
-  text-decoration: none;
-}
-
-@media (max-width: 720px) {
+@media (max-width: 420px) {
   .inner {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "mark contact"
-      "nav nav";
-    row-gap: 4px;
-  }
-
-  .wordmark {
-    grid-area: mark;
-  }
-
-  .contact {
-    grid-area: contact;
-    font-size: 0.875rem;
-    padding: 6px 10px;
+    column-gap: 12px;
   }
 
   .nav {
-    grid-area: nav;
-    margin-left: 0;
+    gap: 0 14px;
   }
 
-  .links {
-    gap: 2px 18px;
+  .link {
+    font-size: 0.8125rem;
+  }
+}
+
+/* The narrowest phones: slightly smaller, and the links drop under the name if they must. */
+@media (max-width: 380px) {
+  .wordmark {
+    font-size: 0.875rem;
+  }
+
+  .nav {
+    gap: 0 12px;
+  }
+}
+
+@media (max-width: 340px) {
+  .wordmark {
+    padding-bottom: 0;
+  }
+
+  .link {
+    padding-top: 2px;
   }
 }

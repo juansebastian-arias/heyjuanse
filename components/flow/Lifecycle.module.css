@@ -1,0 +1,85 @@
+/* The request's states, drawn. Colors come from the page's tokens, so it follows the theme. */
+.svg {
+  display: block;
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+  font-family: var(--f-display);
+}
+
+.chip {
+  fill: var(--card);
+  stroke: var(--rule-strong);
+}
+
+.chip[data-look="paid"] {
+  stroke: var(--good);
+}
+
+.chipText {
+  fill: var(--ink);
+  font-size: 11px;
+  font-weight: 500;
+  text-anchor: middle;
+}
+
+.bracket {
+  fill: none;
+  stroke: var(--rule-strong);
+}
+
+.box {
+  fill: var(--card);
+  stroke: var(--rule-strong);
+}
+
+.box[data-look="choice"] {
+  stroke-dasharray: 4 3;
+}
+
+.box[data-look="aside"] {
+  fill: none;
+}
+
+.box[data-look="lost"] {
+  fill: none;
+  stroke: var(--bad);
+}
+
+.title {
+  fill: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.title[data-look="lost"] {
+  fill: var(--bad);
+}
+
+.sub,
+.label {
+  fill: var(--muted);
+  font-size: 10px;
+}
+
+.dot {
+  fill: var(--ink);
+}
+
+.line {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.2;
+}
+
+.line[data-look="lost"] {
+  stroke: var(--bad);
+}
+
+.head {
+  fill: var(--muted);
+}
+
+.head[data-look="lost"] {
+  fill: var(--bad);
+}

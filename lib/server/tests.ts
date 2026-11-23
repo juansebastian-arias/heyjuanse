@@ -1,8 +1,8 @@
 /**
  * Reads the Vitest report written by `pnpm test:report`, which runs before every production build,
- * so the "Under the hood" page lists the tests that gated the deployed code, with their results.
- * Without a report (for example in `next dev` before the first run) the page says so instead of
- * showing results it does not have.
+ * so the site lists the tests that gated the deployed code, with their results. Without a report
+ * (for example in `next dev` before the first run) the pages say so instead of showing results
+ * they do not have.
  */
 import { readFileSync } from "node:fs";
 import { join, relative } from "node:path";
