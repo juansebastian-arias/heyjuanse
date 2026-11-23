@@ -1,1 +1,128 @@
-{ "recordedAt": null, "runs": {} }
+{
+  "recordedAt": "2026-11-23T01:03:58.859Z",
+  "runs": {
+    "andes": {
+      "triage": {
+        "intent": "demo_request",
+        "urgency": "this_week",
+        "fit": {
+          "score": 90,
+          "reason": "B2B logistics company in Colombia with about 220 employees, HubSpot, and a sales team well over five, which matches the ideal customer."
+        },
+        "route": {
+          "owner": "ana",
+          "reason": "Mid-market rule: companies with 50 to 500 employees in Latin America go to Ana Ruiz."
+        },
+        "reply": {
+          "subject": "Larkspur + HubSpot for your inbound leads",
+          "body": "Hi Mariana,\n\nThanks for the detail. Larkspur connects to HubSpot, shows where pipeline is stuck and alerts reps when a deal goes quiet. I'd like to show you that live using a setup like yours. I'll also confirm whether it can flag inbound leads that sit unanswered in a shared inbox before they become deals. I'll check what a realistic go-live before Q1 looks like too.\n\nCould you share two or three times that work for a 30-minute call this week or next?\n\nBest,\nAna Ruiz"
+        },
+        "crm_note": "Mariana (Head of Sales Ops) asked for a demo of how Larkspur flags inbound leads left unanswered in a shared inbox in HubSpot, after hiring 8 SDRs, and wants it running before Q1. Next step: Ana books a 30-minute demo this week or next.",
+        "checks": [
+          "Confirm whether Larkspur can alert on new inbound leads or contacts that have no reply, not only on deals that have gone quiet.",
+          "Confirm a realistic HubSpot setup timeline before promising go-live before Q1.",
+          "Decide whether to send in English or Spanish; she wrote in English."
+        ]
+      },
+      "usage": {
+        "inputTokens": 1841,
+        "outputTokens": 840
+      },
+      "costUsd": 0.024164,
+      "seconds": 10.7,
+      "model": "claude-opus-5-5"
+    },
+    "northwind": {
+      "triage": {
+        "intent": "security_or_procurement",
+        "urgency": "this_week",
+        "fit": {
+          "score": 92,
+          "reason": "B2B health services company with about 2,300 employees on Salesforce, which sits inside the ideal size range, CRM list and best-fit industries."
+        },
+        "route": {
+          "owner": "priya",
+          "reason": "Enterprise rule: the company has more than 500 employees and is asking for security and procurement material (SOC 2, SSO) for an RFP."
+        },
+        "reply": {
+          "subject": "Larkspur for your pipeline analytics RFP",
+          "body": "Hi Danielle,\n\nThanks for including Larkspur in your RFP. I'll be your contact and will coordinate the technical session with your team.\n\nOn security: I'll confirm what we can share about SOC 2 and the details of our SSO support. I'll send that separately, not guess here. I've noted your December 15 deadline.\n\nFor the technical session, could you send two or three times that work for your team over the next two weeks, and tell me who will attend? Then I'll make sure the right people are there from our side.\n\nBest,\nPriya Shah\nEnterprise, Larkspur"
+        },
+        "crm_note": "Danielle Okafor (VP RevOps) is running an RFP for pipeline analytics that closes Dec 15 and wants our SOC 2 report, SSO details and a technical session. Priya to confirm the security documents and book the technical session with her team.",
+        "checks": [
+          "Whether Larkspur has a SOC 2 report, and what is needed to share it (for example an NDA)",
+          "Which SSO protocols and identity providers Larkspur supports",
+          "Who from solutions/engineering should join the technical session before Dec 15"
+        ]
+      },
+      "usage": {
+        "inputTokens": 1823,
+        "outputTokens": 697
+      },
+      "costUsd": 0.021232,
+      "seconds": 8,
+      "model": "claude-opus-5-5"
+    },
+    "pixel": {
+      "triage": {
+        "intent": "pricing_question",
+        "urgency": "no_rush",
+        "fit": {
+          "score": 5,
+          "reason": "A 6-person design studio with no CRM and a two-person team is far below the 50-employee and five-rep minimum."
+        },
+        "route": {
+          "owner": "nurture",
+          "reason": "Nurture rule: companies below 50 employees are not a fit yet."
+        },
+        "reply": {
+          "subject": "Re: Larkspur pricing",
+          "body": "Hi Tom,\n\nThanks for asking. Larkspur plans start at USD 1,500 a month. It's built for B2B companies with a sales team of five or more people who work in a CRM like HubSpot, Salesforce or Zoho. For two people keeping track of a few clients, it would probably cost more than it's worth to you right now. A simple CRM, such as the free tier many CRM tools offer, is likely a better place to start.\n\nIf your team grows, we'd be glad to talk. Just reply to this email when you're ready and we'll pick it up from there.\n\nThe Larkspur team"
+        },
+        "crm_note": "Tom (founder of a 6-person design studio with no CRM) asked about pricing so he and his partner can track a few clients. Told him plans start at USD 1,500/month, explained it's not a fit yet, and moved him to nurture.",
+        "checks": [
+          "Confirm it's fine to mention free CRM tiers in general terms, since no specific product is named or endorsed.",
+          "Confirm the record's 6 employees vs. the 'just me and my partner' in his message; either way he is below 50 employees."
+        ]
+      },
+      "usage": {
+        "inputTokens": 1776,
+        "outputTokens": 653
+      },
+      "costUsd": 0.020164,
+      "seconds": 7.3,
+      "model": "claude-opus-5-5"
+    },
+    "brightline": {
+      "triage": {
+        "intent": "support_issue",
+        "urgency": "today",
+        "fit": {
+          "score": 85,
+          "reason": "Brightline is a 140-employee Canadian software company that already uses Larkspur, which fits the ideal customer profile."
+        },
+        "route": {
+          "owner": "support",
+          "reason": "Existing-customer rule: Brightline has been a customer since March 2026 and is reporting a problem with the product."
+        },
+        "reply": {
+          "subject": "Re: Stuck-deals dashboard showing no data",
+          "body": "Hi Kenji,\n\nThanks for flagging this. We understand you need the stuck-deals dashboard for your Monday forecast. We're looking into why it has shown no data for your team since yesterday, and we'll update you today with what we find.\n\nTo help us trace it faster, could you reply with your workspace name and a screenshot of the empty dashboard? It would also help to know whether other dashboards still show data for your team.\n\nThe Larkspur team"
+        },
+        "crm_note": "Kenji Watanabe reports that the stuck-deals dashboard has shown no data for his team since yesterday, and he needs it for Monday's forecast. Support will investigate today and has asked for his workspace name, a screenshot, and whether other dashboards are affected.",
+        "checks": [
+          "Confirm support can realistically send an update today before keeping that commitment in the reply.",
+          "Check whether Brightline's CRM connection or sync failed or changed around yesterday.",
+          "Check whether other customers are reporting empty stuck-deals dashboards (possible wider incident)."
+        ]
+      },
+      "usage": {
+        "inputTokens": 1812,
+        "outputTokens": 644
+      },
+      "costUsd": 0.020128,
+      "seconds": 6.5,
+      "model": "claude-opus-5-5"
+    }
+  }
+}
