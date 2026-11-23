@@ -10,10 +10,19 @@ export function ValueTable({ value, label }: { value: PlanValue; label: string }
   return (
     <div className={styles.wrap}>
       <p className={styles.total}>
-        All together:{" "}
-        <strong className="num">{formatSignedMoney(value.total.revenuePerYear)}</strong> more in
-        sales a year, for <span className="num">{formatSignedMoney(value.total.costPerYear)}</span>{" "}
-        in tools and team time.
+        All together: <strong className="num">{formatMoney(value.total.revenuePerYear)}</strong>{" "}
+        more in sales a year,{" "}
+        {value.total.costPerYear <= 0 ? (
+          <>
+            and <span className="num">{formatMoney(-value.total.costPerYear)}</span> a year less
+            spent on tools and team time.
+          </>
+        ) : (
+          <>
+            for <span className="num">{formatMoney(value.total.costPerYear)}</span> a year in tools
+            and team time.
+          </>
+        )}
       </p>
       <section
         className={styles.scroll}
@@ -24,20 +33,17 @@ export function ValueTable({ value, label }: { value: PlanValue; label: string }
         <table className={styles.table}>
           <thead>
             <tr>
-              <th scope="col">Improvement, in order</th>
+              <th scope="col">Improvement</th>
               <th scope="col" className={styles.right}>
                 Meetings a quarter
               </th>
               <th scope="col" className={styles.right}>
-                Pipeline a quarter
-              </th>
-              <th scope="col" className={styles.right}>
                 Sales a year
               </th>
-              <th scope="col" className={styles.right}>
+              <th scope="col" className={`${styles.right} ${styles.wide}`}>
                 Cost a year
               </th>
-              <th scope="col" className={styles.right}>
+              <th scope="col" className={`${styles.right} ${styles.wide}`}>
                 Net a year
               </th>
             </tr>
@@ -45,16 +51,20 @@ export function ValueTable({ value, label }: { value: PlanValue; label: string }
           <tbody>
             {value.steps.map((step) => (
               <tr key={step.automation}>
-                <th scope="row">{AUTOMATIONS[step.automation].name}</th>
+                <th scope="row">
+                  <span className={styles.full}>{AUTOMATIONS[step.automation].name}</span>
+                  <span className={styles.short}>{AUTOMATIONS[step.automation].short}</span>
+                </th>
                 <td className={`num ${styles.right}`}>{formatSigned(step.meetingsPerQuarter)}</td>
-                <td className={`num ${styles.right}`}>
-                  {formatSignedMoney(step.pipelinePerQuarter)}
-                </td>
                 <td className={`num ${styles.right} ${styles.strong}`}>
                   {formatSignedMoney(step.revenuePerYear)}
                 </td>
-                <td className={`num ${styles.right}`}>{formatSignedMoney(step.costPerYear)}</td>
-                <td className={`num ${styles.right}`}>{formatSignedMoney(step.netPerYear)}</td>
+                <td className={`num ${styles.right} ${styles.wide}`}>
+                  {formatSignedMoney(step.costPerYear)}
+                </td>
+                <td className={`num ${styles.right} ${styles.wide}`}>
+                  {formatSignedMoney(step.netPerYear)}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -62,9 +72,8 @@ export function ValueTable({ value, label }: { value: PlanValue; label: string }
       </section>
       <p className={styles.note}>
         Sales a year: extra pipeline times a {pct}% win rate, over four quarters. Cost a year: tools
-        plus rep hours; a minus sign means it saves money. Synthetic data; an estimate, not a
-        promise. Total for reference: {formatMoney(value.total.pipelinePerQuarter)} more pipeline a
-        quarter.
+        plus rep hours; a minus sign means it saves money. Net: sales minus cost. Synthetic data; an
+        estimate, not a promise.
       </p>
     </div>
   );

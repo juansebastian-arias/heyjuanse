@@ -1,6 +1,10 @@
+import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
-import recordings from "../../content/agent/recordings.json";
 import { expectNoAxeViolations, waitForSql, watchErrors } from "./helpers";
+
+const recordings = JSON.parse(readFileSync("content/agent/recordings.json", "utf8")) as {
+  recordedAt: string | null;
+};
 
 const PAGES = ["/", "/lab", "/work", "/about", "/architecture", "/colophon"];
 
@@ -124,7 +128,8 @@ test("a lead the visitor writes fails gracefully when the live agent is off", as
   await page.goto("/#agent");
   await page.getByRole("button", { name: /Write your own lead/ }).click();
   await page
-    .getByLabel("Message")
+    .locator("#agent")
+    .getByRole("textbox", { name: "Message", exact: true })
     .fill("We have 30 reps on Salesforce. Can we see a demo next week?");
   await page.getByRole("button", { name: "Run the agent live" }).click();
   await expect(

@@ -349,7 +349,7 @@ export function AgentDemo({ worth }: { worth: AgentWorth }) {
                   <textarea
                     value={body}
                     onChange={(event) => setBody(event.target.value)}
-                    rows={7}
+                    rows={10}
                     disabled={decided !== null}
                   />
                 </label>

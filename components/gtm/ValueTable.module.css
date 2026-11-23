@@ -36,11 +36,16 @@
 
 .table tbody th {
   font-weight: 600;
+  color: var(--ink);
 }
 
 .right {
   text-align: right !important;
   white-space: nowrap;
+}
+
+.short {
+  display: none;
 }
 
 .strong {
@@ -51,4 +56,24 @@
   font-size: 0.8125rem;
   line-height: 1.45;
   color: var(--muted);
+}
+
+@media (max-width: 520px) {
+  .table {
+    font-size: 0.875rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 8px 6px;
+  }
+
+  .wide,
+  .full {
+    display: none;
+  }
+
+  .short {
+    display: inline;
+  }
 }
