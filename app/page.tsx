@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ContactLinks } from "@/components/ContactLinks";
 import { AgentDemo } from "@/components/gtm/AgentDemo";
 import { Diagnose } from "@/components/gtm/Diagnose";
-import { formatHours, formatMoney, formatSigned } from "@/components/gtm/format";
+import { formatHours, formatMoney } from "@/components/gtm/format";
 import { HeroEngine } from "@/components/gtm/HeroEngine";
 import { Simulator } from "@/components/gtm/Simulator";
 import { PLAYBOOKS } from "@/content/playbooks";
