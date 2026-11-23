@@ -19,6 +19,9 @@ export default function NotFound() {
           <Link href="/">Home</Link>
         </li>
         <li>
+          <Link href="/simulator">Simulator</Link>
+        </li>
+        <li>
           <Link href="/lab">Decision Lab</Link>
         </li>
         <li>

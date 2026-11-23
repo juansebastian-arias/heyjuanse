@@ -16,7 +16,7 @@ const DOTS = [
   { delay: 4.2, drop: "clean" },
 ] as const;
 
-/** The home page's first visual: an animated flow and a before-and-after computed at build time. */
+/** The simulator page's summary: an animated flow and a before-and-after computed at build time. */
 export function HeroEngine() {
   const manual = simulate("inbound", ALL_OFF);
   const automated = simulate("inbound", ALL_ON);

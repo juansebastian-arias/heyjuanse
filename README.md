@@ -1,14 +1,15 @@
 # heyjuanse.com
 
-The personal site of Juan Sebastián Arias, GTM engineer. Its centerpiece is the **GTM
-simulator** on the home page: pick a go-to-market strategy (inbound, outbound to target accounts,
+The personal site of Juan Sebastián Arias, GTM engineer. The home page shows one lead handled two
+ways and a working AI lead agent with human approval. The **GTM simulator** has its own page: pick a go-to-market strategy (inbound, outbound to target accounts,
 product-led, events and partners), switch automations on and off, and watch 90 days of synthetic
 leads play out. After every change it measures each possible next switch and recommends the one
 that adds the most meetings. The model, its assumptions and its tests live in `core/gtm/`.
 
-- **[A 90-day project at your company](https://heyjuanse.com/#project)**: the simulator run on a
-  visitor's own numbers, laid out as the first 90 days of work and what each phase is worth.
-- **[GTM simulator and playbooks](https://heyjuanse.com/#simulator)**: the simulator and six
+- **[Home](https://heyjuanse.com)**: one lead handled two ways (the average 42-hour reply from a
+  published study against a system that answers in minutes), the AI lead agent, what it is worth,
+  what I build and how I work.
+- **[GTM simulator and playbooks](https://heyjuanse.com/simulator)**: the simulator and six
   automation playbooks (trigger, steps, guardrail, metric).
 - **[Decision Lab](https://heyjuanse.com/lab)**: a week of messy inbound leads and too few sales
   calls. Change the rules, watch every lead move, and open any lead to see why it went where it

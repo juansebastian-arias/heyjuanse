@@ -1,17 +1,65 @@
 import Link from "next/link";
 import { ContactLinks } from "@/components/ContactLinks";
 import { AgentDemo } from "@/components/gtm/AgentDemo";
-import { HeroEngine } from "@/components/gtm/HeroEngine";
-import { ProjectDemo } from "@/components/gtm/ProjectDemo";
-import { Simulator } from "@/components/gtm/Simulator";
-import { PLAYBOOKS } from "@/content/playbooks";
+import { LeadStory } from "@/components/home/LeadStory";
+import { RESPONSE_STUDY } from "@/content/benchmarks";
 import { SKILLS } from "@/content/skills";
-import { ALL_OFF, AUTOMATIONS } from "@/core/gtm/model";
-import { simulate } from "@/core/gtm/simulate";
+import { TEAM } from "@/core/gtm/model";
 import { SITE } from "@/site.config";
 import styles from "./page.module.css";
 
-const manualInbound = simulate("inbound", ALL_OFF);
+/** Leads a month used to turn minutes saved per lead into hours a month. */
+const EXAMPLE_LEADS_PER_MONTH = 300;
+const minutesSaved = TEAM.manualMinutes - TEAM.aiMinutes;
+const hoursBack = Math.round((minutesSaved * EXAMPLE_LEADS_PER_MONTH) / 60);
+
+const VALUE = [
+  {
+    figure: `${RESPONSE_STUDY.averageReplyHours} h`,
+    text: `is how long the average company takes to answer a lead from its website. ${Math.round(RESPONSE_STUDY.neverReplied * 100)}% never answer.`,
+  },
+  {
+    figure: `≈${RESPONSE_STUDY.withinHourMultiple}×`,
+    text: "more likely to get a real conversation with a decision maker when the reply comes within the hour instead of an hour later.",
+  },
+  {
+    figure: `${minutesSaved} min`,
+    text: `saved on every lead: about ${TEAM.manualMinutes} minutes to research and write a first reply by hand, ${TEAM.aiMinutes} to check an AI draft. At ${EXAMPLE_LEADS_PER_MONTH} leads a month, ${hoursBack} hours back.`,
+  },
+];
+
+const PROCESS = [
+  {
+    title: "Measure",
+    text: "Find where leads wait or get lost, and what that costs. One page of numbers.",
+  },
+  {
+    title: "Build",
+    text: "Fix what is worth the most first, in the tools your team already uses.",
+  },
+  {
+    title: "Prove",
+    text: "Compare against a control group and report the change in meetings and money.",
+  },
+];
+
+const MORE = [
+  {
+    href: "/simulator",
+    title: "GTM simulator",
+    text: "Switch automations on and off over 90 days of made-up leads and see which one pays most.",
+  },
+  {
+    href: "/lab",
+    title: "Decision Lab",
+    text: "Lead scoring with every rule and every SQL query in view.",
+  },
+  {
+    href: "/architecture",
+    title: "How this site is built",
+    text: "Requirements, tests and design decisions behind these demos.",
+  },
+];
 
 export default function Home() {
   return (
@@ -23,8 +71,8 @@ export default function Home() {
             I build systems that turn leads into sales meetings.
           </h1>
           <p className={styles.subclaim}>
-            Lead routing and scoring, CRM automation and AI agents that draft while a person
-            approves.
+            When a potential customer writes to your company, the right salesperson gets it in
+            seconds, with a reply already drafted. A person approves before anything is sent.
           </p>
           <ul className={styles.specialties} aria-label="Skills">
             {SITE.specialties.map((specialty) => (
@@ -32,11 +80,8 @@ export default function Home() {
             ))}
           </ul>
           <div className={styles.actions}>
-            <a href="#project" className="button" data-variant="primary">
-              See it at your company
-            </a>
-            <a href="#agent" className="button">
-              Try the AI agent
+            <a href="#agent" className="button" data-variant="primary">
+              Try it now
             </a>
             <Link href="/about#contact" className="button" data-variant="quiet">
               Get in touch
@@ -44,153 +89,111 @@ export default function Home() {
           </div>
         </div>
         <div className={styles.visual}>
-          <HeroEngine />
+          <LeadStory />
         </div>
-      </section>
-
-      <section className={`page ${styles.section}`} id="project" aria-labelledby="project-title">
-        <header className={styles.sectionHeader}>
-          <p className="eyebrow">Demo · a 90-day project</p>
-          <h2 id="project-title" className={styles.sectionTitle}>
-            What I would build at your company, and what it is worth.
-          </h2>
-          <p className={styles.sectionLede}>
-            It opens with a typical sales team. Put in your numbers to see your own plan.
-          </p>
-        </header>
-        <ProjectDemo />
       </section>
 
       <section className={`page ${styles.section}`} id="agent" aria-labelledby="agent-title">
         <header className={styles.sectionHeader}>
-          <p className="eyebrow">Demo · AI lead agent</p>
+          <p className="eyebrow">Try it · 10 seconds</p>
           <h2 id="agent-title" className={styles.sectionTitle}>
-            A new lead, answered in seconds. A person approves.
+            Answer a new lead the way my systems do.
           </h2>
-          <p className={styles.sectionLede}>
-            One piece of that project, working. Pick a message: the agent decides who should answer
-            and drafts the reply. Made-up leads, real recorded runs.
+          <ol className={styles.howTo}>
+            <li>Pick a message from the inbox.</li>
+            <li>Press “Let the agent handle it”.</li>
+            <li>Check the reply and approve it.</li>
+          </ol>
+          <p className={styles.sectionNote}>
+            A made-up company and its leads. The AI runs are real, recorded so the demo is instant.
           </p>
         </header>
-        <AgentDemo worth={{ manualWaitHours: manualInbound.medianHoursToTouch }} />
+        <AgentDemo worth={{ manualWaitHours: RESPONSE_STUDY.averageReplyHours }} />
       </section>
 
-      <section className={`page ${styles.section}`} id="skills" aria-labelledby="skills-title">
+      <section className={`page ${styles.section}`} id="value" aria-labelledby="value-title">
         <header className={styles.sectionHeader}>
-          <p className="eyebrow">Skills</p>
-          <h2 id="skills-title" className={styles.sectionTitle}>
-            What I work with, and where to see it.
+          <p className="eyebrow">What it is worth</p>
+          <h2 id="value-title" className={styles.sectionTitle}>
+            Every hour a lead waits costs you meetings.
           </h2>
         </header>
-        <section
-          className={styles.skillsWrap}
-          // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region needs a tab stop so its overflow can be scrolled by keyboard
-          tabIndex={0}
-          aria-label="Skills and where to see them"
-        >
-          <table className={styles.skills}>
-            <thead>
-              <tr>
-                <th scope="col">Skill and tools</th>
-                <th scope="col">What it does</th>
-                <th scope="col">See it here</th>
-              </tr>
-            </thead>
-            <tbody>
-              {SKILLS.map((skill) => (
-                <tr key={skill.id}>
-                  <th scope="row">
-                    <span className={styles.skillName}>{skill.name}</span>
-                    <span className={styles.skillTools}>{skill.tools.join(" · ")}</span>
-                  </th>
-                  <td>{skill.plain}</td>
-                  <td>
-                    <ul className={styles.skillLinks}>
-                      {skill.see.map((link) => (
-                        <li key={link.href}>
-                          {link.href.startsWith("/") ? (
-                            <Link href={link.href}>{link.label}</Link>
-                          ) : (
-                            <a href={link.href}>{link.label}</a>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
+        <ul className={styles.values}>
+          {VALUE.map((item) => (
+            <li key={item.figure} className={styles.value}>
+              <span className={styles.valueFigure}>{item.figure}</span>
+              <span className={styles.valueText}>{item.text}</span>
+            </li>
+          ))}
+        </ul>
+        <p className={styles.sectionNote}>
+          First two figures:{" "}
+          <a href={RESPONSE_STUDY.url} rel="noopener noreferrer">
+            {RESPONSE_STUDY.publication}, “{RESPONSE_STUDY.title}”
+          </a>
+          , {RESPONSE_STUDY.date}. Minutes per lead: an estimate.
+        </p>
       </section>
 
-      <section
-        className={`page ${styles.section}`}
-        id="simulator"
-        aria-labelledby="simulator-title"
-      >
+      <section className={`page ${styles.section}`} id="build" aria-labelledby="build-title">
         <header className={styles.sectionHeader}>
-          <p className="eyebrow">Simulator · for a closer look</p>
-          <h2 id="simulator-title" className={styles.sectionTitle}>
-            Switch each automation on or off and see what it changes.
+          <p className="eyebrow">What I build</p>
+          <h2 id="build-title" className={styles.sectionTitle}>
+            Systems I can set up for your sales team.
           </h2>
-          <p className={styles.sectionLede}>
-            A made-up company and 90 days of leads. Flip a switch and see what changes; the yellow
-            box suggests the next one.
-          </p>
         </header>
-        <Simulator />
+        <ul className={styles.build}>
+          {SKILLS.map((skill) => (
+            <li key={skill.id} className={styles.buildItem}>
+              <h3 className={styles.buildName}>{skill.name}</h3>
+              <p className={styles.buildPlain}>{skill.plain}</p>
+              <p className={styles.buildTools}>{skill.tools.join(" · ")}</p>
+              {skill.see.href.startsWith("/") ? (
+                <Link href={skill.see.href} className={styles.buildLink}>
+                  {skill.see.label} →
+                </Link>
+              ) : (
+                <a href={skill.see.href} className={styles.buildLink}>
+                  {skill.see.label} ↑
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
       </section>
 
-      <section
-        className={`page ${styles.section}`}
-        id="playbooks"
-        aria-labelledby="playbooks-title"
-      >
+      <section className={`page ${styles.section}`} id="how" aria-labelledby="how-title">
         <header className={styles.sectionHeader}>
-          <p className="eyebrow">Playbooks</p>
-          <h2 id="playbooks-title" className={styles.sectionTitle}>
-            Six automations I build.
+          <p className="eyebrow">How I work</p>
+          <h2 id="how-title" className={styles.sectionTitle}>
+            Measure, build, prove.
           </h2>
         </header>
-        <ul className={styles.playbooks}>
-          {PLAYBOOKS.map((playbook) => (
-            <li key={playbook.id} className={styles.playbook} id={playbook.id}>
-              <h3 className={styles.playbookName}>{playbook.name}</h3>
-              <p className={styles.problem}>{playbook.problem}</p>
-              <details className={styles.how}>
-                <summary>How it works</summary>
-                <ol className={styles.steps}>
-                  <li className={styles.trigger}>
-                    <span className={styles.stepKind}>When</span> {playbook.trigger}
-                  </li>
-                  {playbook.steps.map((step) => (
-                    <li key={step}>{step}</li>
-                  ))}
-                </ol>
-                <p className={styles.guardrail}>
-                  <span className={styles.stepKind}>Guardrail</span> {playbook.guardrail}
-                </p>
-              </details>
-              <dl className={styles.playbookMeta}>
-                <div>
-                  <dt>Judged by</dt>
-                  <dd>{playbook.metric}</dd>
-                </div>
-                {playbook.simulator ? (
-                  <div>
-                    <dt>In the simulator</dt>
-                    <dd>{AUTOMATIONS[playbook.simulator].name}</dd>
-                  </div>
-                ) : null}
-              </dl>
-              <ul className={styles.tools} aria-label="Tools">
-                {playbook.tools.map((tool) => (
-                  <li key={tool} className="tag">
-                    {tool}
-                  </li>
-                ))}
-              </ul>
+        <ol className={styles.process}>
+          {PROCESS.map((step, index) => (
+            <li key={step.title} className={styles.processStep}>
+              <span className={`num ${styles.processNum}`}>{index + 1}</span>
+              <h3 className={styles.processTitle}>{step.title}</h3>
+              <p className={styles.processText}>{step.text}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className={`page ${styles.section}`} id="more" aria-labelledby="more-title">
+        <header className={styles.sectionHeader}>
+          <p className="eyebrow">Go deeper</p>
+          <h2 id="more-title" className={styles.sectionTitle}>
+            More demos.
+          </h2>
+        </header>
+        <ul className={styles.more}>
+          {MORE.map((item) => (
+            <li key={item.href}>
+              <Link href={item.href} className={styles.moreItem}>
+                <span className={styles.moreTitle}>{item.title} →</span>
+                <span className={styles.moreText}>{item.text}</span>
+              </Link>
             </li>
           ))}
         </ul>

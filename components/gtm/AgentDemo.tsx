@@ -8,9 +8,9 @@ import { TEAM } from "@/core/gtm/model";
 import styles from "./AgentDemo.module.css";
 import { formatHours } from "./format";
 
-/** Build-time figures from the simulator that say what answering fast is worth. */
+/** What handling a lead by hand looks like, to compare with the agent. */
 export interface AgentWorth {
-  /** Median wait for a first reply when leads are routed and written by hand. */
+  /** Hours until a first reply when leads are handled by hand: a published average. */
   manualWaitHours: number;
 }
 
@@ -235,8 +235,8 @@ export function AgentDemo({ worth }: { worth: AgentWorth }) {
                   Let the agent handle it
                 </button>
                 <p className={styles.small}>
-                  By hand: about {TEAM.manualMinutes} minutes of a rep's time, and in the simulator
-                  a lead waits {formatHours(worth.manualWaitHours)} for a first reply.
+                  By hand: about {TEAM.manualMinutes} minutes of a rep's time, and the average
+                  company replies after {formatHours(worth.manualWaitHours)}.
                 </p>
               </div>
             ) : null}

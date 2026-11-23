@@ -6,7 +6,7 @@ const recordings = JSON.parse(readFileSync("content/agent/recordings.json", "utf
   recordedAt: string | null;
 };
 
-const PAGES = ["/", "/lab", "/about", "/architecture", "/colophon"];
+const PAGES = ["/", "/simulator", "/lab", "/about", "/architecture", "/colophon"];
 
 for (const path of PAGES) {
   test(`${path} loads with one main heading, no errors and no WCAG violations`, async ({
@@ -39,7 +39,7 @@ test("every internal link points to a page that exists", async ({ page, request 
 });
 
 test("in-page links point to anchors that exist", async ({ page }) => {
-  for (const path of ["/architecture", "/about", "/colophon"]) {
+  for (const path of ["/", "/simulator", "/architecture", "/about", "/colophon"]) {
     await page.goto(path);
     const anchors = await page
       .locator('a[href^="#"]')
@@ -72,12 +72,24 @@ test("the home page says the role and the result in the first screen", async ({ 
     "turn leads into sales meetings",
   );
   await expect(page.getByText("GTM engineer", { exact: false }).first()).toBeVisible();
+  const story = page.getByRole("figure").filter({ hasText: "One lead, two ways" });
+  await expect(story).toBeVisible();
+  await expect(story).toContainText("42 hours");
+  await expect(story).toContainText("5 minutes");
+  await expect(story.getByRole("link", { name: /Harvard Business Review/ })).toHaveAttribute(
+    "href",
+    /^https:\/\/hbr\.org\//,
+  );
+});
+
+test("the simulator page opens with the before-and-after", async ({ page }) => {
+  await page.goto("/simulator");
   await expect(page.getByRole("table", { name: /inbound leads/ })).toBeVisible();
 });
 
 test("the simulator recommends a move, and applying it adds meetings", async ({ page }) => {
   const errors = watchErrors(page);
-  await page.goto("/#simulator");
+  await page.goto("/simulator#simulator");
   const meetings = page.locator("#simulator dl dd").first();
   const before = Number((await meetings.textContent())?.replace(/\D/g, ""));
   await page.getByRole("button", { name: "Apply this decision" }).click();
@@ -91,7 +103,7 @@ test("the simulator recommends a move, and applying it adds meetings", async ({ 
 });
 
 test("following the data to the end stacks up decisions until none is left", async ({ page }) => {
-  await page.goto("/#simulator");
+  await page.goto("/simulator#simulator");
   await page.getByRole("button", { name: "Follow the data to the end" }).click();
   await expect(page.getByText("No single switch adds more meetings from here.")).toBeVisible({
     timeout: 15_000,
@@ -99,20 +111,6 @@ test("following the data to the end stacks up decisions until none is left", asy
   const steps = page.getByRole("list", { name: "Decisions applied" }).getByRole("listitem");
   expect(await steps.count()).toBeGreaterThan(3);
   await expectNoAxeViolations(page, "#simulator");
-});
-
-test("the 90-day project opens computed and follows the visitor's numbers", async ({ page }) => {
-  const errors = watchErrors(page);
-  await page.goto("/#project");
-  const project = page.locator("#project");
-  const phases = project.getByRole("list", { name: "Your 90-day project" }).locator(":scope > li");
-  await expect(phases).toHaveCount(3);
-  await expect(project.getByText(/By day 90: about/)).toBeVisible();
-  await project.getByRole("spinbutton", { name: "Reps on new leads" }).fill("5");
-  await project.getByRole("button", { name: "Recalculate with my numbers" }).click();
-  await expect(project.getByText(/with the same 5 reps/)).toBeVisible();
-  await expectNoAxeViolations(page, "#project");
-  expect(errors).toEqual([]);
 });
 
 test("the retired work page sends old links to About", async ({ page }) => {

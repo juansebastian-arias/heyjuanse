@@ -92,7 +92,7 @@ test.describe("addresses that do not make sense", () => {
 test.describe("privacy and layout", () => {
   test.skip(({ isMobile }) => isMobile, "Checked once, on desktop.");
 
-  const PAGES = ["/", "/about", "/architecture", "/colophon", "/lab"];
+  const PAGES = ["/", "/simulator", "/about", "/architecture", "/colophon", "/lab"];
 
   test("no page contacts another site, sets a cookie or stores anything", async ({
     page,

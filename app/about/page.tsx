@@ -46,10 +46,11 @@ export default function AboutPage() {
           ) : null}
         </p>
         <p>
-          This site is itself a piece of work: the <Link href="/">home page</Link> shows what a
-          90-day project could look like at your company, the <Link href="/lab">Decision Lab</Link>{" "}
-          is a working system, and <Link href="/architecture">under the hood</Link> explains how it
-          is built and why. The <Link href="/colophon">colophon</Link> says how it was made.
+          This site is itself a piece of work: the <Link href="/#agent">AI agent</Link> and the{" "}
+          <Link href="/simulator">simulator</Link> run in your browser, the{" "}
+          <Link href="/lab">Decision Lab</Link> is a working system, and{" "}
+          <Link href="/architecture">under the hood</Link> explains how it is built and why. The{" "}
+          <Link href="/colophon">colophon</Link> says how it was made.
         </p>
       </div>
 

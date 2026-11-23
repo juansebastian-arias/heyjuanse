@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 import styles from "./SiteHeader.module.css";
 
 const LINKS = [
-  { href: "/#project", label: "90-day plan" },
-  { href: "/#agent", label: "AI agent" },
-  { href: "/#skills", label: "Skills" },
-  { href: "/#simulator", label: "Simulator" },
+  { href: "/#agent", label: "Try it" },
+  { href: "/#build", label: "What I build" },
+  { href: "/#how", label: "How I work" },
+  { href: "/simulator", label: "Simulator" },
   { href: "/about", label: "About" },
 ];
 
