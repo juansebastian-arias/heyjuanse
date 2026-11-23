@@ -6,7 +6,7 @@ export const SITE = {
   name: "Juan Sebastián Arias",
   url: "https://heyjuanse.com",
   positioning:
-    "GTM engineer. I build the automated engine that turns leads into sales meetings: routing, enrichment, scoring and AI agents that draft while a person approves, each one chosen with data.",
+    "GTM engineer. I build systems that turn leads into sales meetings: routing, scoring, CRM automation and AI agents that draft while a person approves, each change priced in dollars.",
   specialties: [
     "Lead routing and scoring",
     "n8n, Zapier and Make",

@@ -145,8 +145,7 @@ export function Diagnose() {
             </p>
             {first ? (
               <p className={styles.firstMove}>
-                <strong>Start with “{AUTOMATIONS[first.move.automation].name}”.</strong>{" "}
-                {AUTOMATIONS[first.move.automation].effect}
+                <strong>Start with “{AUTOMATIONS[first.move.automation].name}”.</strong>
               </p>
             ) : (
               <p className={styles.firstMove}>
@@ -170,10 +169,6 @@ export function Diagnose() {
               value={valuePlan(result.plan)}
               label="What each step of your plan is worth"
             />
-            <p className={styles.note}>
-              An estimate from the same simulation and assumptions as above, with your numbers in
-              place of the defaults. It shows the order to work in, not a promise.
-            </p>
           </>
         ) : (
           <div className={styles.empty}>

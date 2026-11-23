@@ -441,15 +441,19 @@
   .skills td:nth-of-type(2) .skillLinks li + li::before {
     content: " · ";
   }
+}
 
-  .skills td:last-child {
-    color: var(--muted);
-    font-size: 0.875rem;
-  }
+.how summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: var(--operable);
+}
 
-  .skills td:last-child::before {
-    content: "Used for real: ";
-    font-weight: 600;
-    color: var(--ink);
-  }
+.how[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }

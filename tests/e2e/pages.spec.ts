@@ -69,7 +69,7 @@ test("the skip link moves focus to the main content", async ({ page, isMobile })
 test("the home page says the role and the result in the first screen", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "turns leads into sales meetings",
+    "turn leads into sales meetings",
   );
   await expect(page.getByText("GTM engineer", { exact: false }).first()).toBeVisible();
   await expect(page.getByRole("table", { name: /inbound leads/ })).toBeVisible();

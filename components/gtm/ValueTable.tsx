@@ -81,9 +81,8 @@ export function ValueTable({
         </table>
       </section>
       <p className={styles.note}>
-        Sales a year: extra pipeline times a {pct}% win rate, over four quarters. Cost a year: tools
-        plus rep hours; a minus sign means it saves money. Net: sales minus cost. Synthetic data; an
-        estimate, not a promise.
+        Sales a year = extra pipeline × {pct}% win rate × 4 quarters. A minus cost means savings.
+        Made-up data; an estimate.
       </p>
     </div>
   );
