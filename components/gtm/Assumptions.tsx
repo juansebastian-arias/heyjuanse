@@ -20,7 +20,8 @@ export function Assumptions() {
           {formatMoney(TEAM.costPerRepHour)} an hour. A first-touch sequence takes{" "}
           {TEAM.manualMinutes} minutes by hand or {TEAM.aiMinutes} minutes reviewing an AI draft (+
           {TEAM.lookupMinutes} without company data). Leads go cold after {TEAM.staleAfterDays}{" "}
-          days. AI-researched messages book {pct(TEAM.aiLift - 1)} more often.
+          days. AI-researched messages book {pct(TEAM.aiLift - 1)} more often. Dollar values assume{" "}
+          {pct(TEAM.winRate)} of opportunities close.
         </p>
         <section
           className={styles.tableWrap}

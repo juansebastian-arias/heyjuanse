@@ -1,11 +1,12 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
-import { type Plan, plan } from "@/core/gtm/decide";
+import { type Plan, plan, valuePlan } from "@/core/gtm/decide";
 import { ALL_OFF, AUTOMATIONS, MOTION_IDS, MOTIONS, type MotionId } from "@/core/gtm/model";
 import { DecisionPath } from "./DecisionPath";
 import styles from "./Diagnose.module.css";
 import { formatMoney } from "./format";
+import { ValueTable } from "./ValueTable";
 
 interface Inputs {
   motion: MotionId;
@@ -147,6 +148,10 @@ export function Diagnose() {
                 label="Your plan, step by step"
               />
             ) : null}
+            <ValueTable
+              value={valuePlan(result.plan)}
+              label="What each step of your plan is worth"
+            />
             <p className={styles.note}>
               An estimate from the same simulation and assumptions as above, with your numbers in
               place of the defaults. It shows the order to work in, not a promise.

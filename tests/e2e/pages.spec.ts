@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import recordings from "../../content/agent/recordings.json";
 import { expectNoAxeViolations, waitForSql, watchErrors } from "./helpers";
 
 const PAGES = ["/", "/lab", "/work", "/about", "/architecture", "/colophon"];
@@ -105,22 +106,39 @@ test("your own numbers produce an ordered plan", async ({ page }) => {
   await expectNoAxeViolations(page, "#diagnose");
 });
 
-test("the live agent explains itself and fails gracefully without a key", async ({ page }) => {
+test("the agent handles a sample lead and a person approves the draft", async ({ page }) => {
+  test.skip(!recordings.recordedAt, "No recorded runs yet");
+  const errors = watchErrors(page);
+  await page.goto("/#agent");
+  await page.getByRole("button", { name: /Danielle Okafor/ }).click();
+  await page.getByRole("button", { name: "Let the agent handle it" }).click();
+  await expect(page.getByText("Routed to")).toBeVisible();
+  await page.getByRole("button", { name: "Approve" }).click();
+  await expect(page.getByRole("region", { name: "Approval log" })).toContainText("Danielle Okafor");
+  await expectNoAxeViolations(page, "#agent");
+  expect(errors).toEqual([]);
+});
+
+test("a lead the visitor writes fails gracefully when the live agent is off", async ({ page }) => {
   // The test server has no API key, so the route answers that the agent is switched off.
   await page.goto("/#agent");
-  await expect(page.getByText("An AI agent does the research. A person decides.")).toBeVisible();
-  await page.getByLabel("A real company to research").fill("Example Software");
-  await page.getByRole("button", { name: "Research and draft" }).click();
-  await expect(page.getByText("The live agent is switched off right now.")).toBeVisible();
+  await page.getByRole("button", { name: /Write your own lead/ }).click();
+  await page
+    .getByLabel("Message")
+    .fill("We have 30 reps on Salesforce. Can we see a demo next week?");
+  await page.getByRole("button", { name: "Run the agent live" }).click();
+  await expect(
+    page.getByText("The live agent is switched off right now.", { exact: false }),
+  ).toBeVisible();
   await expectNoAxeViolations(page, "#agent");
 });
 
 test("the agent route refuses requests from other sites", async ({ request }) => {
   const response = await request.post("/api/agent", {
     headers: { Origin: "https://elsewhere.example" },
-    data: { company: "Example", offer: "Lead routing for B2B teams" },
+    data: { message: "Can we see a demo next week, please?" },
   });
-  expect([403, 503]).toContain(response.status());
+  expect(response.status()).toBe(403);
 });
 
 test("security headers are sent", async ({ request }) => {

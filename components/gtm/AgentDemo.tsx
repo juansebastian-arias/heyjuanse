@@ -1,295 +1,431 @@
 "use client";
 
-import { type FormEvent, useEffect, useState } from "react";
-import type { Research } from "@/core/agent/contract";
+import { type FormEvent, useEffect, useRef, useState } from "react";
+import { OWNERS, SAMPLE_LEADS, type SampleLead } from "@/content/agent/leads";
+import { RECORDINGS, type RecordedRun } from "@/content/agent/recordings";
+import type { Triage } from "@/core/agent/contract";
+import { TEAM } from "@/core/gtm/model";
 import styles from "./AgentDemo.module.css";
+import { formatHours } from "./format";
 
-interface Success {
-  ok: true;
-  research: Research;
-  removedSignals: number;
-  searches: { url: string; title: string }[];
-  usage: { inputTokens: number; outputTokens: number; searches: number };
-  costUsd: number;
-  seconds: number;
-  model: string;
+/** Build-time figures from the simulator that say what answering fast is worth. */
+export interface AgentWorth {
+  /** Median wait for a first reply when leads are routed and written by hand. */
+  manualWaitHours: number;
 }
 
 interface Failure {
   ok: false;
-  error: string;
   message: string;
 }
 
+type Source = "recorded" | "live";
+
 type State =
   | { kind: "idle" }
-  | { kind: "running"; since: number }
-  | { kind: "done"; result: Success }
+  | { kind: "running"; step: number }
+  | { kind: "done"; run: RecordedRun; source: Source }
   | { kind: "error"; message: string };
 
 interface LogEntry {
   at: string;
   decision: "Approved" | "Rejected";
-  company: string;
+  who: string;
+  owner: string;
   edited: boolean;
 }
 
+const OWN = "own";
+
 const STEPS = [
-  "Searching the web",
-  "Reading what it found",
+  "Reading the message",
+  "Checking the CRM record",
   "Scoring the fit",
-  "Drafting the message",
+  "Choosing the owner",
+  "Drafting the reply",
 ];
 
-const host = (url: string) => {
-  try {
-    return new URL(url).hostname.replace(/^www\./, "");
-  } catch {
-    return url;
-  }
+const INTENT: Record<Triage["intent"], string> = {
+  demo_request: "Wants a demo",
+  pricing_question: "Asks about price",
+  security_or_procurement: "Security or procurement",
+  support_issue: "Existing customer with a problem",
+  not_a_fit: "Not a fit",
+  other: "Other",
 };
 
-export function AgentDemo() {
-  const [company, setCompany] = useState("");
-  const [offer, setOffer] = useState(
-    "Automation that routes inbound leads to the right rep in minutes and drafts the first email.",
-  );
+const URGENCY: Record<Triage["urgency"], string> = {
+  today: "Act today",
+  this_week: "This week",
+  no_rush: "No rush",
+};
+
+const now = () => new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+export function AgentDemo({ worth }: { worth: AgentWorth }) {
+  const [selected, setSelected] = useState<string>(SAMPLE_LEADS[0]?.id ?? OWN);
   const [state, setState] = useState<State>({ kind: "idle" });
-  const [tick, setTick] = useState(0);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [decided, setDecided] = useState<LogEntry["decision"] | null>(null);
   const [log, setLog] = useState<LogEntry[]>([]);
+  const [own, setOwn] = useState({ name: "", company: "", message: "" });
+  const timers = useRef<number[]>([]);
 
-  useEffect(() => {
-    if (state.kind !== "running") return;
-    const timer = window.setInterval(() => setTick((value) => value + 1), 1000);
-    return () => window.clearInterval(timer);
-  }, [state.kind]);
+  useEffect(
+    () => () => {
+      for (const timer of timers.current) window.clearTimeout(timer);
+    },
+    [],
+  );
 
-  const submit = async (event: FormEvent) => {
-    event.preventDefault();
-    setState({ kind: "running", since: Date.now() });
-    setTick(0);
+  const lead: SampleLead | null = SAMPLE_LEADS.find((item) => item.id === selected) ?? null;
+
+  const reset = () => {
+    for (const timer of timers.current) window.clearTimeout(timer);
+    timers.current = [];
+    setState({ kind: "idle" });
     setDecided(null);
+  };
+
+  const pick = (id: string) => {
+    setSelected(id);
+    reset();
+  };
+
+  const show = (run: RecordedRun, source: Source) => {
+    setSubject(run.triage.reply.subject);
+    setBody(run.triage.reply.body);
+    setState({ kind: "done", run, source });
+  };
+
+  const replay = (run: RecordedRun) => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const pace = reduce ? 0 : 450;
+    setState({ kind: "running", step: 0 });
+    STEPS.forEach((_, index) => {
+      timers.current.push(
+        window.setTimeout(() => setState({ kind: "running", step: index + 1 }), pace * (index + 1)),
+      );
+    });
+    timers.current.push(window.setTimeout(() => show(run, "recorded"), pace * (STEPS.length + 1)));
+  };
+
+  const runLive = async (payload: { name?: string; company?: string; message: string }) => {
+    setState({ kind: "running", step: 0 });
+    const started = Date.now();
+    const ticker = window.setInterval(() => {
+      const step = Math.min(STEPS.length - 1, Math.floor((Date.now() - started) / 1500));
+      setState((current) => (current.kind === "running" ? { kind: "running", step } : current));
+    }, 300);
     try {
       const response = await fetch("/api/agent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ company, offer }),
+        body: JSON.stringify(payload),
       });
-      const data = (await response.json()) as Success | Failure;
+      const data = (await response.json()) as ({ ok: true } & RecordedRun) | Failure;
       if (!data.ok) {
         setState({ kind: "error", message: data.message });
         return;
       }
-      setSubject(data.research.first_message.subject);
-      setBody(data.research.first_message.body);
-      setState({ kind: "done", result: data });
+      show(data, "live");
     } catch {
       setState({ kind: "error", message: "The agent could not be reached. Try again later." });
+    } finally {
+      window.clearInterval(ticker);
     }
+  };
+
+  const handle = () => {
+    if (!lead) return;
+    setDecided(null);
+    const recorded = RECORDINGS.runs[lead.id];
+    if (recorded) replay(recorded);
+    else void runLive(lead);
+  };
+
+  const submitOwn = (event: FormEvent) => {
+    event.preventDefault();
+    setDecided(null);
+    void runLive(own);
   };
 
   const decide = (decision: LogEntry["decision"]) => {
     if (state.kind !== "done") return;
-    const draft = state.result.research.first_message;
+    const reply = state.run.triage.reply;
     setDecided(decision);
-    setLog((prev) => [
+    setLog((previous) => [
       {
-        at: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        at: now(),
         decision,
-        company,
-        edited: subject !== draft.subject || body !== draft.body,
+        who: lead ? `${lead.name}, ${lead.company}` : own.company || own.name || "Your lead",
+        owner: OWNERS[state.run.triage.route.owner].name,
+        edited: subject !== reply.subject || body !== reply.body,
       },
-      ...prev,
+      ...previous,
     ]);
   };
 
-  const step = Math.min(STEPS.length - 1, Math.floor(tick / 5));
+  const recordedOn = RECORDINGS.recordedAt
+    ? new Date(RECORDINGS.recordedAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : null;
 
   return (
     <div className={styles.wrap}>
-      <form className={styles.form} onSubmit={submit}>
-        <label className={styles.field}>
-          <span className={styles.label}>A real company to research</span>
-          <input
-            value={company}
-            onChange={(event) => setCompany(event.target.value)}
-            placeholder="For example, a software company you know"
-            minLength={2}
-            maxLength={80}
-            required
-          />
-        </label>
-        <label className={styles.field}>
-          <span className={styles.label}>What you sell, in one sentence</span>
-          <textarea
-            value={offer}
-            onChange={(event) => setOffer(event.target.value)}
-            minLength={10}
-            maxLength={240}
-            rows={3}
-            required
-          />
-        </label>
-        <button
-          type="submit"
-          className="button"
-          data-variant="primary"
-          disabled={state.kind === "running"}
-        >
-          {state.kind === "running" ? "Researching…" : "Research and draft"}
-        </button>
-        <p className={styles.small}>
-          Uses live web search and the Claude API. At most three searches per run and three runs an
-          hour per visitor. Nothing is ever sent.
+      <div className={styles.inbox}>
+        <p className={styles.inboxHead}>
+          <span className="eyebrow">Inbox</span>
+          <span className={styles.small}>{SAMPLE_LEADS.length} new leads, this morning</span>
         </p>
-      </form>
-
-      <div className={styles.output} aria-live="polite">
-        {state.kind === "idle" ? (
-          <div className={styles.placeholder}>
-            <p className={styles.headline}>An AI agent does the research. A person decides.</p>
-            <ol className={styles.howList}>
-              <li>It searches the web for the company and reads what it finds.</li>
-              <li>It writes a short brief where every fact links to its source.</li>
-              <li>It scores the fit with what you sell and drafts a first message.</li>
-              <li>You edit the draft and approve or reject it. The decision is logged.</li>
-            </ol>
-          </div>
-        ) : null}
-
-        {state.kind === "running" ? (
-          <ol className={styles.progress} aria-label="Agent progress">
-            {STEPS.map((label, index) => (
-              <li
-                key={label}
-                data-state={index < step ? "done" : index === step ? "active" : "waiting"}
+        <ul className={styles.leadList}>
+          {SAMPLE_LEADS.map((item) => (
+            <li key={item.id}>
+              <button
+                type="button"
+                className={styles.leadButton}
+                aria-pressed={selected === item.id}
+                onClick={() => pick(item.id)}
               >
-                {label}
-              </li>
-            ))}
-          </ol>
-        ) : null}
+                <span className={styles.leadTop}>
+                  <strong>{item.name}</strong>
+                  <span className="num">{item.arrived}</span>
+                </span>
+                <span className={styles.leadCompany}>
+                  {item.role}, {item.company}
+                </span>
+                <span className={styles.leadPreview}>{item.message}</span>
+              </button>
+            </li>
+          ))}
+          <li>
+            <button
+              type="button"
+              className={`${styles.leadButton} ${styles.ownButton}`}
+              aria-pressed={selected === OWN}
+              onClick={() => pick(OWN)}
+            >
+              <strong>Write your own lead</strong>
+              <span className={styles.leadPreview}>
+                Pretend to be a prospect and see a live run.
+              </span>
+            </button>
+          </li>
+        </ul>
+      </div>
 
-        {state.kind === "error" ? <p className={styles.error}>{state.message}</p> : null}
-
-        {state.kind === "done" ? (
-          <article className={styles.result}>
-            <header className={styles.resultHead}>
-              <p className="eyebrow">Brief</p>
-              <p className={`num ${styles.score}`} title="Fit score from 0 to 100">
-                Fit {state.result.research.fit.score}/100
-              </p>
-            </header>
-            <p className={styles.summary}>{state.result.research.company_summary}</p>
-            {state.result.research.signals.length ? (
-              <ul className={styles.signals}>
-                {state.result.research.signals.map((signal) => (
-                  <li key={signal.source_url + signal.finding}>
-                    {signal.finding}{" "}
-                    <a href={signal.source_url} rel="noopener noreferrer nofollow" target="_blank">
-                      {host(signal.source_url)}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className={styles.small}>No signal with a verifiable source was found.</p>
-            )}
-            <p className={styles.reason}>
-              <strong>Why this score:</strong> {state.result.research.fit.reason}
+      <div className={styles.work}>
+        {lead ? (
+          <article className={styles.leadCard} aria-label="The lead">
+            <p className={styles.leadMeta}>
+              <strong>{lead.name}</strong>, {lead.role} at {lead.company}
+              <span className="num"> · arrived {lead.arrived}</span>
             </p>
-
-            <div className={styles.draft}>
-              <p className="eyebrow">Draft for your approval</p>
-              <label className={styles.field}>
-                <span className={styles.label}>Subject</span>
-                <input
-                  value={subject}
-                  onChange={(event) => setSubject(event.target.value)}
-                  disabled={decided !== null}
-                />
-              </label>
-              <label className={styles.field}>
-                <span className={styles.label}>Message</span>
-                <textarea
-                  value={body}
-                  onChange={(event) => setBody(event.target.value)}
-                  rows={8}
-                  disabled={decided !== null}
-                />
-              </label>
-              {state.result.research.open_questions.length ? (
-                <div className={styles.questions}>
-                  <p className={styles.label}>Check before sending</p>
-                  <ul>
-                    {state.result.research.open_questions.map((question) => (
-                      <li key={question}>{question}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-              {decided ? (
-                <p className={styles.decided}>
-                  {decided === "Approved"
-                    ? "Approved and logged. In a real setup this goes to the rep's outbox and the CRM records the activity; here nothing is sent."
-                    : "Rejected and logged. The reason feeds the next version of the prompt."}
+            <p className={styles.record}>
+              <span className={styles.label}>CRM record:</span> {lead.record}
+            </p>
+            <blockquote className={styles.message}>{lead.message}</blockquote>
+            {state.kind === "idle" ? (
+              <div className={styles.go}>
+                <button type="button" className="button" data-variant="primary" onClick={handle}>
+                  Let the agent handle it
+                </button>
+                <p className={styles.small}>
+                  By hand: about {TEAM.manualMinutes} minutes of a rep's time, and in the simulator
+                  a lead waits {formatHours(worth.manualWaitHours)} for a first reply.
                 </p>
-              ) : (
-                <div className={styles.actions}>
-                  <button
-                    type="button"
-                    className="button"
-                    data-variant="primary"
-                    onClick={() => decide("Approved")}
-                  >
-                    Approve
-                  </button>
-                  <button type="button" className="button" onClick={() => decide("Rejected")}>
-                    Reject
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <dl className={styles.stats}>
-              <div>
-                <dt>Time</dt>
-                <dd className="num">{state.result.seconds} s</dd>
               </div>
-              <div>
-                <dt>Searches</dt>
-                <dd className="num">{state.result.usage.searches}</dd>
-              </div>
-              <div>
-                <dt>Tokens</dt>
-                <dd className="num">
-                  {(
-                    state.result.usage.inputTokens + state.result.usage.outputTokens
-                  ).toLocaleString("en-US")}
-                </dd>
-              </div>
-              <div>
-                <dt>Cost</dt>
-                <dd className="num">${state.result.costUsd.toFixed(3)}</dd>
-              </div>
-              <div>
-                <dt>Unsourced claims removed</dt>
-                <dd className="num">{state.result.removedSignals}</dd>
-              </div>
-            </dl>
+            ) : null}
           </article>
-        ) : null}
+        ) : (
+          <form className={styles.leadCard} onSubmit={submitOwn}>
+            <p className={styles.leadMeta}>
+              <strong>Write a lead as a prospect would.</strong> In English or Spanish; the agent
+              answers in the same language.
+            </p>
+            <div className={styles.row}>
+              <label className={styles.field}>
+                <span className={styles.label}>Your name (optional)</span>
+                <input
+                  value={own.name}
+                  onChange={(event) => setOwn({ ...own, name: event.target.value })}
+                  maxLength={60}
+                />
+              </label>
+              <label className={styles.field}>
+                <span className={styles.label}>Company (optional)</span>
+                <input
+                  value={own.company}
+                  onChange={(event) => setOwn({ ...own, company: event.target.value })}
+                  maxLength={80}
+                />
+              </label>
+            </div>
+            <label className={styles.field}>
+              <span className={styles.label}>Message</span>
+              <textarea
+                value={own.message}
+                onChange={(event) => setOwn({ ...own, message: event.target.value })}
+                placeholder="For example: we have 30 reps on Salesforce and deals go quiet without anyone noticing. Can we see a demo next week?"
+                minLength={15}
+                maxLength={600}
+                rows={4}
+                required
+              />
+            </label>
+            <div className={styles.go}>
+              <button
+                type="submit"
+                className="button"
+                data-variant="primary"
+                disabled={state.kind === "running"}
+              >
+                Run the agent live
+              </button>
+              <p className={styles.small}>
+                A real call to the Claude API, about 2 US cents. Five runs an hour per visitor.
+                Nothing is ever sent.
+              </p>
+            </div>
+          </form>
+        )}
+
+        <div className={styles.output} aria-live="polite">
+          {state.kind === "running" ? (
+            <ol className={styles.progress} aria-label="Agent progress">
+              {STEPS.map((label, index) => (
+                <li
+                  key={label}
+                  data-state={
+                    index < state.step ? "done" : index === state.step ? "active" : "waiting"
+                  }
+                >
+                  {label}
+                </li>
+              ))}
+            </ol>
+          ) : null}
+
+          {state.kind === "error" ? <p className={styles.error}>{state.message}</p> : null}
+
+          {state.kind === "done" ? (
+            <article className={styles.result} aria-label="What the agent did">
+              <ul className={styles.tags} aria-label="Triage">
+                <li>{INTENT[state.run.triage.intent]}</li>
+                <li data-urgent={state.run.triage.urgency === "today" || undefined}>
+                  {URGENCY[state.run.triage.urgency]}
+                </li>
+                <li className="num">Fit {state.run.triage.fit.score}/100</li>
+              </ul>
+              <p className={styles.reason}>{state.run.triage.fit.reason}</p>
+
+              <div className={styles.route}>
+                <p className="eyebrow">Routed to</p>
+                <p className={styles.owner}>
+                  {OWNERS[state.run.triage.route.owner].name}{" "}
+                  <span className={styles.queue}>
+                    · {OWNERS[state.run.triage.route.owner].queue}
+                  </span>
+                </p>
+                <p className={styles.reason}>{state.run.triage.route.reason}</p>
+              </div>
+
+              <div className={styles.draft}>
+                <p className="eyebrow">Reply for the owner to approve</p>
+                <label className={styles.field}>
+                  <span className={styles.label}>Subject</span>
+                  <input
+                    value={subject}
+                    onChange={(event) => setSubject(event.target.value)}
+                    disabled={decided !== null}
+                  />
+                </label>
+                <label className={styles.field}>
+                  <span className={styles.label}>Message</span>
+                  <textarea
+                    value={body}
+                    onChange={(event) => setBody(event.target.value)}
+                    rows={7}
+                    disabled={decided !== null}
+                  />
+                </label>
+                {state.run.triage.checks.length ? (
+                  <div>
+                    <p className={styles.label}>Check before sending</p>
+                    <ul className={styles.checks}>
+                      {state.run.triage.checks.map((check) => (
+                        <li key={check}>{check}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+                {decided ? (
+                  <p className={styles.decided}>
+                    {decided === "Approved"
+                      ? "Approved and logged. In a real setup the reply goes out from the owner's inbox and the note lands in the CRM; here nothing is sent."
+                      : "Rejected and logged. Rejections are reviewed every week to improve the instructions."}
+                  </p>
+                ) : (
+                  <div className={styles.actions}>
+                    <button
+                      type="button"
+                      className="button"
+                      data-variant="primary"
+                      onClick={() => decide("Approved")}
+                    >
+                      Approve
+                    </button>
+                    <button type="button" className="button" onClick={() => decide("Rejected")}>
+                      Reject
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <p className={styles.crm}>
+                <span className={styles.label}>CRM note:</span> {state.run.triage.crm_note}
+              </p>
+
+              <dl className={styles.compare}>
+                <div>
+                  <dt>By hand</dt>
+                  <dd>
+                    <span className="num">{TEAM.manualMinutes} min</span> of work, first reply after{" "}
+                    <span className="num">{formatHours(worth.manualWaitHours)}</span>
+                  </dd>
+                </div>
+                <div data-good>
+                  <dt>This agent</dt>
+                  <dd>
+                    <span className="num">{state.run.seconds} s</span> and{" "}
+                    <span className="num">${state.run.costUsd.toFixed(3)}</span>, then about a
+                    minute for a person to approve
+                  </dd>
+                </div>
+              </dl>
+              <p className={styles.small}>
+                {state.source === "recorded"
+                  ? `A recorded run of this agent${recordedOn ? ` on ${recordedOn}` : ""}, replayed so it costs nothing to watch.`
+                  : "A live run, just now."}{" "}
+                Model {state.run.model}; {state.run.usage.inputTokens.toLocaleString("en-US")}{" "}
+                tokens in, {state.run.usage.outputTokens.toLocaleString("en-US")} out.
+              </p>
+            </article>
+          ) : null}
+        </div>
 
         {log.length ? (
           <section className={styles.log} aria-label="Approval log">
             <p className="eyebrow">Approval log, this visit</p>
             <ul>
               {log.map((entry) => (
-                <li key={`${entry.at}-${entry.company}-${entry.decision}`}>
-                  <span className="num">{entry.at}</span> {entry.decision}: {entry.company}
+                <li key={`${entry.at}-${entry.who}-${entry.decision}-${entry.edited}`}>
+                  <span className="num">{entry.at}</span> {entry.decision}: {entry.who} →{" "}
+                  {entry.owner}
                   {entry.edited ? " (edited by a person)" : " (as drafted)"}
                 </li>
               ))}

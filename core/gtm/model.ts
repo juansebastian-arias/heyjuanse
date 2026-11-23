@@ -250,6 +250,8 @@ export const TEAM = {
   signalNeed: 0.4,
   /** How much a nurture email track converts, compared with a rep's first touch. */
   nurtureShare: 0.15,
+  /** Share of opportunities that close, used only to turn pipeline into revenue. */
+  winRate: 0.25,
   /** The working day, in hours. */
   dayStart: 9,
   dayEnd: 18,

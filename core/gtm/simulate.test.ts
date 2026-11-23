@@ -1,6 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { compareMotions, decide, plan } from "./decide";
+import { compareMotions, decide, plan, valuePlan } from "./decide";
 import {
   ALL_OFF,
   ALL_ON,
@@ -156,5 +156,25 @@ describe("a visitor's own numbers", () => {
       ),
       { numRuns: 15 },
     );
+  });
+});
+
+describe("money per improvement", () => {
+  it("adds up step by step to the whole plan", () => {
+    for (const motion of MOTION_IDS) {
+      const p = plan(motion, ALL_OFF);
+      const value = valuePlan(p);
+      const last = p.steps.at(-1)?.result ?? p.start;
+      expect(value.steps).toHaveLength(p.steps.length);
+      expect(value.total.meetingsPerQuarter).toBe(last.meetings - p.start.meetings);
+      expect(value.total.pipelinePerQuarter).toBeCloseTo(last.pipeline - p.start.pipeline, 6);
+      expect(value.total.revenuePerYear).toBeCloseTo(
+        (last.pipeline - p.start.pipeline) * TEAM.winRate * 4,
+        6,
+      );
+      for (const step of value.steps) {
+        expect(step.netPerYear).toBeCloseTo(step.revenuePerYear - step.costPerYear, 6);
+      }
+    }
   });
 });

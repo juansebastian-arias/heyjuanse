@@ -409,3 +409,15 @@
     font-size: 0.9375rem;
   }
 }
+
+.worth {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.worthTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.3;
+}

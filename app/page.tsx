@@ -2,10 +2,13 @@ import Link from "next/link";
 import { ContactLinks } from "@/components/ContactLinks";
 import { AgentDemo } from "@/components/gtm/AgentDemo";
 import { Diagnose } from "@/components/gtm/Diagnose";
+import { formatMoney, formatSigned } from "@/components/gtm/format";
 import { HeroEngine } from "@/components/gtm/HeroEngine";
 import { Simulator } from "@/components/gtm/Simulator";
 import { PLAYBOOKS } from "@/content/playbooks";
-import { AUTOMATIONS } from "@/core/gtm/model";
+import { plan, valuePlan } from "@/core/gtm/decide";
+import { ALL_OFF, AUTOMATIONS } from "@/core/gtm/model";
+import { simulate } from "@/core/gtm/simulate";
 import { SITE } from "@/site.config";
 import styles from "./page.module.css";
 
@@ -25,6 +28,17 @@ const PROOF = [
     what: "CRM, automation and AI systems for clients: a healthcare CRM and operations system that runs in production, and lead and workflow automation for real estate.",
   },
 ];
+
+const manualInbound = simulate("inbound", ALL_OFF);
+const inboundValue = valuePlan(plan("inbound", ALL_OFF));
+// The agent does two of the simulator's improvements: instant routing and AI drafts.
+const agentSteps = inboundValue.steps.filter(
+  (step) => step.automation === "instantRouting" || step.automation === "aiDrafts",
+);
+const agentValue = {
+  meetings: agentSteps.reduce((sum, step) => sum + step.meetingsPerQuarter, 0),
+  revenue: agentSteps.reduce((sum, step) => sum + step.revenuePerYear, 0),
+};
 
 export default function Home() {
   return (
@@ -92,12 +106,20 @@ export default function Home() {
 
       <section className={`page ${styles.section}`} id="agent" aria-labelledby="agent-title">
         <header className={styles.sectionHeader}>
-          <p className="eyebrow">Live AI agent</p>
+          <p className="eyebrow">AI agent · real runs</p>
           <h2 id="agent-title" className={styles.sectionTitle}>
-            An agent that researches a real company and drafts the first message. You approve it.
+            A new lead, answered in seconds. A person approves.
           </h2>
+          <p className={styles.sectionLede}>
+            Pick a lead from the inbox. The agent works out what they want, scores the fit, routes
+            it to the right rep and drafts the reply and the CRM note. In the simulator, answering
+            every inbound lead this way adds{" "}
+            <strong className="num">{formatSigned(agentValue.meetings)}</strong> meetings a quarter,
+            about <strong className="num">{formatMoney(agentValue.revenue)}</strong> in sales a
+            year.
+          </p>
         </header>
-        <AgentDemo />
+        <AgentDemo worth={{ manualWaitHours: manualInbound.medianHoursToTouch }} />
       </section>
 
       <section

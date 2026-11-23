@@ -1,0 +1,54 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.total {
+  font-size: 1.0625rem;
+  line-height: 1.45;
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.table thead th {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom-color: var(--rule-strong);
+}
+
+.table tbody th {
+  font-weight: 600;
+}
+
+.right {
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+.strong {
+  font-weight: 700;
+}
+
+.note {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--muted);
+}

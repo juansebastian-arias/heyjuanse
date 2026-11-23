@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { compareMotions, decide, type Move } from "@/core/gtm/decide";
+import { compareMotions, decide, type Move, plan, valuePlan } from "@/core/gtm/decide";
 import {
   ALL_OFF,
   ALL_ON,
@@ -19,6 +19,7 @@ import { DecisionPath, type PathStep } from "./DecisionPath";
 import { FlowDiagram } from "./FlowDiagram";
 import { formatHours, formatMoney, formatSigned, formatSignedMoney } from "./format";
 import styles from "./Simulator.module.css";
+import { ValueTable } from "./ValueTable";
 import { WeeklyChart } from "./WeeklyChart";
 
 function moveLabel(move: Move): string {
@@ -34,6 +35,7 @@ export function Simulator() {
 
   const decision = useMemo(() => decide(motion, automations), [motion, automations]);
   const motions = useMemo(() => compareMotions(automations), [automations]);
+  const worth = useMemo(() => valuePlan(plan(motion, ALL_OFF)), [motion]);
   const { current, baseline, next, moves, contributions } = decision;
   const isManual = AUTOMATION_IDS.every((id) => !automations[id]);
   const top = contributions[0];
@@ -242,6 +244,13 @@ export function Simulator() {
             )}
             {log.length && start ? <DecisionPath start={start} steps={log} /> : null}
           </div>
+
+          <section className={styles.worth} aria-labelledby="worth-title">
+            <h3 id="worth-title" className={styles.worthTitle}>
+              What each improvement is worth, in dollars
+            </h3>
+            <ValueTable value={worth} label="Dollar value of each improvement" />
+          </section>
 
           <FlowDiagram result={current} automations={automations} />
           <WeeklyChart current={current.weeklyMeetings} manual={baseline.weeklyMeetings} />

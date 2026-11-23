@@ -9,6 +9,7 @@ import {
   type Automations,
   MOTION_IDS,
   type MotionId,
+  TEAM,
 } from "./model";
 import { type Custom, type SimResult, simulate } from "./simulate";
 
@@ -94,4 +95,56 @@ export function plan(motion: MotionId, from: Automations, custom: Custom = {}): 
     steps.push({ move, result: decision.current });
   }
   return { start, steps };
+}
+
+/** What one improvement in a plan is worth, per year, in US dollars. */
+export interface StepValue {
+  automation: AutomationId;
+  meetingsPerQuarter: number;
+  pipelinePerQuarter: number;
+  /** Extra pipeline that closes, at the team's win rate, over four quarters. */
+  revenuePerYear: number;
+  /** Change in tools plus rep time, over four quarters. Negative means it saves money. */
+  costPerYear: number;
+  netPerYear: number;
+}
+
+export interface PlanValue {
+  steps: StepValue[];
+  total: Omit<StepValue, "automation">;
+}
+
+/** The simulated quarter is 90 days; a year is counted as four of them. */
+const QUARTERS_PER_YEAR = 4;
+
+/** Put a dollar figure on each step of a plan, from the same simulation runs. */
+export function valuePlan(p: Plan): PlanValue {
+  let previous = p.start;
+  const steps = p.steps.map(({ move, result }): StepValue => {
+    const pipeline = result.pipeline - previous.pipeline;
+    const revenuePerYear = pipeline * TEAM.winRate * QUARTERS_PER_YEAR;
+    const costPerYear = (result.totalCost - previous.totalCost) * QUARTERS_PER_YEAR;
+    const value = {
+      automation: move.automation,
+      meetingsPerQuarter: result.meetings - previous.meetings,
+      pipelinePerQuarter: pipeline,
+      revenuePerYear,
+      costPerYear,
+      netPerYear: revenuePerYear - costPerYear,
+    };
+    previous = result;
+    return value;
+  });
+  const sum = (key: keyof Omit<StepValue, "automation">) =>
+    steps.reduce((total, step) => total + step[key], 0);
+  return {
+    steps,
+    total: {
+      meetingsPerQuarter: sum("meetingsPerQuarter"),
+      pipelinePerQuarter: sum("pipelinePerQuarter"),
+      revenuePerYear: sum("revenuePerYear"),
+      costPerYear: sum("costPerYear"),
+      netPerYear: sum("netPerYear"),
+    },
+  };
 }
