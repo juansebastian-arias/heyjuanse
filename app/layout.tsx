@@ -40,6 +40,7 @@ export const metadata: Metadata = {
     siteName: SITE.name,
     type: "website",
   },
+  twitter: { card: "summary_large_image", title, description: SITE.description },
 };
 
 export const viewport: Viewport = {

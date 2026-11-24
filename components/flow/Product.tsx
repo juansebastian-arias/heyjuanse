@@ -214,8 +214,9 @@ export function Product({ initial, tests, repository }: ProductProps) {
 
       <p className={styles.bridge}>
         Larkspur is made up; the method is not. At a real company it starts from the timestamps a
-        CRM and a billing system already keep: when each request arrived, when someone picked it up,
-        and when it was paid or lost.{" "}
+        CRM such as HubSpot or Zoho and a billing system already keep, and the fixes go into tools
+        the company already has: n8n, Make or Zapier, SQL and Python, and Claude where a step needs
+        judgment, with a person approving.{" "}
         <Link href="/engine#company">The same work, in five steps</Link>
       </p>
     </div>

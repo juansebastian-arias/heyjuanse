@@ -35,6 +35,11 @@ test.describe("the first screen", () => {
       "Find where this company loses its customers. Then fix it.",
     );
     await expect(page).toHaveTitle(/Juan Sebastián Arias/);
+    // Whose site it is, and what they work on, before anything else.
+    await expect(page.getByRole("banner")).toContainText(
+      "Juan Sebastián AriasRevenue operations, automation and AI",
+    );
+    await expect(page.getByRole("banner").getByText("Revenue operations")).toBeInViewport();
     // The one thing to do is whole on the first screen, on a desktop and on a phone.
     await expect(moveBar(page)).toBeInViewport({ ratio: 1 });
     await expect(moveBar(page).getByRole("button", { name: "Make this change" })).toBeVisible();
