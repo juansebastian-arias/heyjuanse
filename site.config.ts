@@ -4,11 +4,14 @@
  */
 export const SITE = {
   name: "Juan Sebastián Arias",
-  url: "https://heyjuanse.com",
+  /** The primary address. The bare domain redirects here, so link previews skip a redirect. */
+  url: "https://www.heyjuanse.com",
   /** What the site is, for the browser tab, search results and link previews. */
   tagline: "A company you can watch, question and fix",
   description:
     "A working model of a company: watch customer requests move from first message to paid invoice, find where buyers give up waiting, and test which change is worth making. Simulated live, on made-up data.",
+  /** What the person works on, next to the name at the top of every page. */
+  role: "Revenue operations, automation and AI",
   /** The one sentence about the person behind it. */
   positioning:
     "I find where a business loses time and customers, and I build the rules, automations and AI steps that fix it.",

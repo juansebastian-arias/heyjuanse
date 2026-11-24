@@ -2,7 +2,10 @@ import Link from "next/link";
 import { SITE } from "@/site.config";
 import styles from "./SiteHeader.module.css";
 
-/** A name, a way in to how the thing is built, and a way to reach its author. Nothing else. */
+/**
+ * A name and what its owner works on, a way in to how the thing is built, and a way to reach its
+ * author. Nothing else.
+ */
 export function SiteHeader() {
   return (
     <header className={styles.header}>
@@ -10,6 +13,7 @@ export function SiteHeader() {
         <Link href="/" className={styles.wordmark}>
           {SITE.name}
         </Link>
+        <p className={styles.role}>{SITE.role}</p>
         <nav aria-label="Main" className={styles.nav}>
           <Link href="/engine" className={styles.link}>
             How it is built

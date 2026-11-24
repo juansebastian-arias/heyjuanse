@@ -179,6 +179,20 @@ test.describe("the server", () => {
     }
   });
 
+  test("gives a shared link a card with a picture", async ({ request }) => {
+    const html = await (await request.get("/")).text();
+    const meta = (key: string) =>
+      html.match(new RegExp(`<meta (?:property|name)="${key}" content="([^"]+)"`))?.[1];
+    expect(meta("twitter:card")).toBe("summary_large_image");
+    expect(meta("og:image:alt")).toContain("Juan Sebastián Arias");
+    const image = meta("og:image");
+    expect(image).toBeTruthy();
+    const response = await request.get(new URL(image ?? "", "http://x").pathname);
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toBe("image/png");
+    expect((await response.body()).byteLength).toBeGreaterThan(10_000);
+  });
+
   test("sends the addresses of the old site to the new one", async ({ request }) => {
     const moved: Array<[string, string]> = [
       ["/work", "/"],

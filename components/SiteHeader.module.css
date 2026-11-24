@@ -27,9 +27,38 @@
   text-decoration: underline;
 }
 
+/* Beside the name on a wide screen, and on its own line under the name and the links on a narrow one. */
+.role {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-left: 14px;
+  border-left: 1px solid var(--rule-strong);
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+
 .nav {
   display: flex;
   gap: 0 22px;
+}
+
+@media (max-width: 760px) {
+  .wordmark {
+    padding-bottom: 2px;
+  }
+
+  .role {
+    order: 3;
+    flex-basis: 100%;
+    padding: 0 0 10px;
+    border-left: 0;
+    font-size: 0.8125rem;
+  }
+
+  .nav .link {
+    padding-bottom: 2px;
+  }
 }
 
 .link {
